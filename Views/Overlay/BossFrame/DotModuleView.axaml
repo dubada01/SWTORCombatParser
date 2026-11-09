@@ -12,7 +12,7 @@
         <ItemsControl IsVisible="{Binding PersonalDOTSAreEnabled}" ItemsSource="{Binding ActiveDOTS}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <local:RaidDotInstance Height="{Binding BarHeight}"/>
+                    <local:RaidDotInstance/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl> 

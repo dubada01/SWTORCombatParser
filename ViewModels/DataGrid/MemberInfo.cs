@@ -1,4 +1,4 @@
-﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
@@ -7,159 +7,76 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Linq;
 using Avalonia.Controls;
+using ReactiveUI;
 using Avalonia.Media;
 using Avalonia.Media.Imaging;
 using SWTORCombatParser.Utilities.Converters;
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {
-    public class MemberInfoViewModel
+    public class MemberInfoViewModel : ReactiveObject
     {
-        private SolidColorBrush _evenRow = (SolidColorBrush)App.Current.FindResource("Gray3Brush");
-        private SolidColorBrush _oddRow = (SolidColorBrush)App.Current.FindResource("Gray4Brush");
         private string valueStringFormat = "#,##0";
         private string floatValueString = "0.00";
         public Entity _entity;
         private Combat? _info;
         private SWTORClass _playerClass;
-        private readonly OverlayTypeToReadableNameConverter _nameConverter;
+        private Bitmap _classIcon;
 
         public MemberInfoViewModel(int order, Entity e, Combat info, List<OverlayType> selectedColumns)
         {
-            _nameConverter = new OverlayTypeToReadableNameConverter();
-            _info = info;
             _entity = e;
-
-            StatsSlots = new ObservableCollection<StatsSlotViewModel>(selectedColumns.Select(i => new StatsSlotViewModel(i, entity: _entity) { Value = GetValue(i) }));
-            if (_entity != null)
-            {
-                IsLocalPlayer = e.IsLocalPlayer;
-                _playerClass = GetClassForEntity(info, _entity);
-                StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, _entity.Name, _playerClass.Discipline, IsLocalPlayer, _entity));
-            }
-            else
-            {
-                IsTotalsRow = true;
-                StatsSlots.Insert(0, new StatsSlotViewModel(OverlayType.None, "Totals"));
-            }
-            if (selectedColumns.Count < 10)
-                StatsSlots.Add(new StatsSlotViewModel(OverlayType.None) { Value = "" });
+            IsTotalsRow = e == null;
+            StatsSlots.Add(new StatsSlotViewModel(OverlayType.None, IsTotalsRow ? "Totals" : e.Name,
+                entity: e) { Header = "Name" });
+            Update(info, selectedColumns, e);
         }
 
-        public void Update(Combat newInfo, List<OverlayType> selectedColumns)
+        public void Update(Combat newInfo, List<OverlayType> selectedColumns, Entity entity = null)
         {
+            var previousName = PlayerName;
+            var previousClass = ClassName;
+            var wasLocal = IsLocalPlayer;
             _info = newInfo;
-            if (_entity != null)
+            if (entity != null) _entity = entity;
+            IsLocalPlayer = _entity?.IsLocalPlayer == true;
+            _playerClass = _entity == null ? null : GetClassForEntity(newInfo, _entity);
+            var nameSlot = StatsSlots[0];
+            nameSlot.Value = PlayerName;
+            // Icons load asynchronously; retry the lookup even if the discipline
+            // is unchanged, then notify only when the actual bitmap changes.
+            nameSlot.UpdateIcon(_playerClass?.Discipline);
+            this.RaiseAndSetIfChanged(ref _classIcon, nameSlot.RoleIcon ?? IconFactory._unknownIcon, nameof(ClassIcon));
+            if (PlayerName != previousName) this.RaisePropertyChanged(nameof(PlayerName));
+            if (ClassName != previousClass) this.RaisePropertyChanged(nameof(ClassName));
+            if (PlayerName != previousName || ClassName != previousClass)
+                this.RaisePropertyChanged(nameof(PlayerSummary));
+            if (IsLocalPlayer != wasLocal) this.RaisePropertyChanged(nameof(NameForeground));
+
+            // Reconcile the selected metrics without replacing existing slots.
+            foreach (var slot in StatsSlots.Skip(1).Where(slot => !selectedColumns.Contains(slot.OverlayType)).ToList())
+                StatsSlots.Remove(slot);
+            for (var i = 0; i < selectedColumns.Count; i++)
             {
-                IsTotalsRow = false;
-                IsLocalPlayer = _entity.IsLocalPlayer;
-                var currentClass = GetClassForEntity(newInfo, _entity);
-                var classChanged = false;
-                if (currentClass != _playerClass)
+                var type = selectedColumns[i];
+                var slot = StatsSlots.Skip(1).FirstOrDefault(slot => slot.OverlayType == type);
+                if (slot == null)
                 {
-                    _playerClass = currentClass;
-                    classChanged = true;
+                    slot = new StatsSlotViewModel(type, entity: _entity);
+                    StatsSlots.Insert(i + 1, slot);
                 }
-
-
-                foreach (var column in selectedColumns)
-                {
-                    if (!StatsSlots.Any(s =>
-                            s.Header == _nameConverter.Convert(column, null, null,
-                                System.Globalization.CultureInfo.InvariantCulture).ToString()))
-                    {
-                        StatsSlots.Insert(selectedColumns.IndexOf(column),
-                            new StatsSlotViewModel(column, entity: _entity) { Value = GetValue(column) });
-                    }
-                }
-
-                for (var columnIndex = 0; columnIndex < StatsSlots.Count; columnIndex++)
-                {
-                    var column = StatsSlots[columnIndex];
-                    if (column.Header != "Name" && selectedColumns.All(c => column.OverlayType != c))
-                    {
-                        StatsSlots.Remove(column);
-                    }
-                    else
-                    {
-                        if (column.Header == "Name" && classChanged)
-                            column.UpdateIcon(_playerClass.Discipline);
-                        column.Value = GetValue(column.OverlayType);
-                    }
-                }
+                else if (StatsSlots.IndexOf(slot) != i + 1)
+                    StatsSlots.Move(StatsSlots.IndexOf(slot), i + 1);
+                slot.Value = GetValue(type);
             }
-
-            // ──────────────────────────────────────────────────────────────
-//  RE-ORDER existing slots to match selectedColumns
-//  (keep index 0 for the "Name" column, ignore padding slots)
-// ──────────────────────────────────────────────────────────────
-            void ReorderSlots()
-            {
-                // 1.  Build a quick lookup of where each OverlayType *should* live
-                //     desiredIndex = 1 + position in selectedColumns
-                var targetIndexByType = selectedColumns
-                    .Select((c, i) => (c, idx: i + 1)) // +1 because 0 = Name
-                    .ToDictionary(t => t.c, t => t.idx);
-
-                // 2.  Walk the collection once and move misplaced items
-                //     ObservableCollection<T> has a built-in Move()
-                for (int cur = 1; cur < StatsSlots.Count; cur++) // skip Name at 0
-                {
-                    var slot = StatsSlots[cur];
-                    if (slot.OverlayType == OverlayType.None) // ignore padding
-                        continue;
-
-                    var want = targetIndexByType.TryGetValue(slot.OverlayType, out var idx)
-                        ? idx
-                        : -1; // -1 ⇒ no longer selected
-
-                    if (want == -1)
-                        continue; // removal handled above
-
-                    if (cur != want)
-                    {
-                        // ObservableCollection<T>.Move keeps change notifications concise
-                        if (StatsSlots is ObservableCollection<StatsSlotViewModel> oc)
-                            oc.Move(cur, want);
-                        else
-                        {
-                            // fallback for plain List<T>
-                            StatsSlots.RemoveAt(cur);
-                            StatsSlots.Insert(want, slot);
-                        }
-
-                        // we just moved 'slot' to 'want'; adjust loop index
-                        // so the element that was at 'want' isn’t skipped
-                        if (cur < want)
-                            cur--;
-                    }
-                }
-            }
-
-// call it right before you pad with blanks / exit the method:
-            ReorderSlots();
-
-// keep your existing padding logic
-            if (selectedColumns.Count < 10)
-                StatsSlots.Add(new StatsSlotViewModel(OverlayType.None) { Value = "" });
-            if (selectedColumns.Count < 10)
-                StatsSlots.Add(new StatsSlotViewModel(OverlayType.None) { Value = "" });
         }
-
         public bool IsTotalsRow { get; set; }
     
         public bool IsLocalPlayer { get; set; }
-        public string PlayerName => _entity?.Name;
-        public Bitmap ClassIcon
-        {
-            get
-            {
-                var classIcon = StatsSlots.FirstOrDefault(s => s.Header == "Name")?.RoleIcon;
-                if (classIcon != null)
-                    return classIcon;
-                return IconFactory._unknownIcon;
-            }
-        }
+        public string PlayerName => _entity?.Name ?? "Total";
+        public IBrush NameForeground => IsLocalPlayer ? Brushes.Goldenrod : Brushes.WhiteSmoke;
+        public string PlayerSummary => IsTotalsRow ? "Raid total" : $"Player: {PlayerName}\nClass: {ClassName}";
+        public Bitmap ClassIcon => _classIcon;
 
         public string ClassName => _playerClass?.Name + "/" + _playerClass?.Discipline;
 

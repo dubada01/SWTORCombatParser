@@ -12,6 +12,7 @@ Please reach out to me on Discord @Zarnuro if you have any questions, would like
 
 # New in version 2.0.x
 - Cross-platform support. The application now runs on Windows, MacOS, and Linux.
+  See [Linux/macOS setup and overlay compatibility](PLATFORM-SUPPORT.txt), including KDE Plasma X11 and Wayland guidance.
 - Complete overhaul of the UI. The UI is now more user-friendly and easier to navigate.
 - Added the ability to open a combat log file at a specific line number using notepad++. Simply use the Log Review window, and click on the timestamp of the log you want to review. It'll open notepad++ and take you directly to the line you clicked in Orbs.
 - Direct integration to Orbs-Stats.com. You can now view the leaderboard for a given encounter by right-clicking on the encounter in the Battles list.

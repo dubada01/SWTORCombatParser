@@ -99,9 +99,13 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
         private async void Import(object obj)
         {
+            if (string.IsNullOrWhiteSpace(ImportId))
+                return;
+            var source = SelectedSource;
             var challenge = await ChallengeDatabaseAccess.GetChallengeFromId(ImportId);
             if (challenge == null)
                 return;
+            challenge.Source = source;
             NewChallenge(challenge, false);
         }
         private async void Share(ChallengeRowViewModel obj)
@@ -130,18 +134,13 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 var vm = new ChallengeModificationViewModel(SelectedSource);
                 vm.OnNewChallenge += NewChallenge;
                 var t = new ChallengeModificationView(vm);
-                t.ShowDialog(desktop.MainWindow);
+                t.ShowDialog(EditorDialogOwner.For(this));
             }
         }
 
         private void CancelEdit(Challenge editedChallenge)
         {
-            var addedBack = new ChallengeRowViewModel() { SourceChallenge = editedChallenge, IsEnabled = editedChallenge.IsEnabled };
-            addedBack.EditRequested += Edit;
-            addedBack.ShareRequested += Share;
-            addedBack.DeleteRequested += Delete;
-            ChallengeRows.Add(addedBack);
-            UpdateRowColors();
+            UpdateChallengeRows();
         }
 
         private void NewChallenge(Challenge obj, bool wasEdit)
@@ -149,17 +148,12 @@ namespace SWTORCombatParser.ViewModels.Challenges
             if (wasEdit)
                 DefaultChallengeManager.RemoveChallengeFromSource(_challengeEdited);
             SaveNewTimer(obj);
-            var newTimer = new ChallengeRowViewModel() { SourceChallenge = obj, IsEnabled = obj.IsEnabled };
-            newTimer.EditRequested += Edit;
-            newTimer.ShareRequested += Share;
-            newTimer.DeleteRequested += Delete;
-            ChallengeRows.Add(newTimer);
-            UpdateRowColors();
+            UpdateChallengeRows();
             _challengeWindowViewModel.RefreshChallenges();
         }
         private void SaveNewTimer(Challenge timer)
         {
-            DefaultChallengeManager.AddChallengesToSource(new List<Challenge>() { timer }, SelectedSource);
+            DefaultChallengeManager.AddChallengesToSource(new List<Challenge>() { timer }, timer.Source);
         }
         public void UpdateLock(bool state)
         {
@@ -209,7 +203,6 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private void Edit(ChallengeRowViewModel obj)
         {
             _challengeEdited = obj.SourceChallenge;
-            ChallengeRows.Remove(obj);
             var vm = new ChallengeModificationViewModel(SelectedSource);
             vm.OnNewChallenge += NewChallenge;
             vm.OnCancelEdit += CancelEdit;
@@ -217,11 +210,12 @@ namespace SWTORCombatParser.ViewModels.Challenges
             {
                 var t = new ChallengeModificationView(vm);
                 vm.Edit(_challengeEdited);
-                t.ShowDialog(desktop.MainWindow);
+                t.ShowDialog(EditorDialogOwner.For(this));
             }
         }
         private void ActiveChanged(ChallengeRowViewModel timerRow)
         {
+            timerRow.SourceChallenge.IsEnabled = timerRow.IsEnabled;
             DefaultChallengeManager.SetChallengeEnabled(timerRow.IsEnabled, timerRow.SourceChallenge);
             _challengeWindowViewModel.RefreshChallenges();
         }

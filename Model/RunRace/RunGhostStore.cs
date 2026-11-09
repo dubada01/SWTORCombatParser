@@ -14,8 +14,8 @@ public sealed class RunGhostStore
     private readonly object _gate = new();
     private List<RunGhost>? _runs;
 
-    public RunGhostStore(string? path = null) => _path = path ?? Path.Combine(
-        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser", "run_ghosts.json");
+    public RunGhostStore(string? path = null) => _path = path ?? Path.Combine(Utilities.LogLoadDiagnostics.ProfileDataDirectory ?? Path.Combine(
+        Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser"), "run_ghosts.json");
 
     public IReadOnlyList<RunGhost> Read()
     {

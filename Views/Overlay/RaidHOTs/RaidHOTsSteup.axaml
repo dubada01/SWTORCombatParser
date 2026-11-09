@@ -1,38 +1,29 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.RaidHOTs.RaidHOTsSteup"
-             xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay"
-                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.RaidHots"
-                x:DataType="vm:RaidHotsConfigViewModel"
-             mc:Ignorable="d" 
-             d:DesignHeight="200" d:DesignWidth="800">
-    <Grid>
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition/>
-                <RowDefinition/>
-                <RowDefinition/>
-
-            </Grid.RowDefinitions>
-            <Viewbox MaxHeight="35">
-                <TextBlock Foreground="{StaticResource ParticipantHPSBrush}" FontFamily="{StaticResource MainFont}" Text="Raid HOTs"/>
-            </Viewbox>
-
-            <Viewbox MaxHeight="40" Grid.Row="1">
-                <StackPanel Orientation="Horizontal">
-                    <StackPanel Margin="0,0,0,0" Grid.Column="0" Orientation="Vertical" VerticalAlignment="Center" HorizontalAlignment="Center">
-                        <TextBlock Foreground="WhiteSmoke" Text="Increase Sensitivity"/>
-                        <CheckBox HorizontalAlignment="Center" IsChecked="{Binding DecreasedSpecificity}"></CheckBox>
-                    </StackPanel>
-                </StackPanel>
-
-            </Viewbox>
-            <Viewbox MaxHeight="60" Grid.Row="3">
-                <Button Margin="0,15,0,10" Classes="RoundedCorner" Height="75" Width="200" Content="Refresh Players" Background="CornflowerBlue" 
-                        Foreground="WhiteSmoke" FontSize="20" IsEnabled="{Binding CanDetect}" ToolTip.Tip="Hotkey: Ctrl+Alt+R" FontWeight="Bold" FontFamily="{StaticResource MainFont}" Command="{Binding ManuallyRefreshPlayersCommand}"></Button>
-            </Viewbox>
-        </Grid>
-    </Grid>
+<UserControl x:Class="SWTORCombatParser.Views.Overlay.RaidHOTs.RaidHOTsSteup"
+             xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.RaidHots" x:DataType="vm:RaidHotsConfigViewModel">
+    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+        <StackPanel Margin="16" Spacing="14">
+            <Grid ColumnDefinitions="*,Auto">
+                <CheckBox Content="Raid HOTs enabled" IsChecked="{Binding RaidHotsEnabled}"/>
+                <Button Grid.Column="1" Content="{Binding ToggleEditText}" Command="{Binding TogglePositionCommand}"
+                        IsEnabled="{Binding RaidHotsEnabled}" Classes="RoundedCorner DialogAction"
+                        ToolTip.Tip="Drag and resize the grid to match SWTOR's raid frames, then lock it."/>
+            </Grid>
+            <Grid ColumnDefinitions="Auto,65,Auto,65,*" IsEnabled="{Binding RaidHotsEnabled}">
+                <TextBlock Text="Columns" Classes="FieldLabel" Margin="0,0,8,0"/>
+                <NumericUpDown Grid.Column="1" Value="{Binding Overlay.Columns}" Minimum="1" Maximum="24" FormatString="0"/>
+                <TextBlock Grid.Column="2" Text="Rows" Classes="FieldLabel" Margin="16,0,8,0"/>
+                <NumericUpDown Grid.Column="3" Value="{Binding Overlay.Rows}" Minimum="1" Maximum="24" FormatString="0"/>
+            </Grid>
+            <StackPanel Orientation="Horizontal" Spacing="8">
+                <Button Content="Detect names" Command="{Binding ManuallyRefreshPlayersCommand}" IsEnabled="{Binding CanDetect}"
+                        Classes="RoundedCorner PrimaryAction" ToolTip.Tip="Read names from a cropped raid-frame image sent to the detection server. Keep SWTOR visible."/>
+                <Button Content="Assign by click" Command="{Binding Overlay.SetFramesToManualCorrect}" IsEnabled="{Binding RaidHotsEnabled}"
+                        Classes="RoundedCorner DialogAction" ToolTip.Tip="On Windows, click each raid frame in SWTOR while out of combat. Combat logging must be enabled. If a player is already selected, select someone else first."/>
+            </StackPanel>
+            <TextBlock Text="{Binding AlignmentStatus}" TextWrapping="Wrap" Foreground="{StaticResource Gray12Brush}" FontSize="12"/>
+            <CheckBox Content="Allow less exact name matches" IsChecked="{Binding DecreasedSpecificity}"
+                      ToolTip.Tip="Can help with OCR mistakes, but may associate a timer with the wrong player. Leave off unless needed."/>
+        </StackPanel>
+    </ScrollViewer>
 </UserControl>

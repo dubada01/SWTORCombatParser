@@ -1,5 +1,6 @@
 ﻿using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.Phases;
+using SWTORCombatParser.Utilities;
 using SWTORCombatParser.Utilities.Encounter_Selection;
 using SWTORCombatParser.Views.Phases;
 using System;
@@ -62,26 +63,18 @@ namespace SWTORCombatParser.ViewModels.Phases
             if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
             {
                 var t = new PhaseModificationView(vm);
-                t.ShowDialog(desktop.MainWindow);
+                t.ShowDialog(EditorDialogOwner.For(this));
             }
         }
 
         private void CancelEdit(Phase editedChallenge)
         {
-            var addedBack = new PhaseRowViewModel() { SourcePhase = editedChallenge };
-            addedBack.EditRequested += Edit;
-            addedBack.DeleteRequested += Delete;
-            PhaseRows.Add(addedBack);
-            UpdateRowColors();
+            UpdatePhaseRows();
         }
         private void NewPhase(Phase obj)
         {
             DefaultPhaseManager.AddOrUpdatePhase(obj);
-            var newTimer = new PhaseRowViewModel() { SourcePhase = obj };
-            newTimer.EditRequested += Edit;
-            newTimer.DeleteRequested += Delete;
-            PhaseRows.Add(newTimer);
-            UpdateRowColors();
+            UpdatePhaseRows();
             PhasesUpdated();
         }
 
@@ -127,7 +120,6 @@ namespace SWTORCombatParser.ViewModels.Phases
         private void Edit(PhaseRowViewModel obj)
         {
             _phaseEdited = obj.SourcePhase;
-            PhaseRows.Remove(obj);
             var vm = new PhaseModificationViewModel(SelectedSource);
             vm.OnNewPhase += NewPhase;
             vm.OnCancelEdit += CancelEdit;
@@ -135,7 +127,7 @@ namespace SWTORCombatParser.ViewModels.Phases
             {
                 var t = new PhaseModificationView(vm);
                 vm.Edit(_phaseEdited);
-                t.ShowDialog(desktop.MainWindow);
+                t.ShowDialog(EditorDialogOwner.For(this));
             }
         }
         private void UpdateRowColors()

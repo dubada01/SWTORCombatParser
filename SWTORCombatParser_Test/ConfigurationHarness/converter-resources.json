@@ -1,0 +1,150 @@
+[
+  {
+    "Key": "PastCombatSelectedToBackgroundConverter",
+    "Type": "PastCombatSelectedToBackgroundConverter"
+  },
+  {
+    "Key": "LiveParseActiveToButtonTextConverter",
+    "Type": "LiveParseActiveToButtonTextConverter"
+  },
+  {
+    "Key": "RaidGroupToVisibilityConverter",
+    "Type": "RaidGroupToVisibilityConverter"
+  },
+  {
+    "Key": "RoleToImageSourceConverter",
+    "Type": "RoleToImageSourceConverter"
+  },
+  {
+    "Key": "LiveParseToBrushConverter",
+    "Type": "LiveParseActiveToBrushConverter"
+  },
+  {
+    "Key": "OverlayMetricTypeToColorConverter",
+    "Type": "OverlayMetricToColorConverter"
+  },
+  {
+    "Key": "FullOverlayMetricTypeToColorConverter",
+    "Type": "FullOverlayMetricToColorConverter"
+  },
+  {
+    "Key": "OverlayMoveableToVisibilityConverter",
+    "Type": "OverlayMoveableToVisibilityConverter"
+  },
+  {
+    "Key": "OverlayTypeToVisibilityConverter",
+    "Type": "OverlyTypeToVisibilityConverter"
+  },
+  {
+    "Key": "EncounterInfoToPastCombatColorConverter",
+    "Type": "EncounterInfoToPastCombatColorConverter"
+  },
+  {
+    "Key": "EffectSelectedToTextConverter",
+    "Type": "EffectSelectedToTextConverter"
+  },
+  {
+    "Key": "BooleanToVisibiityConverter",
+    "Type": "BooleanToVisibilityConverter"
+  },
+  {
+    "Key": "LiveParseActiveToButtonColorConverter",
+    "Type": "LiveParseActiveToButtonColorConverter"
+  },
+  {
+    "Key": "BooleanToFontStyleConverter",
+    "Type": "BooleanToFontStyleConverter"
+  },
+  {
+    "Key": "ParticipantSelectedToBackgroundConverter",
+    "Type": "ParticipantSelectedToBackgroundConverter"
+  },
+  {
+    "Key": "ParticipantSelectedToBoarderConverter",
+    "Type": "ParticipantSelectedToBorderConverter"
+  },
+  {
+    "Key": "IndexToRowColorConverter",
+    "Type": "IndexToRowColorConverter"
+  },
+  {
+    "Key": "BooleanToHiddenVisibilityConverter",
+    "Type": "BooleanToVisibilityHiddenConverter"
+  },
+  {
+    "Key": "BooleanToRaidBackgroundConverter",
+    "Type": "BooleanToRaidBackgroundConverter"
+  },
+  {
+    "Key": "BooleanToRaidBorderConverter",
+    "Type": "BooleanToRaidBorderConverter"
+  },
+  {
+    "Key": "ValueToPixelGridLengthConverter",
+    "Type": "ValueToPixelGridLengthConverter"
+  },
+  {
+    "Key": "OverlayTypeToShowTotalConverter",
+    "Type": "OverlayTypeToShowTotalConverter"
+  },
+  {
+    "Key": "OverlayScalarToFontSize",
+    "Type": "OverlayScalarToFontSize"
+  },
+  {
+    "Key": "OverlayTypeToReadableNameConverter",
+    "Type": "OverlayTypeToReadableNameConverter"
+  },
+  {
+    "Key": "OpponentInRangeToColorConverter",
+    "Type": "OpponentInRangeToColorConverter"
+  },
+  {
+    "Key": "BooleanToHpBorderConverter",
+    "Type": "BooleanToHpBorderConverter"
+  },
+  {
+    "Key": "MenaceTypeToBrushConverter",
+    "Type": "MenaceTypeToBrushConverter"
+  },
+  {
+    "Key": "LogLatencyToColorConverter",
+    "Type": "LogLatencyToColorConverter"
+  },
+  {
+    "Key": "AbsorbTimerBarVisibilityConverter",
+    "Type": "AbsorbTimerBarVisibilityConverter"
+  },
+  {
+    "Key": "TimerTriggerTypeToNameConverter",
+    "Type": "TimerTriggerTypeToNameConverter"
+  },
+  {
+    "Key": "BooleanToMetricOptionBackgroundConverter",
+    "Type": "BooleanToMetricOptionBackgroundConverter"
+  },
+  {
+    "Key": "BooleanToMetricOptionBorderConverter",
+    "Type": "BooleanToMetricOptionBorderConverter"
+  },
+  {
+    "Key": "HideToHeightConverter",
+    "Type": "HideToHeightConverter"
+  },
+  {
+    "Key": "BooleanToEncounterColorConverter",
+    "Type": "BooleanToEncounterColorConverter"
+  },
+  {
+    "Key": "BooleanToInverseConverter",
+    "Type": "BooleanToInverseBooleanConverter"
+  },
+  {
+    "Key": "WidthToVisiblityConverter",
+    "Type": "WidthToVisiblityConverter"
+  },
+  {
+    "Key": "ContentNullOrEmptyConverter",
+    "Type": "ContentNullOrEmptyConverter"
+  }
+]

@@ -1,64 +1,24 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.Overviews.OverviewView"
-             xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overviews"
-             x:DataType="vm:TableViewModel"
-             xmlns:local="clr-namespace:SWTORCombatParser.Views"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Background="{StaticResource Gray2Brush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="30"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <Viewbox HorizontalAlignment="Left">
-            <StackPanel Orientation="Horizontal">
-                <ComboBox 
-                    ItemsSource="{Binding AvailableParticipants}" 
-                    SelectedItem="{Binding SelectedEntity}" 
-                    Width="250" 
-                    HorizontalAlignment="Left" 
-                    Margin="5">
-                    <ComboBox.ItemTemplate>
-                        <DataTemplate>
-                            <TextBlock Text="{Binding Name}" />
-                        </DataTemplate>
-                    </ComboBox.ItemTemplate>
-                </ComboBox>
-                <ComboBox  IsVisible="{Binding SortOptionVisibility}" ItemsSource="{Binding AvailableOrderings}" SelectedItem="{Binding SelectedOrdering}" Width="250" HorizontalAlignment="Left" Margin="5"></ComboBox>
-            </StackPanel>
-        </Viewbox>
-        <Grid Grid.Row="1" HorizontalAlignment="Stretch">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="60"></RowDefinition>
-                <RowDefinition Height="*"></RowDefinition>
-            </Grid.RowDefinitions>
-            <TabStrip SelectedIndex="{Binding SelectedTabIndex}">
-                <TabStrip.Styles>
-                    <Style Selector="TabStripItem:pointerover /template/ Border">
-                        <Setter Property="Background" Value="{StaticResource Gray4Brush}"></Setter>
-                    </Style>
-                </TabStrip.Styles>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Header="Damage">
-                    <ContentPresenter Content="{Binding DamageContent}"></ContentPresenter>
-                </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Header="Healing">
-                    <ContentPresenter Content="{Binding HealingContent}"></ContentPresenter>
-                </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Header="Damage Taken">
-                    <ContentPresenter Content="{Binding DamageTakenContent}"></ContentPresenter>
-                </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Header="Healing Received">
-                    <ContentPresenter Content="{Binding HealingReceivedContent}"></ContentPresenter>
-                </TabItem>
-                <TabItem FontFamily="{StaticResource MainFont}" FontSize="13" Foreground="WhiteSmoke" Header="Threat">
-                    <ContentPresenter Content="{Binding ThreatContent}"></ContentPresenter>
-                </TabItem>
-            </TabStrip>
-            <ContentPresenter Grid.Row="1" Content="{Binding SelectedDataTypeContent}"></ContentPresenter>
-        </Grid>
-
-    </Grid>
+<UserControl x:Class="SWTORCombatParser.Views.Overviews.OverviewView" Classes="AnalysisPage"
+ xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overviews" xmlns:c="clr-namespace:SWTORCombatParser.Utilities.Converters" x:DataType="vm:TableViewModel">
+ <UserControl.Resources><c:EnumDisplayNameConverter x:Key="GroupName"/></UserControl.Resources>
+ <UserControl.Styles><StyleInclude Source="avares://Orbs/Utilities/UIStyles/Analysis.axaml"/></UserControl.Styles>
+ <Grid RowDefinitions="Auto,Auto,*" Margin="12,10" RowSpacing="10">
+  <Grid ColumnDefinitions="Auto,220,Auto,140,*" ColumnSpacing="8">
+   <TextBlock Classes="AnalysisLabel" Text="Participant"/>
+   <ComboBox x:Name="DetailsParticipant" Grid.Column="1" ItemsSource="{Binding AvailableParticipants}" SelectedItem="{Binding SelectedEntity}" HorizontalAlignment="Stretch" FontSize="12">
+    <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding Name}" TextTrimming="CharacterEllipsis"/></DataTemplate></ComboBox.ItemTemplate>
+   </ComboBox>
+   <TextBlock Grid.Column="2" Classes="AnalysisLabel" Text="Group by" Margin="8,0,0,0"/>
+   <ComboBox x:Name="DetailsGrouping" Grid.Column="3" ItemsSource="{Binding AvailableOrderings}" SelectedItem="{Binding SelectedOrdering}" HorizontalAlignment="Stretch" FontSize="12">
+    <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={StaticResource GroupName}, Mode=OneWay}"/></DataTemplate></ComboBox.ItemTemplate>
+   </ComboBox>
+   <TextBox x:Name="DetailsSearch" Grid.Column="4" Text="{Binding ActiveTable.FilterText}" Watermark="Find in results…" MinWidth="100"/>
+  </Grid>
+  <TabStrip x:Name="DetailsTabs" Grid.Row="1" SelectedIndex="{Binding SelectedTabIndex}" Height="36">
+   <TabStrip.Styles><Style Selector="TabStripItem"><Setter Property="FontSize" Value="13"/><Setter Property="Padding" Value="12,6"/></Style></TabStrip.Styles>
+   <TabStripItem Content="Damage"/><TabStripItem Content="Healing"/><TabStripItem Content="Damage taken"/><TabStripItem Content="Healing received"/><TabStripItem Content="Threat"/>
+  </TabStrip>
+  <ContentPresenter Grid.Row="2" Content="{Binding SelectedDataTypeContent}"/>
+ </Grid>
 </UserControl>

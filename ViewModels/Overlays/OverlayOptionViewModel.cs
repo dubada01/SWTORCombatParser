@@ -9,6 +9,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
     {
         private bool isSelected = false;
         public string HelpText => GetHelpFromType();
+        public string ColorButtonLabel => $"Change {Type} color";
         public OverlayOptionViewModel()
         {
             MetricColorLoader.OnOverlayTypeColorUpdated += UpdateColor;

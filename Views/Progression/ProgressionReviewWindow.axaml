@@ -1,0 +1,171 @@
+<Window xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Progression"
+        xmlns:model="clr-namespace:SWTORCombatParser.Model.Progression"
+        xmlns:local="clr-namespace:SWTORCombatParser.Views.Progression"
+        x:Class="SWTORCombatParser.Views.Progression.ProgressionReviewWindow"
+        x:DataType="vm:ProgressionReviewViewModel"
+        Title="Progression &amp; Wipe Review · Orbs" Classes="OrbsDialog"
+        Width="1250" Height="800" MinWidth="1060" MinHeight="650"
+        WindowStartupLocation="CenterOwner">
+    <Window.Styles>
+        <StyleInclude Source="avares://Orbs/Utilities/UIStyles/Analysis.axaml"/>
+        <Style Selector="TextBlock.section"><Setter Property="FontSize" Value="15"/><Setter Property="FontWeight" Value="SemiBold"/></Style>
+        <Style Selector="TextBlock.caption"><Setter Property="FontSize" Value="11"/><Setter Property="Foreground" Value="{StaticResource Gray12Brush}"/></Style>
+        <Style Selector="TextBlock.empty">
+            <Setter Property="HorizontalAlignment" Value="Center"/><Setter Property="VerticalAlignment" Value="Center"/>
+            <Setter Property="TextAlignment" Value="Center"/><Setter Property="TextWrapping" Value="Wrap"/>
+            <Setter Property="Foreground" Value="{StaticResource Gray12Brush}"/><Setter Property="IsHitTestVisible" Value="False"/>
+            <Setter Property="Margin" Value="10,34,10,0"/>
+        </Style>
+        <Style Selector="Border.summary"><Setter Property="Background" Value="{StaticResource Gray1Brush}"/><Setter Property="Padding" Value="12,8"/><Setter Property="CornerRadius" Value="4"/></Style>
+        <Style Selector="DataGrid.AnalysisTable"><Setter Property="RowHeight" Value="28"/><Setter Property="ColumnHeaderHeight" Value="29"/></Style>
+        <Style Selector="DataGrid.AnalysisTable DataGridCell TextBlock">
+            <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+            <Setter Property="ToolTip.Tip" Value="{ReflectionBinding Text, RelativeSource={RelativeSource Self}}"/>
+        </Style>
+        <Style Selector="DataGrid.AnalysisTable DataGridColumnHeader">
+            <Setter Property="Padding" Value="5,0"/><Setter Property="FontSize" Value="11"/>
+        </Style>
+        <Style Selector="DataGridCell.pullDuration"><Setter Property="HorizontalContentAlignment" Value="Stretch"/></Style>
+    </Window.Styles>
+    <Grid RowDefinitions="Auto,Auto,Auto,1.12*,Auto,*,Auto" RowSpacing="10" Margin="18,14,18,12">
+        <Border Classes="EditorHeader" Padding="12,10">
+            <Grid ColumnDefinitions="*,Auto" ColumnSpacing="14">
+                <StackPanel Spacing="1">
+                    <TextBlock Text="RAID ANALYSIS" FontSize="10" FontWeight="SemiBold" Foreground="#8CBEA6"/>
+                    <TextBlock Text="Progression &amp; Wipe Review" FontSize="24" FontWeight="SemiBold"/>
+                </StackPanel>
+                <ComboBox x:Name="ProgressionScope" Grid.Column="1" VerticalAlignment="Center" MinWidth="155"
+                          ItemsSource="{Binding Scopes}" SelectedItem="{Binding Scope, Mode=OneWay}" AutomationProperties.Name="Review scope">
+                    <ComboBox.ItemTemplate><DataTemplate x:DataType="vm:ProgressionScope"><TextBlock Text="{Binding ., Converter={StaticResource EnumDisplayNameConverter}}"/></DataTemplate></ComboBox.ItemTemplate>
+                </ComboBox>
+            </Grid>
+        </Border>
+
+        <Grid Grid.Row="1" RowDefinitions="Auto,Auto" RowSpacing="7">
+            <Grid ColumnDefinitions="*,220,Auto" ColumnSpacing="8" IsVisible="{Binding IsCurrentRaid}">
+                <ComboBox x:Name="RaidSelector" ItemsSource="{Binding Raids}" SelectedItem="{Binding SelectedRaid, Mode=OneWay}"
+                          PlaceholderText="Select raid" AutomationProperties.Name="Loaded raid">
+                    <ComboBox.ItemTemplate><DataTemplate x:DataType="model:ProgressionRaidChoice"><TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis"/></DataTemplate></ComboBox.ItemTemplate>
+                </ComboBox>
+                <TextBox x:Name="TeamNameBox" Grid.Column="1" Text="{Binding TeamName, Mode=OneWay}" Watermark="Team name (unassigned)" MaxLength="64"
+                         IsEnabled="{Binding CanEditTeam}" AutomationProperties.Name="Team for this raid"
+                         ToolTip.Tip="Assign every pull in this raid to a team. Clear the name and save to unassign it."/>
+                <Button x:Name="SaveTeamButton" Grid.Column="2" Classes="AnalysisAction" Content="Save team" Command="{Binding SaveTeamCommand}"/>
+            </Grid>
+            <Grid Grid.Row="1" ColumnDefinitions="Auto,1.5*,*,Auto" ColumnSpacing="8">
+                <ComboBox x:Name="HistoryTeamSelector" IsVisible="{Binding IsSavedHistory}" ItemsSource="{Binding Teams}"
+                          SelectedItem="{Binding SelectedTeam, Mode=OneWay}" MinWidth="155" AutomationProperties.Name="Saved team"/>
+                <ComboBox x:Name="CohortSelector" Grid.Column="1" ItemsSource="{Binding Cohorts}" SelectedItem="{Binding SelectedCohort, Mode=OneWay}"
+                          PlaceholderText="Operation, difficulty and size" AutomationProperties.Name="Operation, difficulty and group size">
+                    <ComboBox.ItemTemplate><DataTemplate x:DataType="model:ProgressionCohort"><TextBlock Text="{Binding Label}" TextTrimming="CharacterEllipsis"/></DataTemplate></ComboBox.ItemTemplate>
+                </ComboBox>
+                <ComboBox x:Name="BossSelector" Grid.Column="2" ItemsSource="{Binding Bosses}" SelectedItem="{Binding SelectedBoss, Mode=OneWay}"
+                          AutomationProperties.Name="Boss"/>
+                <Button Grid.Column="3" Classes="AnalysisAction" Content="{Binding FollowLabel}" Command="{Binding FollowLatestCommand}"
+                        MinWidth="119" ToolTip.Tip="Select the newest pull and follow new attempts."/>
+            </Grid>
+        </Grid>
+
+        <Grid Grid.Row="2" ColumnDefinitions="*,1.65*,1.25*" ColumnSpacing="8">
+            <Border Classes="summary">
+                <StackPanel Spacing="3"><TextBlock Text="PULL RECORD" Classes="caption"/><TextBlock Text="{Binding Overview}" TextTrimming="CharacterEllipsis" FontWeight="SemiBold"/></StackPanel>
+            </Border>
+            <Border Grid.Column="1" Classes="summary"
+                    ToolTip.Tip="Last hits among the first three player deaths of each non-clear. Counts show how many pulls recorded the ability.">
+                <StackPanel Spacing="3"><TextBlock Text="RECURRING EARLY LAST HITS" Classes="caption"/>
+                    <TextBlock Text="{Binding EarlyHits}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding EarlyHits}" FontWeight="SemiBold"/>
+                </StackPanel>
+            </Border>
+            <Border Grid.Column="2" Classes="summary" ToolTip.Tip="Phases in progress when multiple non-clears ended.">
+                <StackPanel Spacing="3"><TextBlock Text="REPEATED ENDING PHASES" Classes="caption"/>
+                    <TextBlock Text="{Binding EndingPhases}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding EndingPhases}" FontWeight="SemiBold"/>
+                </StackPanel>
+            </Border>
+        </Grid>
+
+        <Grid Grid.Row="3" MinHeight="122">
+            <DataGrid x:Name="PullGrid" Classes="AnalysisTable" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                      ItemsSource="{Binding Pulls}" SelectedItem="{Binding SelectedPull, Mode=OneWay}" AutomationProperties.Name="Boss pulls">
+                <DataGrid.Columns>
+                    <DataGridTextColumn FontSize="12" Width="43" Header="#" Binding="{Binding Number, Mode=OneWay}"/>
+                    <DataGridTextColumn FontSize="12" Width="1.5*" MinWidth="145" Header="Boss" Binding="{Binding Boss, Mode=OneWay}"/>
+                    <DataGridTextColumn FontSize="12" Width="139" Header="Started" Binding="{Binding Started, Mode=OneWay}" SortMemberPath="Summary.Metadata.Start"/>
+                    <DataGridTemplateColumn Width="82" Header="Result" SortMemberPath="Outcome">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate x:DataType="vm:ProgressionPullRow">
+                            <TextBlock Margin="8,0" Text="{Binding Outcome}" Foreground="{Binding OutcomeBrush}" VerticalAlignment="Center"/>
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTemplateColumn Width="151" Header="Duration" SortMemberPath="Summary.Metadata.DurationSeconds" CellStyleClasses="pullDuration">
+                        <DataGridTemplateColumn.CellTemplate><DataTemplate x:DataType="vm:ProgressionPullRow">
+                            <Grid ColumnDefinitions="*,39" ColumnSpacing="7" Margin="8,0"
+                                  ToolTip.Tip="Pull durations share the same scale. The amber tick marks the first recorded death.">
+                                <local:PullDurationBar DurationFraction="{Binding DurationFraction}" FirstDeathFraction="{Binding FirstDeathFraction}"/>
+                                <TextBlock Grid.Column="1" Text="{Binding Duration}" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                            </Grid>
+                        </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn FontSize="12" Width="94" Header="First death" Binding="{Binding FirstDeath, Mode=OneWay}" SortMemberPath="FirstDeathSeconds"/>
+                    <DataGridTextColumn FontSize="12" Width="*" MinWidth="116" Header="First death phase" Binding="{Binding FirstDeathPhase, Mode=OneWay}"/>
+                    <DataGridTextColumn FontSize="12" Width="*" MinWidth="104" Header="Last phase" Binding="{Binding Phase, Mode=OneWay}"/>
+                    <DataGridTextColumn FontSize="12" Width="74" Header="Deaths" Binding="{Binding DeathCount, Mode=OneWay}" SortMemberPath="DeathCountValue"/>
+                </DataGrid.Columns>
+            </DataGrid>
+            <TextBlock Text="{Binding EmptyMessage}" IsVisible="{Binding IsEmpty}" Classes="empty"/>
+            <ProgressBar Height="2" VerticalAlignment="Top" IsIndeterminate="True" IsVisible="{Binding IsIndexing}"/>
+        </Grid>
+
+        <Grid Grid.Row="4" ColumnDefinitions="*,Auto" ColumnSpacing="10">
+            <StackPanel Spacing="2">
+                <TextBlock Text="{Binding AttemptTitle}" Classes="section" TextTrimming="CharacterEllipsis"/>
+                <TextBlock Text="{Binding AttemptSummary}" Classes="caption"/>
+            </StackPanel>
+            <Button x:Name="DetailedReviewButton" Grid.Column="1" VerticalAlignment="Center" Classes="AnalysisAction"
+                    Content="{Binding DetailButton}" Command="{Binding OpenDetailedReviewCommand}" ToolTip.Tip="{Binding DetailToolTip}"/>
+        </Grid>
+
+        <Grid Grid.Row="5" ColumnDefinitions="1.45*,*" ColumnSpacing="12" MinHeight="117">
+            <Grid RowDefinitions="Auto,*" RowSpacing="5">
+                <TextBlock Text="Player deaths" Classes="section" ToolTip.Tip="Last hit is the most recent identifiable damage within five seconds of death."/>
+                <Grid Grid.Row="1">
+                    <DataGrid x:Name="DeathGrid" Classes="AnalysisTable" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                              CanUserSortColumns="False" ItemsSource="{Binding Deaths}" SelectedItem="{Binding SelectedDeath, Mode=OneWay}" AutomationProperties.Name="Player deaths">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn FontSize="12" Width="83" Header="Elapsed" Binding="{Binding Elapsed, Mode=OneWay}"/>
+                            <DataGridTextColumn FontSize="12" Width="*" MinWidth="90" Header="Player" Binding="{Binding Player, Mode=OneWay}"/>
+                            <DataGridTextColumn FontSize="12" Width="*" MinWidth="88" Header="Phase" Binding="{Binding Phase, Mode=OneWay}"/>
+                            <DataGridTextColumn FontSize="12" Width="1.35*" MinWidth="112" Header="Last hit" Binding="{Binding LastHit, Mode=OneWay}"/>
+                            <DataGridTextColumn FontSize="12" Width="*" MinWidth="90" Header="Source" Binding="{Binding Source, Mode=OneWay}"/>
+                            <DataGridTextColumn FontSize="12" Width="83" Header="Amount" Binding="{Binding Amount, Mode=OneWay}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <TextBlock Text="{Binding DeathEmptyMessage}" IsVisible="{Binding HasNoDeaths}" Classes="empty"/>
+                </Grid>
+            </Grid>
+            <Grid Grid.Column="1" RowDefinitions="Auto,*" RowSpacing="5">
+                <TextBlock Text="{Binding LeadupTitle}" Classes="section" TextTrimming="CharacterEllipsis"
+                           ToolTip.Tip="Up to 12 incoming damage and healing events in the 10 seconds before this death. Amounts are effective values."/>
+                <Grid Grid.Row="1">
+                    <DataGrid x:Name="LeadupGrid" Classes="AnalysisTable" AutoGenerateColumns="False" IsReadOnly="True" SelectionMode="Single"
+                              CanUserSortColumns="False" ItemsSource="{Binding Leadup}" AutomationProperties.Name="Events before death">
+                        <DataGrid.Columns>
+                            <DataGridTextColumn FontSize="12" Width="75" Header="Before" Binding="{Binding Offset, Mode=OneWay}"/>
+                            <DataGridTemplateColumn Width="70" Header="Type">
+                                <DataGridTemplateColumn.CellTemplate><DataTemplate x:DataType="vm:ProgressionLeadupRow">
+                                    <TextBlock Margin="4,0" Text="{Binding Kind}" Foreground="{Binding KindBrush}" VerticalAlignment="Center"/>
+                                </DataTemplate></DataGridTemplateColumn.CellTemplate>
+                            </DataGridTemplateColumn>
+                            <DataGridTextColumn FontSize="12" Width="1.3*" MinWidth="87" Header="Ability" Binding="{Binding Ability, Mode=OneWay}"/>
+                            <DataGridTextColumn FontSize="12" Width="*" MinWidth="82" Header="Source" Binding="{Binding Source, Mode=OneWay}"/>
+                            <DataGridTextColumn FontSize="12" Width="82" Header="Amount" Binding="{Binding Amount, Mode=OneWay}"/>
+                        </DataGrid.Columns>
+                    </DataGrid>
+                    <TextBlock Text="{Binding LeadupEmptyMessage}" IsVisible="{Binding HasNoLeadup}" Classes="empty"/>
+                </Grid>
+            </Grid>
+        </Grid>
+
+        <TextBlock Grid.Row="6" Classes="caption" Text="{Binding Status}" TextTrimming="CharacterEllipsis"/>
+    </Grid>
+</Window>

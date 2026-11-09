@@ -20,7 +20,9 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             get => _checked; set
             {
+                if (_checked == value) return;
                 _checked = value;
+                OnPropertyChanged();
                 LegenedToggled(value, EffectiveChecked);
             }
         }
@@ -29,7 +31,9 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
         {
             get => _effectiveChecked; set
             {
+                if (_effectiveChecked == value) return;
                 _effectiveChecked = value;
+                OnPropertyChanged();
                 LegenedToggled(Checked, value);
             }
         }

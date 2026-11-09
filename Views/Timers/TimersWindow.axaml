@@ -8,8 +8,11 @@
              xmlns:local="clr-namespace:SWTORCombatParser.Views.Timers"
              mc:Ignorable="d" 
              Background="{x:Null}">
-    <Grid>
-            <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}"  Margin="0,0,0,0" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
+    <Grid RowDefinitions="Auto,*" Classes.EncounterTimers="{Binding IsEncounter}">
+            <Border Classes="OverlayCard OverlayDetail" Padding="5,3" Margin="0,0,0,3">
+                <TextBlock Text="{Binding GroupLabel}" Classes="OverlayLabel"/>
+            </Border>
+            <ScrollViewer VerticalScrollBarVisibility="Hidden" x:Name="ScrollView" IsHitTestVisible="{Binding OverlaysMoveable}" Grid.Row="1" HorizontalScrollBarVisibility="Disabled">
                 <ItemsControl ItemsSource="{Binding SwtorTimers, UpdateSourceTrigger=PropertyChanged}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>

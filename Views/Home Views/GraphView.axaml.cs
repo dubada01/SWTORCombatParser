@@ -28,6 +28,7 @@ namespace SWTORCombatParser.Views.Home_Views
         private double _annotationUpdatePeriodMS = 50;
         private PlotViewModel _plotViewModel;
         private AvaPlot _plot;
+        private bool _initialized;
         public GraphView(PlotViewModel dataContext)
         {
             DataContext = dataContext;
@@ -42,25 +43,35 @@ namespace SWTORCombatParser.Views.Home_Views
 
         private void OnLoaded(object? sender, RoutedEventArgs e)
         {
+            if (_initialized) return;
+            _initialized = true;
             InitPlot();
         }
         private void InitPlot()
         {
-            _plot.Plot.XLabel("Combat Duration (s)", 12);
-            _plot.Plot.YLabel("Value", 12);
+            _plot.Plot.XLabel("Combat time", 11);
+            _plot.Plot.YLabel("Rate / s", 11);
             InitializeAxisLimits();
 
-            var legend = _plot.Plot.ShowLegend(Alignment.UpperRight);
-            legend.BackgroundColor = new Color(50, 50, 50, 50);
-            legend.FontColor = Color.FromARGB(Colors.WhiteSmoke.ToUInt32());
-            legend.FontSize = 10;
-            _plot.Plot.DataBackground.Color = new Color(20, 20, 20, 100);
-            _plot.Plot.FigureBackground.Color = new Color(10, 10, 10, 255);
-            _plot.Plot.Grid.MajorLineColor = new Color(100, 120, 120, 120);
-            _plot.Plot.Grid.MinorLineColor = Color.FromARGB(Colors.LightGray.ToUInt32());
-            _plot.Plot.Axes.Color(Color.FromARGB(Colors.WhiteSmoke.ToUInt32()));
-            _plot.Plot.FigureBackground.Image = new Image(SKBitmapFromFile.Load("avares://Orbs/resources/SwtorLogo.png"));
-            _plot.Plot.FigureBackground.ImagePosition = ImagePosition.Center;
+            _plot.Plot.HideLegend(); // The interactive metric controls below are the legend.
+            _plot.Plot.DataBackground.Color = Color.FromHex("#171A1E");
+            _plot.Plot.FigureBackground.Color = Color.FromHex("#171A1E");
+            _plot.Plot.Grid.MajorLineColor = Color.FromHex("#30343A");
+            _plot.Plot.Grid.MinorLineColor = new Color(0, 0, 0, 0);
+            _plot.Plot.Axes.Color(Color.FromHex("#A8B0BA"));
+            foreach (var axis in new ScottPlot.IAxis[] { _plot.Plot.Axes.Left, _plot.Plot.Axes.Bottom, _plot.Plot.Axes.Right, _plot.Plot.Axes.Top })
+            {
+                axis.TickLabelStyle.FontSize = 11;
+                axis.MajorTickStyle.Length = 0;
+                axis.MinorTickStyle.Length = 0;
+                axis.FrameLineStyle.Color = Color.FromHex("#30343A");
+            }
+            _plot.Plot.Axes.Bottom.TickGenerator = new ScottPlot.TickGenerators.NumericAutomatic
+            { TargetTickCount = 8, LabelFormatter = seconds => seconds < 0 ? "" : $"{(int)(seconds / 60)}:{(int)(seconds % 60):00}" };
+            _plot.Plot.Axes.Left.TickGenerator = new ScottPlot.TickGenerators.NumericAutomatic
+            { TargetTickCount = 6, LabelFormatter = amount => Math.Abs(amount) >= 1000000 ? $"{amount / 1000000:0.#}m" : Math.Abs(amount) >= 1000 ? $"{amount / 1000:0.#}k" : $"{amount:0.#}" };
+            _plot.Plot.Axes.Right.TickGenerator = new ScottPlot.TickGenerators.NumericAutomatic { LabelFormatter = value => $"{value:P0}" };
+            _plot.Plot.Axes.Right.TickLabelStyle.IsVisible = _seriesToPlot.First(s => s.Type == PlotType.HPPercent).Legend.Checked;
         }
         // Initialize with current axis limits
         private void InitializeAxisLimits()
@@ -117,27 +128,13 @@ namespace SWTORCombatParser.Views.Home_Views
             series.Legend = legend;
             series.TriggerRender += (toggleState) =>
             {
-                if (toggleState && type == PlotType.HPPercent)
-                {
-                    _plot.Plot.XLabel("Health", size: 12);
-                }
-                if (!toggleState && type == PlotType.HPPercent)
-                {
-                    _plot.Plot.Axes.Right.Label.Text = "";
-                    _plot.Plot.Axes.Right.TickLabelStyle.IsVisible = false;
-                }
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    _plot.Plot.Axes.AutoScale();
-                    _plot.Plot.Axes.SetLimits(bottom:0);
-                    _plot.Refresh();
-                });
+                Dispatcher.UIThread.Invoke(_plotViewModel.RefreshVisibleSeries);
             };
             _seriesToPlot.Add(series);
         }
         private void NotifySizeChanged(object sender, SizeChangedEventArgs e)
         {
-            _plotViewModel.UserControlWidth = this.Width;
+            _plotViewModel.UserControlWidth = e.NewSize.Width;
         }
 
         private void GridView_MouseMove(object sender, PointerEventArgs e)

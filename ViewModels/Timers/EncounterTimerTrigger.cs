@@ -15,11 +15,14 @@ namespace SWTORCombatParser.ViewModels.Timers
         public static event Action<DateTime, EncounterInfo> NonPvpEncounterEntered = delegate { };
         public static void FireBossCombatDetected(string encounterName, string bossName, string difficulty, bool isRealtime)
         {
+            // Rebuilding historical/cached combats must not change the live timer's
+            // deduplication key or cause the next live update to announce the boss again.
+            if (!isRealtime)
+                return;
             if (CurrentEncounter.Item1 == encounterName && CurrentEncounter.Item2 == bossName && CurrentEncounter.Item3 == difficulty)
                 return;
             CurrentEncounter = (encounterName, bossName, difficulty);
-            if(isRealtime)
-                BossCombatDetected.InvokeSafely(encounterName, bossName, difficulty);
+            BossCombatDetected.InvokeSafely(encounterName, bossName, difficulty);
         }
         public static void FirePvpEncounterDetected(DateTime changedTime, EncounterInfo encounterInfo)
         {

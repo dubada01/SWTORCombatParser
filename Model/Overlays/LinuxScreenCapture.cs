@@ -1,87 +1,66 @@
-﻿#if LINUX
 using System;
-using SkiaSharp;
 using System.Runtime.InteropServices;
+using SkiaSharp;
+using SWTORCombatParser.Utilities;
+using SWTORCombatParser.Utilities.Native;
 
-namespace SWTORCombatParser.Model.Overlays
+namespace SWTORCombatParser.Model.Overlays;
+
+public class LinuxScreenCapturer : IScreenCapture
 {
-    public class LinuxScreenCapturer : IScreenCapture
+    public SKBitmap CaptureScreenArea(int x, int y, int width, int height)
     {
-        [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
-        private static extern IntPtr CGWindowListCreateImage(CGRect screenRect, CGWindowListOption option, uint windowID, CGWindowImageOption imageOption);
-
-        [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
-        private static extern IntPtr CGDataProviderCopyData(IntPtr provider);
-
-        [DllImport("/System/Library/Frameworks.CoreGraphics.framework/CoreGraphics")]
-        private static extern IntPtr CGImageGetDataProvider(IntPtr image);
-
-        [DllImport("/System/Library/Frameworks.CoreGraphics.framework/CoreGraphics")]
-        private static extern IntPtr CFDataGetBytePtr(IntPtr cfData);
-
-        [DllImport("/System/Library/Frameworks.CoreGraphics.framework/CoreGraphics")]
-        private static extern long CFDataGetLength(IntPtr cfData);
-
-        [DllImport("/System/Library/Frameworks.CoreGraphics.framework/CoreGraphics")]
-        private static extern void CFRelease(IntPtr cfData);
-
-        public SKBitmap CaptureScreenArea(int x, int y, int width, int height)
+        if (width <= 0 || height <= 0 || (long)width * height > 16_777_216)
+            throw new ArgumentOutOfRangeException(nameof(width), "Select a smaller, nonempty screen area.");
+        if (OverlayPlatformStatus.IsWaylandSession)
+            throw new PlatformNotSupportedException("Automatic name detection needs an X11 desktop session. XWayland cannot capture the Wayland desktop. Use Assign by click for an XWayland game, or sign into Plasma (X11) when available.");
+        return X11Session.Run(display =>
         {
-            var screenRect = new CGRect(x, y, width, height);
-            IntPtr screenImage = CGWindowListCreateImage(screenRect, CGWindowListOption.OnScreenOnly, 0, CGWindowImageOption.Default);
-
-            IntPtr dataProvider = CGImageGetDataProvider(screenImage);
-            IntPtr cfData = CGDataProviderCopyData(dataProvider);
-
-            long length = CFDataGetLength(cfData);
-            byte[] buffer = new byte[length];
-            Marshal.Copy(CFDataGetBytePtr(cfData), buffer, 0, (int)length);
-
-            CFRelease(cfData); // Release CFData to prevent memory leak
-
-            using (var skData = SKData.CreateCopy(buffer))
+            var root = XDefaultRootWindow(display);
+            if (XGetGeometry(display, root, out _, out _, out _, out var screenWidth, out var screenHeight, out _, out _) == 0 ||
+                x < 0 || y < 0 || (long)x + width > screenWidth || (long)y + height > screenHeight)
+                throw new InvalidOperationException("Move the entire raid grid inside the X11 desktop before detecting names.");
+            var image = XGetImage(display, root, x, y, (uint)width, (uint)height, nuint.MaxValue, 2);
+            if (image == IntPtr.Zero) throw new InvalidOperationException("The X server could not capture the raid frames.");
+            try
             {
-                return SKBitmap.Decode(skData);
+                var info = Marshal.PtrToStructure<XImage>(image);
+                if (info.RedMask == 0 || info.GreenMask == 0 || info.BlueMask == 0)
+                    throw new PlatformNotSupportedException("Screen capture requires a TrueColor X11 visual.");
+                // XGetPixel handles the server's byte order, stride and pixel depth.
+                var pixels = new SKColor[checked(width * height)];
+                for (var row = 0; row < height; row++)
+                    for (var column = 0; column < width; column++)
+                    {
+                        var pixel = XGetPixel(image, column, row);
+                        pixels[row * width + column] = new SKColor(Channel(pixel, info.RedMask), Channel(pixel, info.GreenMask), Channel(pixel, info.BlueMask));
+                    }
+                var bitmap = new SKBitmap(width, height);
+                try { bitmap.Pixels = pixels; return bitmap; }
+                catch { bitmap.Dispose(); throw; }
             }
-        }
+            finally { XDestroyImage(image); }
+        });
     }
 
-    // CGRect struct
+    internal static byte Channel(nuint pixel, nuint mask)
+    {
+        if (mask == 0) return 0;
+        while ((mask & 1) == 0) { mask >>= 1; pixel >>= 1; }
+        return (byte)(((ulong)(pixel & mask) * 255 + (ulong)mask / 2) / (ulong)mask);
+    }
+
     [StructLayout(LayoutKind.Sequential)]
-    public struct CGRect
+    private struct XImage
     {
-        public double X;
-        public double Y;
-        public double Width;
-        public double Height;
-
-        public CGRect(double x, double y, double width, double height)
-        {
-            X = x;
-            Y = y;
-            Width = width;
-            Height = height;
-        }
+        public int Width, Height, XOffset, Format;
+        public IntPtr Data;
+        public int ByteOrder, BitmapUnit, BitmapBitOrder, BitmapPad, Depth, BytesPerLine, BitsPerPixel;
+        public nuint RedMask, GreenMask, BlueMask;
     }
-
-    // Enum for CGWindowListOption
-    public enum CGWindowListOption : uint
-    {
-        All = 0,
-        OnScreenOnly = 1,
-        OnScreenAboveWindow = 2,
-        OnScreenBelowWindow = 4,
-        IncludingWindow = 8,
-        ExcludeDesktopElements = 16
-    }
-
-    // Enum for CGWindowImageOption
-    public enum CGWindowImageOption : uint
-    {
-        Default = 0,
-        BoundsIgnoreFraming = 1,
-        ShouldBeOpaque = 2,
-        OnlyShadows = 4
-    }
+    [DllImport("libX11.so.6")] private static extern IntPtr XDefaultRootWindow(IntPtr display);
+    [DllImport("libX11.so.6")] private static extern int XGetGeometry(IntPtr display, IntPtr window, out IntPtr root, out int x, out int y, out uint width, out uint height, out uint border, out uint depth);
+    [DllImport("libX11.so.6")] private static extern IntPtr XGetImage(IntPtr display, IntPtr window, int x, int y, uint width, uint height, nuint planeMask, int format);
+    [DllImport("libX11.so.6")] private static extern nuint XGetPixel(IntPtr image, int x, int y);
+    [DllImport("libX11.so.6")] private static extern int XDestroyImage(IntPtr image);
 }
-#endif

@@ -1,64 +1,34 @@
-﻿using SWTORCombatParser.Model.Overlays;
-using SWTORCombatParser.Utilities;
 using System;
-using System.ComponentModel;
 using System.Reactive;
-using System.Runtime.CompilerServices;
 using Avalonia.Media;
 using ReactiveUI;
+using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
 
+namespace SWTORCombatParser.ViewModels;
 
-namespace SWTORCombatParser.ViewModels
+public class MetricColorPickerViewModel : ReactiveObject
 {
-    public class MetricColorPickerViewModel:ReactiveObject, INotifyPropertyChanged
+    private Color _metricColor;
+    public OverlayType OverlayType { get; }
+    public event Action CloseRequested = delegate { };
+    public SolidColorBrush MetricBrush => new(_metricColor);
+    public Color MetricColor
     {
-
-        private Color metricColor;
-        private SolidColorBrush metricBrush;
-
-        public OverlayType OverlayType { get; set; }
-        public event Action CloseRequested = delegate { };
-        public event PropertyChangedEventHandler PropertyChanged;
-
-        public SolidColorBrush MetricBrush
+        get => _metricColor;
+        set
         {
-            get => metricBrush; set
-            {
-                metricBrush = value;
-                OnPropertyChanged();
-            }
-        }
-        public Color MetricColor
-        {
-            get => metricColor; set
-            {
-                metricColor = value;
-                MetricColorLoader.SetColorForMetric(OverlayType, metricColor.ToString());
-                MetricBrush = MetricColorLoader.CurrentMetricBrushDict[OverlayType];
-            }
-        }
-        public MetricColorPickerViewModel(OverlayType type)
-        {
-            OverlayType = type;
-            MetricColor = MetricColorLoader.GetMetricCurrentColor(type);
-        }
-        public ReactiveCommand<Unit,Unit> SetDefaultCommand => ReactiveCommand.Create(SetDefaultColor);
-
-        private void SetDefaultColor()
-        {
-            MetricColor = MetricColorLoader.GetDefaultColorForMetric(OverlayType);
-            OnPropertyChanged("MetricColor");
-        }
-
-        public ReactiveCommand<Unit,Unit> CloseCommand => ReactiveCommand.Create(CloseThis);
-
-        private void CloseThis()
-        {
-            CloseRequested();
-        }
-        protected void OnPropertyChanged([CallerMemberName] string name = null)
-        {
-            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
+            if (_metricColor == value) return;
+            this.RaiseAndSetIfChanged(ref _metricColor, value);
+            MetricColorLoader.SetColorForMetric(OverlayType, value.ToString());
+            this.RaisePropertyChanged(nameof(MetricBrush));
         }
     }
+    public MetricColorPickerViewModel(OverlayType type)
+    {
+        OverlayType = type;
+        _metricColor = MetricColorLoader.GetMetricCurrentColor(type);
+    }
+    public ReactiveCommand<Unit, Unit> SetDefaultCommand => ReactiveCommand.Create(() => { MetricColor = MetricColorLoader.GetDefaultColorForMetric(OverlayType); });
+    public ReactiveCommand<Unit, Unit> CloseCommand => ReactiveCommand.Create(() => CloseRequested());
 }

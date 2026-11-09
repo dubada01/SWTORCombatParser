@@ -1,0 +1,107 @@
+Linux and macOS desktop support
+
+KDE Plasma is a target on both X11 and Wayland. Orbs' Avalonia 11.3 desktop build
+uses X11 on Linux; on a Wayland desktop it needs XWayland and a valid DISPLAY.
+There is no native Wayland/layer-shell overlay implementation in this build.
+
+Getting reliable overlays
+1. Run SWTOR in borderless/windowed mode and Orbs in the same desktop session.
+   A separate Gamescope session or exclusive fullscreen/direct scanout can keep
+   external overlay windows off the game's surface. Run both applications in the
+   same compositor/session or return to ordinary desktop borderless mode.
+2. Unlock to position/resize overlays, then lock to pass clicks to SWTOR. Verify
+   a click on a safe part of the game under an overlay before combat.
+3. Open Settings > Overlay details for the desktop/session and per-overlay status.
+   A failed native input change hides the overlay and preserves its enabled state.
+   After fixing the cause, unlock/relock (or hide/show) to retry.
+4. Use the main-window controls if the desktop blocks global hotkeys.
+
+KDE / KWin
+- Titles begin with "Orbs ·" on all platforms, followed by the overlay name.
+- If placement/stacking needs an override: System Settings > Window Management >
+  Window Rules > Add New. Detect an unlocked overlay, keep the detected application
+  class, and match Window title using Substring Match: Orbs ·
+- Add Keep above = Yes; optionally All desktops and No titlebar and frame. Apply
+  only to overlay titles. Do not make the main Orbs window permanently topmost.
+- A rule can help with stacking; it does not grant global input or screen capture
+  permission and does not guarantee visibility above exclusive fullscreen.
+- Plasma X11 needs compositing for transparent backgrounds. Plasma Wayland already
+  composites its windows. Other X11 managers (e.g. Openbox/i3) need a compositor
+  such as the desktop's usual compositor for transparency. Input shapes work
+  independently of alpha transparency.
+
+Linux dependencies and troubleshooting
+- Required native libraries include libX11.so.6 and libXext.so.6; XFixes is used
+  when available (libXfixes.so.3, server version >= 2), with SHAPE 1.1 as fallback.
+- Avalonia also needs its normal X11/font/graphics runtime dependencies. SharpHook
+  needs the distribution's X11 RECORD/input libraries. Package names vary by distro.
+- The Linux Skia native package now matches managed Skia 3.119.1 and resolves the
+  target CPU normally; the competing transitive native asset is excluded so
+  publishing cannot choose Skia 2.88 by filename. No x64-only post-build library
+  overwrite is performed.
+- Graphics fallback: launch with ORBS_SOFTWARE_RENDERING=1 ./Orbs.
+- Timer audio uses the distribution's libVLC runtime (and audio output/plugins).
+  Missing audio dependencies do not prevent visual timers or app startup.
+- Copying combat IDs uses Avalonia's clipboard on Linux as well as Mac/Windows.
+
+Feature boundaries
+                              X11 desktop       Wayland + XWayland      macOS
+Combat log parsing/review     yes               yes                     yes
+Overlay click-through        XFixes/SHAPE       XWayland input shape    AppKit
+Above-game placement         WM controlled     compositor controlled   AppKit/Spaces
+Global hotkeys/click assign   X11 hook          XWayland apps only*     Accessibility
+Automatic raid name capture  X11 root capture  unavailable**           Screen Recording
+
+* This build uses SharpHook 5.3.9's X11 backend, not the newer privileged Linux
+  input backends. Compositor policy and X11 extensions can further restrict it.
+  Do not run Orbs as root or weaken desktop input security to enable hotkeys.
+** XWayland root capture cannot capture the full Wayland desktop. Orbs reports
+  this explicitly instead of submitting black/partial screenshots. Assign by
+  click can be used with an XWayland game; otherwise use an X11 login where your
+  distribution provides one. Native Wayland capture needs a future portal flow.
+
+macOS
+- Mouse transparency uses NSWindow ignoresMouseEvents, with correct one-byte BOOL
+  marshalling and a readback check. No screen-recording permission is needed for
+  ordinary click-through. Window configuration is applied after the handle exists.
+- Overlays request all Spaces/fullscreen auxiliary behavior without replacing
+  unrelated collection flags. On macOS 13+, they also request canJoinAllApplications
+  so eligible floating overlays can join another app's fullscreen Space or Stage
+  Manager set. Conflicting primary/auxiliary roles are removed. This is separate
+  from tracking the game's position or restricting overlays to the game alone.
+  Real-Mac fullscreen testing is still required; borderless is the fallback.
+- Allow Accessibility for global hotkeys and Assign by click. Detect names requests
+  Screen Recording access when first needed. Restart after changing permissions.
+- Captures use unique temporary files, bounded process waits, checked exit codes,
+  and cleanup. Capture runs outside the UI thread and preserves Retina resolution.
+- The supported Apple target here is macOS desktop, not iOS/iPadOS.
+
+Build/publish
+Use an explicit RID when publishing, e.g.:
+  dotnet publish SWTORCombatParser.csproj -c Release -r linux-x64 --self-contained true
+  dotnet publish SWTORCombatParser.csproj -c Release -r linux-arm64 --self-contained true
+  dotnet publish SWTORCombatParser.csproj -c Release -r osx-arm64 --self-contained true
+  dotnet publish SWTORCombatParser.csproj -c Release -r osx-x64 --self-contained true
+Native dependency/CPU availability must be checked for each shipped artifact.
+The RID selects platform code/packages even on a different build OS. A normal
+build without RID uses the host OS and does not force a particular CPU.
+
+Validation
+See SWTORCombatParser_Test/PlatformHarness/README.txt for reproducible native
+click-delivery tests and their limits. The November 2026 review passed 99 focused
+NUnit regressions and native checks under Xvfb, Openbox 3.6.1, KWin 5.27.5 X11,
+and KWin 5.27.5 Wayland with XWayland 22.1.9. Linux x64 and macOS ARM64 publishing
+passed; the Linux publish stayed running through an isolated startup smoke test.
+These native test runs used the .NET 9 host with roll-forward for net8.0; the
+Dockerfile also supplies .NET 8 for reproducing checks on the production runtime.
+Real Mac, Plasma 6, GPU/fullscreen and
+mixed-DPI desktop smoke tests remain necessary before declaring a release matrix.
+
+Primary references
+https://www.x.org/releases/current/doc/xextproto/shape.pdf
+https://docs.kde.org/stable_kf6/en/kwin/kcontrol/windowspecific/window-matching0.html
+https://docs.kde.org/stable_kf6/en/kwin/kcontrol/windowspecific/attributes.html
+https://developer.apple.com/documentation/appkit/nswindow/ignoresmouseevents
+https://developer.apple.com/documentation/appkit/nswindow/collectionbehavior-swift.struct/fullscreenauxiliary
+https://developer.apple.com/documentation/appkit/nswindow/collectionbehavior-swift.struct/canjoinallapplications
+https://sharphook.tolik.io/articles/hooks.html

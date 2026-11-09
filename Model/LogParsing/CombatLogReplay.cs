@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 namespace SWTORCombatParser.Model.LogParsing;
 
 public sealed record LogReplayRequest(string FilePath, DateTime? From = null, DateTime? Through = null,
-    bool SimulatePartialWrite = false);
+    bool SimulatePartialWrite = false, double SpeedMultiplier = 1);
 public sealed record LogReplayProgress(TimeSpan Elapsed, TimeSpan Duration, long WrittenLines);
 
 /// <summary>
@@ -41,6 +41,7 @@ public sealed class CombatLogReplay : IDisposable
     {
         if (request.From.HasValue && request.Through.HasValue && request.Through < request.From)
             throw new ArgumentException("The replay end must follow its start.");
+        LogReplayContext.ValidateSpeed(request.SpeedMultiplier);
         var replay = new CombatLogReplay(request);
         try { replay.Prepare(token); return replay; }
         catch { replay.Dispose(); throw; }
@@ -116,11 +117,13 @@ public sealed class CombatLogReplay : IDisposable
             token.ThrowIfCancellationRequested();
             if (timestamp < PlaybackStart) continue;
             var due = timestamp - PlaybackStart;
-            while (clock.Elapsed < due)
+            var dueWallTime = due / _request.SpeedMultiplier;
+            while (clock.Elapsed < dueWallTime)
             {
                 await writer.FlushAsync(token).ConfigureAwait(false);
+                LogReplayContext.PublishDelivery((anchor + due).AddTicks(-1), writer.BaseStream.Position);
                 Report();
-                var delay = due - clock.Elapsed;
+                var delay = dueWallTime - clock.Elapsed;
                 if (delay > TimeSpan.Zero) await Task.Delay(delay < TimeSpan.FromMilliseconds(100) ? delay : TimeSpan.FromMilliseconds(100), token).ConfigureAwait(false);
             }
             var rebased = Rebase(line, anchor + due);
@@ -142,13 +145,15 @@ public sealed class CombatLogReplay : IDisposable
             Report();
         }
         await writer.FlushAsync(token).ConfigureAwait(false);
+        LogReplayContext.PublishDelivery(DateTime.MaxValue, writer.BaseStream.Position);
         progress?.Report(new LogReplayProgress(Duration, Duration, written));
 
         void Report()
         {
             if (clock.Elapsed < nextReport) return;
             nextReport = clock.Elapsed + TimeSpan.FromMilliseconds(250);
-            progress?.Report(new LogReplayProgress(clock.Elapsed < Duration ? clock.Elapsed : Duration, Duration, written));
+            var simulatedElapsed = clock.Elapsed * _request.SpeedMultiplier;
+            progress?.Report(new LogReplayProgress(simulatedElapsed < Duration ? simulatedElapsed : Duration, Duration, written));
         }
     }
 

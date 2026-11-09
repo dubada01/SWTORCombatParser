@@ -1,5 +1,6 @@
-﻿using SWTORCombatParser.DataStructures.Hotkeys;
+using SWTORCombatParser.DataStructures.Hotkeys;
 using SWTORCombatParser.Model.Updates;
+using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.Update;
 using System;
@@ -25,9 +26,20 @@ namespace SWTORCombatParser.Views.SettingsView
         public SettingsWindow()
         {
             InitializeComponent();
+            OverlayPlatformGuidance.Text = OverlayPlatformStatus.Guidance;
+            UpdatePlatformStatus();
+            OverlayPlatformStatus.Changed += UpdatePlatformStatus;
+            Closed += (_, _) => OverlayPlatformStatus.Changed -= UpdatePlatformStatus;
             InitHotkeys();
             InitBools();
             InitPath();
+            if (OperatingSystem.IsWindows())
+            {
+                ObsCaptureSettings.IsVisible = true;
+                ShowOverlaysInObs.IsChecked = Settings.ReadSettingOfType<bool>(Settings.ShowOverlaysInObsSetting);
+                ShowOverlaysInObs.IsCheckedChanged += (_, _) =>
+                    Settings.WriteSetting(Settings.ShowOverlaysInObsSetting, ShowOverlaysInObs.IsChecked == true);
+            }
             RefreshEnabled.IsCheckedChanged += ToggleHotkeyEnabled;
             LockEnabled.IsCheckedChanged += ToggleHotkeyEnabled;
             HideEnabled.IsCheckedChanged += ToggleHotkeyEnabled;
@@ -49,6 +61,9 @@ namespace SWTORCombatParser.Views.SettingsView
             BossFrameCurrentTarget.IsCheckedChanged += UpdateOverlaySettings;
             BossFrameDot.IsCheckedChanged += UpdateOverlaySettings;
         }
+
+        private void UpdatePlatformStatus() => Avalonia.Threading.Dispatcher.UIThread.Post(() =>
+            OverlayPlatformReport.Text = OverlayPlatformStatus.Summary);
 
         private async void UpdateCombatLogsPath(object? sender, RoutedEventArgs e)
         {
@@ -87,16 +102,25 @@ namespace SWTORCombatParser.Views.SettingsView
         }
         private async void ShowEmergencyDialog(object? sender, RoutedEventArgs e)
         {
-            var warning = MessageBoxManager.GetMessageBoxStandard("This will completely reset all your overlay positions for all roles.\r\nIf so, click yes and restart Orbs","Are you sure?",ButtonEnum.YesNo);
+            var warning = MessageBoxManager.GetMessageBoxStandard("Reset overlay positions?",
+                "Move all saved overlays onto this display for every role? Overlay sizes, enabled states, timers, colors, and other settings will be kept.",
+                ButtonEnum.YesNo);
             var result = await warning.ShowWindowDialogAsync(this);
-            if(result != ButtonResult.No)
+            if (result != ButtonResult.Yes) return;
+            try
             {
-                return;
+                var area = Screens.ScreenFromWindow(this)?.WorkingArea;
+                OverlayPositionReset.ResetSavedPositions(new Point((area?.X ?? 0) + 24, (area?.Y ?? 0) + 24));
+                EmergencyUIReset.Content = "Positions reset";
+                EmergencyUIReset.IsEnabled = false;
             }
-            var currentPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
-            var newPath = System.IO.Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser_Archived");
-            Directory.Move(currentPath, newPath);
-            Directory.Delete(currentPath, true);
+            catch (Exception error)
+            {
+                Logging.LogError("Could not reset overlay positions: " + error.Message);
+                await MessageBoxManager.GetMessageBoxStandard("Could not reset overlay positions",
+                    "The overlay layout files could not be updated. Check that they are writable and try again.",
+                    ButtonEnum.Ok).ShowWindowDialogAsync(this);
+            }
         }
         private void InitPath()
         {
@@ -124,7 +148,7 @@ namespace SWTORCombatParser.Views.SettingsView
         }
         private void ToggleWarning(object sender, RoutedEventArgs e)
         {
-            ShouldShowPopup.SaveShouldShowPopup("BackgroundMonitoring", !RunInBackground.IsChecked.Value);
+            ShouldShowPopup.SaveShouldShowPopup("BackgroundMonitoring", BackgroundWarning.IsChecked != true);
         }
         private void UpdateOverlaySettings(object? sender, RoutedEventArgs e)
         {
@@ -137,11 +161,11 @@ namespace SWTORCombatParser.Views.SettingsView
         {
             var current = Settings.ReadSettingOfType<HotkeySettings>("Hotkeys");
             if(((CheckBox)sender).Name == "RefreshEnabled")
-                current.HOTRefreshEnabled = !current.HOTRefreshEnabled;
+                current.HOTRefreshEnabled = RefreshEnabled.IsChecked == true;
             if (((CheckBox)sender).Name == "LockEnabled")
-                current.UILockEnabled = !current.UILockEnabled;
+                current.UILockEnabled = LockEnabled.IsChecked == true;
             if (((CheckBox)sender).Name == "HideEnabled")
-                current.OverlayHideEnabled = !current.OverlayHideEnabled;
+                current.OverlayHideEnabled = HideEnabled.IsChecked == true;
 
             Settings.WriteSetting("Hotkeys", current);
         }
@@ -191,8 +215,13 @@ namespace SWTORCombatParser.Views.SettingsView
         }
         private void TextBox_PreviewKeyDown(object sender, KeyEventArgs e)
         {
-            // Prevents the TextBox from handling the key input so the TextBox remains empty
+            // Keep keyboard navigation available and do not erase a saved shortcut
+            // while the user is still pressing its modifier keys.
+            if (e.Key == Key.Tab) return;
             e.Handled = true;
+            if (e.Key == Key.Escape || e.Key == Key.LeftCtrl || e.Key == Key.RightCtrl ||
+                e.Key == Key.LeftShift || e.Key == Key.RightShift || e.Key == Key.LeftAlt || e.Key == Key.RightAlt)
+                return;
 
             var textBox = sender as TextBox;
             if (textBox == null) return;
@@ -234,6 +263,8 @@ namespace SWTORCombatParser.Views.SettingsView
             {
                 keyStroke = ConvertAvaloniaKeyToSharpHookKeyCode(e.Key);
             }
+
+            if (keyStroke == 0) return;
 
             // Save settings or update display as needed
             SaveSetting(textBox, mod1, mod2, keyStroke);

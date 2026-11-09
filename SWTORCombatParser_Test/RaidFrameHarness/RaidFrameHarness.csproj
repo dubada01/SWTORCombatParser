@@ -1,0 +1,45 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net8.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+  <ItemGroup>
+    <!-- Match production UI packages; build Orbs first using README.txt. -->
+    <PackageReference Include="Avalonia" Version="11.3.1" />
+    <PackageReference Include="Avalonia.Controls.DataGrid" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Controls.ColorPicker" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Desktop" Version="11.3.0" />
+    <PackageReference Include="Avalonia.Themes.Fluent" Version="11.3.0" />
+    <PackageReference Include="Avalonia.ReactiveUI" Version="11.3.0" />
+    <PackageReference Include="SkiaSharp" Version="3.119.1" />
+    <PackageReference Include="System.Text.Encoding.CodePages" Version="9.0.3" />
+    <Reference Include="Orbs">
+      <HintPath>../../bin/$(Configuration)/net8.0/Orbs.dll</HintPath>
+    </Reference>
+    <None Update="converter-resources.json" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+  <Target Name="CopyOrbsRuntime" AfterTargets="Build">
+    <ItemGroup>
+      <OrbsRuntime Include="../../bin/$(Configuration)/net8.0/*.dll" />
+      <OrbsResources Include="../../bin/$(Configuration)/net8.0/DataStructures/**/*">
+        <TargetRoot>DataStructures/</TargetRoot>
+      </OrbsResources>
+      <OrbsResources Include="../../bin/$(Configuration)/net8.0/resources/**/*">
+        <TargetRoot>resources/</TargetRoot>
+      </OrbsResources>
+      <OrbsResources Include="../../bin/$(Configuration)/net8.0/runtimes/**/*">
+        <TargetRoot>runtimes/</TargetRoot>
+      </OrbsResources>
+      <OrbsResources Include="../../bin/$(Configuration)/net8.0/libvlc/**/*">
+        <TargetRoot>libvlc/</TargetRoot>
+      </OrbsResources>
+    </ItemGroup>
+    <Copy SourceFiles="@(OrbsRuntime)" DestinationFolder="$(OutputPath)" SkipUnchangedFiles="true" />
+    <Copy SourceFiles="@(OrbsResources)"
+          DestinationFiles="@(OrbsResources->'$(OutputPath)%(TargetRoot)%(RecursiveDir)%(Filename)%(Extension)')"
+          SkipUnchangedFiles="true" />
+  </Target>
+</Project>

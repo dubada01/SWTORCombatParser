@@ -1,5 +1,6 @@
 ﻿using SWTORCombatParser.Views.Overviews;
 using System.Collections.Generic;
+using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overviews
 {
@@ -14,13 +15,22 @@ namespace SWTORCombatParser.ViewModels.Overviews
         public TableViewInstance HealingReceivedContent { get; set; }
         public TableViewInstance ThreatContent { get; set; }
         public override bool SortOptionVisibility => true;
+        public TableInstanceViewModel ActiveTable => (TableInstanceViewModel)new[] { DamageVM, HealingVM, DamageTakenVM, HealingReceivedVM, ThreatVM }[_selectedTabIndex];
+        protected override void RefreshData()
+        {
+            if (_currentCombat == null || SelectedEntity == null) return;
+            var tables = new[] { DamageVM, HealingVM, DamageTakenVM, HealingReceivedVM, ThreatVM };
+            for (var i = 0; i < tables.Length; i++)
+                ((TableInstanceViewModel)tables[i]).SetContext(_currentCombat, SelectedEntity, selectedOrdering, i == _selectedTabIndex);
+        }
 
         public override int SelectedTabIndex
         {
             get => _selectedTabIndex;
             set
             {
-                _selectedTabIndex = value;
+                if (value < 0 || value > 4) return;
+                this.RaiseAndSetIfChanged(ref _selectedTabIndex, value);
                 if (_selectedTabIndex == 0)
                     SelectedDataTypeContent = DamageContent;
                 else if (_selectedTabIndex == 1)
@@ -31,6 +41,8 @@ namespace SWTORCombatParser.ViewModels.Overviews
                     SelectedDataTypeContent = HealingReceivedContent;
                 else if (_selectedTabIndex == 4)
                     SelectedDataTypeContent = ThreatContent;
+                this.RaisePropertyChanged(nameof(ActiveTable));
+                RefreshData();
             }
         }
 
@@ -40,13 +52,9 @@ namespace SWTORCombatParser.ViewModels.Overviews
         {
             get => selectedOrdering; set
             {
-                selectedOrdering = value;
-                
-                DamageVM.SortingOption = selectedOrdering;
-                DamageTakenVM.SortingOption = selectedOrdering;
-                HealingVM.SortingOption = selectedOrdering;
-                HealingReceivedVM.SortingOption = selectedOrdering;
-                ThreatVM.SortingOption = selectedOrdering;
+                if (selectedOrdering == value) return;
+                this.RaiseAndSetIfChanged(ref selectedOrdering, value);
+                RefreshData();
             }
         }
         public TableViewModel()

@@ -41,6 +41,13 @@ namespace SWTORCombatParser.ViewModels.Challenges
         private bool hasPhases;
         private List<string> availableMetrics;
         private string selectedMetricName;
+        private string validationMessage = string.Empty;
+
+        public string ValidationMessage
+        {
+            get => validationMessage;
+            private set { validationMessage = value; OnPropertyChanged(); }
+        }
 
         public event Action<Challenge, bool> OnNewChallenge = delegate { };
         public event Action<Challenge> OnCancelEdit = delegate { };
@@ -125,6 +132,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             {
                 useMaxValue = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedResultMode));
             }
         }
         public bool UseRawValue
@@ -133,6 +141,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
             {
                 useRawValues = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(SelectedResultMode));
             }
         }
         public bool HasPhases
@@ -211,6 +220,25 @@ namespace SWTORCombatParser.ViewModels.Challenges
             }
         }
         public List<ChallengeType> AvailableChallengeTypes => Enum.GetValues<ChallengeType>().ToList();
+        public bool HasResultMode => CanBeRate || CanHaveMax;
+        public string[] ResultModes => CanHaveMax ? new[] { "Current stacks", "Maximum stacks" }
+            : SelectedChallengeType == ChallengeType.DamageIn ? new[] { "Damage taken per second", "Total damage taken" }
+            : new[] { "Damage per second", "Total damage" };
+        public string SelectedResultMode
+        {
+            get => ResultModes[(CanHaveMax ? UseMaxValue : UseRawValue) ? 1 : 0];
+            set
+            {
+                if (value == null || !ResultModes.Contains(value)) return;
+                if (CanHaveMax) UseMaxValue = value == ResultModes[1];
+                else UseRawValue = value == ResultModes[1];
+            }
+        }
+        public bool HasFixedResult => !HasResultMode && !HasPhases;
+        public string FixedResult => SelectedChallengeType == ChallengeType.InterruptCount ? "Interrupt count" : "Activation count";
+        public string ValueWatermark => SelectedChallengeType is ChallengeType.DamageOut or ChallengeType.DamageIn ? "Any ability"
+            : SelectedChallengeType == ChallengeType.EffectStacks ? "Numeric effect ID" : "Ability name or ID";
+        public string EditorTitle => _isEditing ? "Edit challenge" : "New challenge";
         public string SelectedBoss { get; set; }
         public string SelectedEncounter { get; set; }
 
@@ -231,6 +259,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
         public void Edit(Challenge challengeToEdit)
         {
             _isEditing = true;
+            OnPropertyChanged(nameof(EditorTitle));
             _editedChallenge = challengeToEdit;
             SelectedChallengeType = challengeToEdit.ChallengeType;
             Name = challengeToEdit.Name;
@@ -255,6 +284,22 @@ namespace SWTORCombatParser.ViewModels.Challenges
         public ReactiveCommand<Unit,Unit> SaveCommand => ReactiveCommand.Create(Save);
         private void Save()
         {
+            ValidationMessage = string.Empty;
+            if (string.IsNullOrWhiteSpace(Name))
+            {
+                ValidationMessage = "Enter a challenge name.";
+                return;
+            }
+            if (HasPhases && (SelectedPhase == null || !AvailablePhases.Contains(SelectedPhase)))
+            {
+                ValidationMessage = "Select a phase. Add one in Phases if needed.";
+                return;
+            }
+            if (HasPhases && (string.IsNullOrEmpty(SelectedMetric) || OverlayType == OverlayType.None))
+            {
+                ValidationMessage = "Select a metric.";
+                return;
+            }
             OnNewChallenge(new Challenge()
             {
                 ChallengeType = SelectedChallengeType,
@@ -263,14 +308,17 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 Name = Name,
                 BackgroundBrush = ColorPreview,
                 BackgroundColor = $"{ColorPreview.Color.R},{ColorPreview.Color.G},{ColorPreview.Color.B}",
-                Id = Guid.NewGuid(),
+                Id = _isEditing ? _editedChallenge.Id : Guid.NewGuid(),
+                ShareId = _isEditing ? _editedChallenge.ShareId : null,
+                IsBuiltIn = _isEditing && _editedChallenge.IsBuiltIn,
+                BuiltInRev = _isEditing ? _editedChallenge.BuiltInRev : 0,
                 Value = Value,
-                Source = selectedSource,
-                IsEnabled = true,
+                Source = _isEditing ? _editedChallenge.Source : selectedSource,
+                IsEnabled = _isEditing ? _editedChallenge.IsEnabled : true,
                 UseRawValues = UseRawValue,
                 UseMaxValue = UseMaxValue,
-                PhaseId = SelectedPhase != null ? SelectedPhase.Id : Guid.Empty,
-                PhaseMetric = OverlayType
+                PhaseId = HasPhases && SelectedPhase != null ? SelectedPhase.Id : Guid.Empty,
+                PhaseMetric = HasPhases ? OverlayType : OverlayType.None
             }, _isEditing);
         }
         private void Reset()
@@ -296,8 +344,8 @@ namespace SWTORCombatParser.ViewModels.Challenges
                     {
                         HasValue = true;
                         HasTarget = true;
-                        ValuePrompt = "With Ability: ";
-                        TargetText = "Target: ";
+                        ValuePrompt = "Ability (optional)";
+                        TargetText = "Target (optional)";
                         CanBeRate = true;
                         break;
                     }
@@ -305,26 +353,20 @@ namespace SWTORCombatParser.ViewModels.Challenges
                     {
                         HasValue = true;
                         HasSource = true;
-                        ValuePrompt = "From Ability: ";
-                        SourceText = "Source: ";
+                        ValuePrompt = "Ability (optional)";
+                        SourceText = "Attacker (optional)";
                         CanBeRate = true;
                         break;
                     }
                 case ChallengeType.InterruptCount:
                     {
-                        HasValue = true;
-                        HasTarget = true;
-                        ValuePrompt = "Interrupted Ability: ";
-                        TargetText = "Target: ";
-                        CanBeRate = true;
                         UseRawValue = true;
                         break;
                     }
                 case ChallengeType.AbilityCount:
                     {
                         HasValue = true;
-                        ValuePrompt = "Ability: ";
-                        CanBeRate = true;
+                        ValuePrompt = "Ability";
                         UseRawValue = true;
                         break;
                     }
@@ -337,13 +379,17 @@ namespace SWTORCombatParser.ViewModels.Challenges
                 case ChallengeType.EffectStacks:
                     {
                         HasValue = true;
-                        HasSource = true;
-                        ValuePrompt = "From Effect: ";
-                        SourceText = "Source: ";
+                        ValuePrompt = "Effect ID";
                         CanHaveMax = true;
                         break;
                     }
             }
+            OnPropertyChanged(nameof(ResultModes));
+            OnPropertyChanged(nameof(SelectedResultMode));
+            OnPropertyChanged(nameof(HasResultMode));
+            OnPropertyChanged(nameof(HasFixedResult));
+            OnPropertyChanged(nameof(FixedResult));
+            OnPropertyChanged(nameof(ValueWatermark));
         }
         public SolidColorBrush ColorPreview => new SolidColorBrush(SelectedColor);
         public Color SelectedColor

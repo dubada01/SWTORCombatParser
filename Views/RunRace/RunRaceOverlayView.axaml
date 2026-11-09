@@ -4,27 +4,27 @@
              xmlns:race="clr-namespace:SWTORCombatParser.Views.RunRace"
              x:Class="SWTORCombatParser.Views.RunRace.RunRaceOverlayView"
              x:DataType="vm:RunRaceOverlayViewModel">
-    <Border Background="#D0111D18" BorderBrush="#4C6D5D" BorderThickness="1" CornerRadius="8" Padding="13,10">
-        <Grid RowDefinitions="Auto,Auto,*,Auto">
-            <Grid ColumnDefinitions="Auto,*,Auto">
+    <Border Classes="OverlayCard" VerticalAlignment="Top">
+        <Grid RowDefinitions="Auto,Auto,Auto,Auto">
+            <Grid ColumnDefinitions="Auto,*,Auto" Classes="OverlayDetail" Margin="0,0,0,6">
                 <Ellipse Fill="#7DE0AE" Width="5" Height="5" Margin="0,0,7,0" VerticalAlignment="Center"/>
                 <TextBlock Grid.Column="1" Text="RUN RACE" FontSize="10" FontWeight="SemiBold" Foreground="#A9C7B7"/>
                 <TextBlock Grid.Column="2" Text="{Binding Race.ReferenceTitle}" FontSize="10" Foreground="#D9BB7B" MaxWidth="250"
                            TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Race.GhostDescription}"/>
             </Grid>
-            <Grid Grid.Row="1" ColumnDefinitions="*,Auto" Margin="0,9,0,0">
+            <Grid Grid.Row="1" ColumnDefinitions="*,Auto">
                 <StackPanel Spacing="3" VerticalAlignment="Center" Margin="0,0,12,0">
-                    <TextBlock Text="{Binding Race.Title}" FontSize="16" FontWeight="SemiBold" Foreground="#E4F0E8" TextTrimming="CharacterEllipsis"/>
-                    <TextBlock Text="{Binding Race.ProgressLabel}" FontSize="10" Foreground="#94ADA0"/>
+                    <TextBlock Text="{Binding Race.Title}" FontSize="14" FontWeight="SemiBold" Foreground="#E4F0E8" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Classes="OverlayDetail" Text="{Binding Race.ProgressLabel}" FontSize="10" Foreground="#94ADA0"/>
                 </StackPanel>
                 <StackPanel Grid.Column="1" Spacing="1">
-                    <TextBlock Text="{Binding Race.Elapsed}" FontSize="28" FontWeight="SemiBold" Foreground="#E4F0E8" HorizontalAlignment="Right"/>
+                    <TextBlock Text="{Binding Race.Elapsed}" FontSize="22" FontWeight="SemiBold" Foreground="#E4F0E8" HorizontalAlignment="Right"/>
                     <TextBlock Text="{Binding Race.DeltaHeadline}" FontSize="11" Foreground="{Binding Race.DeltaBrush}"
                                HorizontalAlignment="Right" MaxWidth="200" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Race.DeltaHeadline}"/>
                 </StackPanel>
             </Grid>
-            <race:RunRaceTimelineControl Grid.Row="2" Snapshot="{Binding Race.TimelineSnapshot}" Margin="0,8,0,0"/>
-            <Border Grid.Row="3" BorderBrush="#304B3D" BorderThickness="0,1,0,0" Padding="0,7,0,0">
+            <race:RunRaceTimelineControl Classes="RaceTimeline" Grid.Row="2" Snapshot="{Binding Race.TimelineSnapshot}" Margin="0,5,0,0"/>
+            <Border Classes="OverlayDetail" Grid.Row="3" BorderBrush="#304B3D" BorderThickness="0,1,0,0" Padding="0,7,0,0">
                 <TextBlock Text="{Binding Race.PaceHeadline}" FontSize="11" Foreground="{Binding Race.PaceBrush}"
                            TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Race.Status}"/>
             </Border>

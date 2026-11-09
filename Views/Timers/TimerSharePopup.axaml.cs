@@ -1,24 +1,41 @@
-﻿using Avalonia;
+using System;
+using System.Threading.Tasks;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
+using Avalonia.Input;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Views.Timers
 {
-    /// <summary>
-    /// Interaction logic for BackgroundMonitoringWarning.xaml
-    /// </summary>
     public partial class TimerSharePopup : Window
     {
         public TimerSharePopup(string id)
         {
             InitializeComponent();
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                Position = new PixelPoint((int)(desktop.MainWindow.Position.X + (desktop.MainWindow.Width / 2) - (750 / 2)), (int)(desktop.MainWindow.Position.Y + (desktop.MainWindow.Height / 2) - (450 / 2)));
-            }
-            OkButton.Click += (e, s) => { Close(); };
             ShareCode.Text = id;
-            Clipboard.SetTextAsync(id);
+            OkButton.Click += (_, _) => Close();
+            CopyButton.Click += async (_, _) => await CopyCodeAsync();
+            Opened += async (_, _) => await CopyCodeAsync();
+            KeyDown += (_, e) =>
+            {
+                if (e.Key != Key.Escape) return;
+                e.Handled = true;
+                Close();
+            };
+        }
+
+        private async Task CopyCodeAsync()
+        {
+            try
+            {
+                if (Clipboard == null) throw new InvalidOperationException("Clipboard is unavailable.");
+                await Clipboard.SetTextAsync(ShareCode.Text ?? "");
+                LoadingText.Text = "Copied to clipboard.";
+            }
+            catch (Exception error)
+            {
+                Logging.LogError("Could not copy timer share code: " + error.Message);
+                LoadingText.Text = "Couldn't copy. Select the code to copy it manually.";
+            }
         }
     }
 }

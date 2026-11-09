@@ -1,0 +1,38 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:timers="clr-namespace:SWTORCombatParser.ViewModels.Timers">
+    <Styles.Resources><SolidColorBrush x:Key="OverlaySurfaceBrush" Color="#101917" Opacity="0.82"/></Styles.Resources>
+    <!-- Opt-in classes keep overlay styling separate from configuration and raid-grid alignment. -->
+    <Style Selector="TextBlock.OverlayLabel">
+        <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+        <Setter Property="FontSize" Value="10"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="#A3B8AF"/>
+        <Setter Property="TextTrimming" Value="CharacterEllipsis"/>
+    </Style>
+    <Style Selector=":is(Control).OverlayDetail"><Setter Property="IsVisible" Value="False"/></Style>
+    <Style Selector=".OverlayDetailed :is(Control).OverlayDetail"><Setter Property="IsVisible" Value="True"/></Style>
+    <Style Selector=".OverlayDetailed :is(Control).OverlayCompactOnly"><Setter Property="IsVisible" Value="False"/></Style>
+    <Style Selector="Border.OverlayCard">
+        <Setter Property="Background" Value="{DynamicResource OverlaySurfaceBrush}"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="Padding" Value="8,6"/>
+    </Style>
+    <Style Selector="Border.TimerTrack" x:DataType="timers:TimerInstanceViewModel">
+        <Setter Property="Background" Value="{DynamicResource OverlaySurfaceBrush}"/>
+        <Setter Property="CornerRadius" Value="3"/>
+        <Setter Property="ClipToBounds" Value="True"/>
+        <Setter Property="Height" Value="{Binding BarHeight}"/>
+    </Style>
+    <Style Selector=".OverlayDetailed Border.TimerTrack" x:DataType="timers:TimerInstanceViewModel">
+        <Setter Property="Height" Value="{Binding DetailedBarHeight}"/>
+    </Style>
+    <Style Selector=".OverlayDetailed TextBlock.TimerLabel, .OverlayDetailed TextBlock.BossLabel">
+        <Setter Property="TextWrapping" Value="Wrap"/>
+        <Setter Property="MaxLines" Value="2"/>
+    </Style>
+    <Style Selector="Border.TimerAccent"><Setter Property="Background" Value="#6CA98C"/></Style>
+    <Style Selector=".EncounterTimers Border.TimerAccent"><Setter Property="Background" Value="#D4B078"/></Style>
+    <Style Selector=".EncounterTimers TextBlock.OverlayLabel"><Setter Property="Foreground" Value="#D4B078"/></Style>
+    <Style Selector=":is(Control).RaceTimeline"><Setter Property="Height" Value="68"/></Style>
+    <Style Selector=".OverlayDetailed :is(Control).RaceTimeline"><Setter Property="Height" Value="122"/></Style>
+</Styles>

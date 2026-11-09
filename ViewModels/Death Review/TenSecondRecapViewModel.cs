@@ -20,7 +20,7 @@ public class EffectAndStack
     public int EffectStacks { get; set; }
     public Bitmap Icon { get; set; }
 }
-public class TenSecondRecapViewModel:ReactiveObject
+public class TenSecondRecapViewModel:ReactiveObject, IDisposable
 {    
     private EventHistoryViewModel _deathLogsViewModel;
     private double _currentSliderValue;
@@ -124,29 +124,26 @@ public class TenSecondRecapViewModel:ReactiveObject
         DeathLogsView = new EventHistoryView(_deathLogsViewModel);
     }
     public void SetCombat(Combat combat)
-    {        
-        if(combat.AllLogs.Count == 0)
-            return;
-        Task.Run(async () =>
-        {
-            _currentCombat = combat;
-            _currentSelectedTime = combat.EndTime.AddSeconds(-_timeOffset);
-            CurrentSliderValue = 0;
-        
-            var players = _currentCombat.CharacterParticipants.Values.ToList();
-            players.Insert(0, new Entity() { Name = _allPlayers });
-            AvailablePlayers = players;
-        
-            var bosses = _currentCombat.AllEntities.Values.Where(e => e.IsBoss).ToList();
-            bosses.Insert(0, new Entity() { Name = _allBosses });
-            AvailableBosses = bosses;
-        
-            SelectedBoss = AvailableBosses.First();
-            SelectedPlayer = AvailablePlayers.First();
-        
-            await _deathLogsViewModel.SelectCombat(combat);
-            await _deathLogsViewModel.UpdateLogs(true);
-        });
+    {
+        if (combat.AllLogs.Count == 0) return;
+        _currentCombat = combat;
+        _currentSelectedTime = combat.EndTime.AddSeconds(-_timeOffset);
+        CurrentSliderValue = 0;
+        var players = combat.CharacterParticipants.Values.ToList();
+        players.Insert(0, new Entity { Name = _allPlayers });
+        AvailablePlayers = players;
+        var bosses = combat.AllEntities.Values.Where(entity => entity.IsBoss).ToList();
+        bosses.Insert(0, new Entity { Name = _allBosses });
+        AvailableBosses = bosses;
+        SelectedBoss = AvailableBosses[0];
+        SelectedPlayer = AvailablePlayers[0];
+        _ = _deathLogsViewModel.SelectCombat(combat, true);
+    }
+
+    public void Dispose()
+    {
+        _currentCombat = null;
+        _deathLogsViewModel.ClearCombat();
     }
     
     private void UpdateBuffsAndDebuffs()

@@ -1,94 +1,59 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.Overviews.TableViewInstance"
-             xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             mc:Ignorable="d" 
-             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overviews"
-             x:DataType="vm:TableInstanceViewModel"
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="0.9*"></RowDefinition>
-            <RowDefinition Height="0.1*"></RowDefinition>
-        </Grid.RowDefinitions>
-        <DataGrid ItemsSource="{Binding DataToView}" IsReadOnly="True">
-            <DataGrid.Styles>
-                <Style Selector="DataGridRow:nth-child(odd)">
-                    <Setter Property="Background" Value="Transparent" />
-                </Style>
-                <Style Selector="DataGridRow:nth-child(even)">
-                    <Setter Property="Background" Value="{StaticResource Gray1}" />
-                </Style>
-                <Style Selector="DataGridCell.rightAlign">
-                    <Setter Property="HorizontalContentAlignment" Value="Right"></Setter>
-                </Style>
-                <Style Selector="DataGridColumnHeader">
-                    <Setter Property="FontSize" Value="10"></Setter>
-                </Style>
-            </DataGrid.Styles>
-            <DataGrid.Columns>
-                <DataGridTemplateColumn Width="1.66*" Header="{Binding SelectedSortName}">
-                        <DataGridTemplateColumn.CellTemplate>
-                            <DataTemplate>
-                                <Grid>
-                                    <Image Width="20" Source="{Binding Icon}" HorizontalAlignment="Left"></Image>
-                                    <TextBlock VerticalAlignment="Center" Margin="20,0,0,0" FontSize="10" FontFamily="{StaticResource MainFont}" Text="{Binding SortItem}"></TextBlock>
-                                </Grid>
-                            </DataTemplate>
-                        </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTemplateColumn Width=".75*" SortMemberPath="PercentOfTotal">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <ProgressBar Foreground="{StaticResource GreenColorBrush}" ShowProgressText="True" MinWidth="20" FontSize="10" Maximum="100" Height="15" HorizontalAlignment="Stretch" Value="{Binding PercentOfTotal, Mode=OneWay}"></ProgressBar>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-                </DataGridTemplateColumn>
-                <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Rate" Binding="{Binding Rate, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-                <DataGridTextColumn Width="1*" CellStyleClasses="rightAlign" Header="Average" Binding="{Binding Average, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-                <DataGridTextColumn Width="1*" CellStyleClasses="rightAlign" Header="Max" Binding="{Binding Max, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-                <DataGridTextColumn Width="1*" CellStyleClasses="rightAlign" Header="Max Crit" Binding="{Binding MaxCrit, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-                <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Crit %" Binding="{Binding CritPercent, StringFormat='#0.#'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-                <DataGridTextColumn Width="1*" CellStyleClasses="rightAlign" Header="Total" Binding="{Binding Total, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-                <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Uses" Binding="{Binding Count, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-                <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Type" Binding="{Binding Type, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-            </DataGrid.Columns>
-        </DataGrid>
-    <DataGrid IsHitTestVisible="False" ItemsSource="{Binding Totals}" Grid.Row="1" HeadersVisibility="None">
-                <DataGrid.Styles>
-            <Style Selector="DataGridCell.rightAlign">
-                <Setter Property="HorizontalContentAlignment" Value="Right"></Setter>
-            </Style>
-        </DataGrid.Styles>
-        <DataGrid.Columns>
-            <DataGridTemplateColumn Width="1.66*" Header="{Binding SelectedSortName}">
-                    <DataGridTemplateColumn.CellTemplate>
-                        <DataTemplate>
-                            <Grid>
-                                <Image Width="20" Source="{Binding Icon}" HorizontalAlignment="Left"></Image>
-                                <TextBlock VerticalAlignment="Center" Margin="20,0,0,0" FontSize="10" FontFamily="{StaticResource MainFont}" Text="{Binding SortItem}"></TextBlock>
-                            </Grid>
-                        </DataTemplate>
-                    </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
-            <DataGridTemplateColumn Width=".75*" Header="% of Max" SortMemberPath="PercentOfTotal">
-                <DataGridTemplateColumn.CellTemplate>
-                    <DataTemplate>
-                        <ProgressBar Foreground="{StaticResource GreenColorBrush}" ShowProgressText="True" MinWidth="20" FontSize="10" Maximum="100" Height="15" HorizontalAlignment="Stretch" Value="{Binding PercentOfTotal, Mode=OneWay}"></ProgressBar>
-                    </DataTemplate>
-                </DataGridTemplateColumn.CellTemplate>
-            </DataGridTemplateColumn>
-            <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Rate" Binding="{Binding Rate, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-            <DataGridTextColumn Width="1*" CellStyleClasses="rightAlign" Header="Average" Binding="{Binding Average, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-            <DataGridTextColumn Width="1*" CellStyleClasses="rightAlign" Header="Max" Binding="{Binding Max, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-            <DataGridTextColumn Width="1*" CellStyleClasses="rightAlign" Header="Max Crit" Binding="{Binding MaxCrit, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-            <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Crit %" Binding="{Binding CritPercent, StringFormat='#0.#'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-            <DataGridTextColumn Width="1*" CellStyleClasses="rightAlign" Header="Total" Binding="{Binding Total, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-            <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Uses" Binding="{Binding Count, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-            <DataGridTextColumn Width=".75*" CellStyleClasses="rightAlign" Header="Types" Binding="{Binding Type, StringFormat='#,0'}" FontSize="10" FontFamily="{StaticResource MainFont}"></DataGridTextColumn>
-        </DataGrid.Columns>
-    </DataGrid>
+<UserControl x:Class="SWTORCombatParser.Views.Overviews.TableViewInstance"
+ xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overviews" xmlns:local="clr-namespace:SWTORCombatParser.Views.Overviews" x:DataType="vm:TableInstanceViewModel">
+ <UserControl.Styles>
+  <Style Selector="DataGridCell.share"><Setter Property="HorizontalContentAlignment" Value="Stretch"/></Style>
+  <Style Selector="Grid#TotalsCells TextBlock"><Setter Property="FontSize" Value="12"/><Setter Property="FontWeight" Value="SemiBold"/><Setter Property="VerticalAlignment" Value="Center"/><Setter Property="HorizontalAlignment" Value="Right"/><Setter Property="Margin" Value="6,0"/></Style>
+ </UserControl.Styles>
+ <Grid RowDefinitions="*,Auto,Auto" RowSpacing="6">
+  <Grid>
+   <DataGrid x:Name="DetailsGrid" Classes="AnalysisTable" ItemsSource="{Binding DataToView}" LoadingRow="RowLoading" IsReadOnly="True" AutoGenerateColumns="False">
+    <DataGrid.Columns>
+     <DataGridTemplateColumn Width="2*" MinWidth="190" Header="{Binding SelectedSortName}" SortMemberPath="SortItem">
+      <DataGridTemplateColumn.CellTemplate><DataTemplate x:DataType="vm:CombatInfoInstance">
+       <Grid ColumnDefinitions="20,*" ColumnSpacing="8" Margin="6,0"><Image Width="18" Height="18" Source="{Binding Icon}"/>
+        <TextBlock Grid.Column="1" VerticalAlignment="Center" Text="{Binding SortItem}" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding SortItem}"/>
+       </Grid>
+      </DataTemplate></DataGridTemplateColumn.CellTemplate>
+     </DataGridTemplateColumn>
+     <DataGridTemplateColumn Width="*" MinWidth="60" Header="Share" SortMemberPath="PercentOfTotal" CellStyleClasses="share">
+      <DataGridTemplateColumn.CellTemplate><DataTemplate x:DataType="vm:CombatInfoInstance">
+       <Grid Margin="5,0" HorizontalAlignment="Stretch" ClipToBounds="True"><local:ContributionBar Height="20" HorizontalAlignment="Stretch" Percentage="{Binding PercentOfTotal}"/>
+        <TextBlock Text="{Binding PercentOfTotalStr}" HorizontalAlignment="Right" VerticalAlignment="Center" Margin="4,0"/>
+       </Grid>
+      </DataTemplate></DataGridTemplateColumn.CellTemplate>
+     </DataGridTemplateColumn>
+     <DataGridTextColumn FontSize="12" Width="*" MinWidth="86" CellStyleClasses="rightAlign" Header="Total" Binding="{Binding Total, Mode=OneWay, StringFormat='N0'}"/>
+     <DataGridTextColumn FontSize="12" Width="*" MinWidth="76" CellStyleClasses="rightAlign" Header="Rate /s" Binding="{Binding Rate, Mode=OneWay, StringFormat='N0'}"/>
+     <DataGridTextColumn FontSize="12" Width="*" MinWidth="76" CellStyleClasses="rightAlign" Header="Average" Binding="{Binding Average, Mode=OneWay, StringFormat='N0'}"/>
+     <DataGridTextColumn FontSize="12" Width="*" MinWidth="76" CellStyleClasses="rightAlign" Header="Max hit" Binding="{Binding Max, Mode=OneWay, StringFormat='N0'}"/>
+     <DataGridTextColumn FontSize="12" Width="*" MinWidth="76" CellStyleClasses="rightAlign" Header="Max crit" Binding="{Binding MaxCrit, Mode=OneWay, StringFormat='N0'}"/>
+     <DataGridTextColumn FontSize="12" Width=".8*" MinWidth="66" CellStyleClasses="rightAlign" Header="Crit %" Binding="{Binding CritPercent, Mode=OneWay, StringFormat='0.0'}"/>
+     <DataGridTextColumn FontSize="12" Width=".8*" MinWidth="66" CellStyleClasses="rightAlign" Header="Events" Binding="{Binding Count, Mode=OneWay, StringFormat='N0'}"/>
+     <DataGridTextColumn FontSize="12" Width="*" MinWidth="76" Header="Type" Binding="{Binding Type, Mode=OneWay}"/>
+    </DataGrid.Columns>
+   </DataGrid>
+   <TextBlock Text="{Binding EmptyMessage}" IsVisible="{Binding IsEmpty}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource Gray12Brush}" IsHitTestVisible="False"/>
+   <ProgressBar Height="2" VerticalAlignment="Top" IsIndeterminate="True" IsVisible="{Binding IsLoading}"/>
+  </Grid>
+  <Border Grid.Row="1" Background="{StaticResource Gray3Brush}" BorderBrush="{StaticResource Gray4Brush}" BorderThickness="1" IsVisible="{Binding HasTotals}" ClipToBounds="True">
+   <ScrollViewer x:Name="TotalsScroll" HorizontalScrollBarVisibility="Hidden" VerticalScrollBarVisibility="Disabled" Height="36">
+    <Grid x:Name="TotalsCells" DataContext="{Binding Overall}" x:DataType="vm:CombatInfoInstance" HorizontalAlignment="Left" ColumnDefinitions="190,90,86,76,76,76,76,66,66,76">
+     <TextBlock Grid.Column="0" Text="Total" HorizontalAlignment="Left" ToolTip.Tip="All events for this participant and category; text search only filters the rows above."/>
+     <TextBlock Grid.Column="1" Text="{Binding PercentOfTotalStr}" ToolTip.Tip="Overall share"/>
+     <TextBlock Grid.Column="2" Text="{Binding Total, StringFormat='N0'}" ToolTip.Tip="Total amount"/>
+     <TextBlock Grid.Column="3" Text="{Binding Rate, StringFormat='N0'}" ToolTip.Tip="Overall rate per second"/>
+     <TextBlock Grid.Column="4" Text="{Binding Average, StringFormat='N0'}" ToolTip.Tip="Average per event, weighted by event count"/>
+     <TextBlock Grid.Column="5" Text="{Binding Max, StringFormat='N0'}" ToolTip.Tip="Largest non-critical event"/>
+     <TextBlock Grid.Column="6" Text="{Binding MaxCrit, StringFormat='N0'}" ToolTip.Tip="Largest critical event"/>
+     <TextBlock Grid.Column="7" Text="{Binding CritPercent, StringFormat='0.0'}" ToolTip.Tip="Critical events as a percentage of all events"/>
+     <TextBlock Grid.Column="8" Text="{Binding Count, StringFormat='N0'}" ToolTip.Tip="Total event count"/>
+     <TextBlock Grid.Column="9" Text="{Binding Type}" HorizontalAlignment="Left"/>
     </Grid>
-
+   </ScrollViewer>
+  </Border>
+  <Grid Grid.Row="2" ColumnDefinitions="*,Auto" Margin="2,0">
+   <TextBlock Grid.Column="1" Classes="AnalysisLabel" Text="{Binding ResultCount}" ToolTip.Tip="Visible rows / all rows"/>
+  </Grid>
+ </Grid>
 </UserControl>

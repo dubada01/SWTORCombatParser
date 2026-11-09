@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Diagnostics;
 using System.Threading;
 using Avalonia;
@@ -27,6 +27,14 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     public OverlaySettingsType SettingsType { get; set; } = OverlaySettingsType.Global;
     internal readonly string _overlayName;
     public virtual string OverlayDisplayName => _overlayName;
+    public virtual bool SupportsPresentation => false;
+    public string[] PresentationStyles => OverlayPresentationSettings.Styles;
+    public int PresentationIndex
+    {
+        get => OverlayPresentationSettings.Read(_overlayName);
+        set { if (SupportsPresentation) OverlayPresentationSettings.Write(_overlayName, value); }
+    }
+    internal void RefreshPresentation() => this.RaisePropertyChanged(nameof(PresentationIndex));
     private UserControl _mainContent;
     private bool _inConversation;
     private static double _defaultLockedOpacity = 0.066;
@@ -83,12 +91,26 @@ public abstract class BaseOverlayViewModel:ReactiveObject
     {
         _overlayName = overlayName;
         CombatLogStreamer.NewLineStreamed += ToggleVisibilityFromConversation;
+        OverlayPositionReset.PositionsReset += ReloadOverlayPosition;
     }
 
     protected void UnsubscribeFromLogEvents()
     {
         CombatLogStreamer.NewLineStreamed -= ToggleVisibilityFromConversation;
+        OverlayPositionReset.PositionsReset -= ReloadOverlayPosition;
     }
+
+    private void ReloadOverlayPosition() => Dispatcher.UIThread.Post(() =>
+    {
+        if (_overlayWindow == null) return;
+        OverlayInfo defaults;
+        if (SettingsType == OverlaySettingsType.Global)
+            defaults = DefaultGlobalOverlays.GetOverlayInfoForType(_overlayName);
+        else if (!DefaultCharacterOverlays.GetCharacterDefaults(_currentRole).TryGetValue(_overlayName, out defaults))
+            return;
+        // Reset geometry only; reloading the enabled state could reopen hidden windows.
+        OnNewPositionAndSize(defaults.Position, defaults.WidtHHeight);
+    });
 
     private void ToggleVisibilityFromConversation(ParsedLogEntry obj)
     {
@@ -114,6 +136,7 @@ public abstract class BaseOverlayViewModel:ReactiveObject
         if (_overlayWindow == null)
         {
             _overlayWindow = new BaseOverlayWindow(this);  // Pass `this`, referring to the fully constructed derived class
+            _overlayWindow.Closed += (_, _) => OverlayPositionReset.PositionsReset -= ReloadOverlayPosition;
         }
     }
 
@@ -166,6 +189,12 @@ public abstract class BaseOverlayViewModel:ReactiveObject
                 _overlayWindow.ToggleClickThroughCrossPlatform(!_overlaysMoveable);
             });
         }
+    }
+
+    internal void HideOverlayAfterInputFailure()
+    {
+        _overlayWindow?.Hide();
+        _isHidden = true;
     }
 
     public void HideOverlayWindow()

@@ -1,4 +1,4 @@
-﻿using Newtonsoft.Json;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -17,95 +17,118 @@ namespace SWTORCombatParser.Model.Overlays
         public double Columns;
         public bool Acive;
     }
+
     public static class RaidFrameOverlayManager
     {
+        private static readonly object FileLock = new object();
         private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
         private static string infoPath = Path.Combine(appDataPath, "raidframe_overlay_info.json");
-        private static JsonSerializerSettings _settings = new JsonSerializerSettings
+        private static readonly JsonSerializerSettings _settings = new JsonSerializerSettings
         {
             Culture = CultureInfo.InvariantCulture
         };
+
+        public static bool IsValidGridDimension(double value) =>
+            double.IsFinite(value) && value >= 1 && value <= 24 && value == Math.Truncate(value);
+
         public static void Init()
         {
-            if (!Directory.Exists(appDataPath))
-                Directory.CreateDirectory(appDataPath);
-            if (!File.Exists(infoPath))
+            lock (FileLock)
             {
-                File.WriteAllText(infoPath, JsonConvert.SerializeObject(new Dictionary<string, RaidFrameOverlayInfo>()));
+                Directory.CreateDirectory(appDataPath);
+                if (!File.Exists(infoPath))
+                    Save(new Dictionary<string, RaidFrameOverlayInfo>());
             }
         }
+
         public static void SetDefaults(Point position, Point widtHHeight, string characterName)
         {
-            var currentDefaults = GetDefaults(characterName);
-            currentDefaults = new RaidFrameOverlayInfo() { Position = position, WidtHHeight = widtHHeight, Acive = currentDefaults.Acive, Columns = currentDefaults.Columns, Rows = currentDefaults.Rows };
-            SaveResults(characterName, currentDefaults);
+            Update(characterName, defaults =>
+            {
+                defaults.Position = position;
+                defaults.WidtHHeight = widtHHeight;
+            });
         }
-        public static void SetActiveState(bool state, string characterName)
-        {
-            var currentDefaults = GetDefaults(characterName);
 
-            currentDefaults = new RaidFrameOverlayInfo() { Position = currentDefaults.Position, WidtHHeight = currentDefaults.WidtHHeight, Acive = state, Columns = currentDefaults.Columns, Rows = currentDefaults.Rows };
-            SaveResults(characterName, currentDefaults);
-        }
+        public static void SetActiveState(bool state, string characterName) =>
+            Update(characterName, defaults => defaults.Acive = state);
+
         public static void SetRowsColumns(double rows, double columns, string characterName)
         {
-            var currentDefaults = GetDefaults(characterName);
-
-            currentDefaults = new RaidFrameOverlayInfo() { Position = currentDefaults.Position, WidtHHeight = currentDefaults.WidtHHeight, Acive = currentDefaults.Acive, Columns = columns, Rows = rows };
-            SaveResults(characterName, currentDefaults);
+            if (!IsValidGridDimension(rows))
+                throw new ArgumentOutOfRangeException(nameof(rows), "Choose between 1 and 24 rows.");
+            if (!IsValidGridDimension(columns))
+                throw new ArgumentOutOfRangeException(nameof(columns), "Choose between 1 and 24 columns.");
+            Update(characterName, defaults =>
+            {
+                defaults.Rows = rows;
+                defaults.Columns = columns;
+            });
         }
+
         public static RaidFrameOverlayInfo GetDefaults(string characterName)
         {
-            try
+            lock (FileLock)
             {
-                var currentDefaults = GetCurrentDefaults();
-                if (!currentDefaults.ContainsKey(characterName))
-                {
-                    InitializeDefaults(characterName);
-                }
-                var defaultsForToon = currentDefaults[characterName];
-                if (defaultsForToon.Rows == 0)
-                {
-                    defaultsForToon.Rows = 4;
-                    defaultsForToon.Columns = 2;
-                }
-                return defaultsForToon;
+                var allDefaults = GetCurrentDefaults();
+                var defaults = GetOrCreateDefaults(allDefaults, characterName, out var changed);
+                if (changed)
+                    Save(allDefaults);
+                return defaults;
             }
-            catch (Exception)
+        }
+
+        private static void Update(string characterName, Action<RaidFrameOverlayInfo> update)
+        {
+            // Read, modify, and write under one lock: resize, enabled state, and
+            // row/column changes must not discard one another's saved values.
+            lock (FileLock)
             {
-                InitializeDefaults(characterName);
-                var freshDefaults = GetCurrentDefaults()[characterName];
-                if (freshDefaults.Rows == 0)
-                {
-                    freshDefaults.Rows = 4;
-                    freshDefaults.Columns = 2;
-                }
-                return freshDefaults;
+                var allDefaults = GetCurrentDefaults();
+                var defaults = GetOrCreateDefaults(allDefaults, characterName, out _);
+                update(defaults);
+                Save(allDefaults);
             }
+        }
 
-        }
-        private static void SaveResults(string character, RaidFrameOverlayInfo data)
+        private static RaidFrameOverlayInfo GetOrCreateDefaults(
+            Dictionary<string, RaidFrameOverlayInfo> allDefaults, string characterName, out bool changed)
         {
-            var currentDefaults = GetCurrentDefaults();
-            currentDefaults[character] = data;
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults, _settings));
+            changed = false;
+            if (!allDefaults.TryGetValue(characterName, out var defaults) || defaults == null)
+            {
+                allDefaults.TryGetValue("no character", out var template);
+                defaults = new RaidFrameOverlayInfo
+                {
+                    Position = template?.Position ?? new Point(0, 0),
+                    WidtHHeight = template?.WidtHHeight ?? new Point(400, 400),
+                    Rows = template?.Rows ?? 4,
+                    Columns = template?.Columns ?? 2
+                };
+                allDefaults[characterName] = defaults;
+                changed = true;
+            }
+            if (!IsValidGridDimension(defaults.Rows))
+            {
+                defaults.Rows = 4;
+                changed = true;
+            }
+            if (!IsValidGridDimension(defaults.Columns))
+            {
+                defaults.Columns = 2;
+                changed = true;
+            }
+            return defaults;
         }
-        private static void InitializeDefaults(string characterName)
-        {
-            var currentDefaults = GetCurrentDefaults();
-            var defaults = new RaidFrameOverlayInfo() { Position = new Point(0, 0), WidtHHeight = new Point(400, 400), Rows = 4, Columns = 2 };
-            if (characterName != "no character")
-                defaults = new RaidFrameOverlayInfo() { Position = currentDefaults["no character"].Position, WidtHHeight = currentDefaults["no character"].WidtHHeight, Columns = 2, Rows = 4 };
 
-            currentDefaults[characterName] = defaults;
-            File.WriteAllText(infoPath, JsonConvert.SerializeObject(currentDefaults));
-        }
         private static Dictionary<string, RaidFrameOverlayInfo> GetCurrentDefaults()
         {
-            var stringInfo = File.ReadAllText(infoPath);
-            var currentDefaults = JsonConvert.DeserializeObject<Dictionary<string, RaidFrameOverlayInfo>>(stringInfo);
-
-            return currentDefaults;
+            Init();
+            return JsonConvert.DeserializeObject<Dictionary<string, RaidFrameOverlayInfo>>(File.ReadAllText(infoPath), _settings)
+                ?? new Dictionary<string, RaidFrameOverlayInfo>();
         }
+
+        private static void Save(Dictionary<string, RaidFrameOverlayInfo> defaults) =>
+            File.WriteAllText(infoPath, JsonConvert.SerializeObject(defaults, _settings));
     }
 }

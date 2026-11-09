@@ -76,6 +76,12 @@ namespace SWTORCombatParser.Model.LogParsing
             _dateTime = logDate;
             _interner.Clear();
         }
+        internal static void ResetEntities()
+        {
+            // Entity identity belongs to one parsed log. Date changes also happen
+            // when handing historical data to the live tail, so reset only at a new log.
+            _currentEntities = new ConcurrentDictionary<long, Entity>();
+        }
         public static ParsedLogEntry ParseLog(ReadOnlySpan<char> logEntry, DateTime previousLogTime, long lineIndex, List<string> parsedLineInfo, bool realTime)
         {
             var logEntryInfos = parsedLineInfo;
@@ -573,13 +579,17 @@ namespace SWTORCombatParser.Model.LogParsing
                         var idSpan = name.Slice(hashIndex + 1);
                         if (long.TryParse(idSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out var playerId))
                         {
-                            entityToReturn.Entity = _currentEntities.GetOrAdd(playerId, new Entity
+                            if (!_currentEntities.TryGetValue(playerId, out var player))
                             {
-                                IsCharacter = true,
-                                Name = characterName.ToString(),
-                                Id = playerId,
-                                LogId = playerId
-                            });
+                                player = _currentEntities.GetOrAdd(playerId, new Entity
+                                {
+                                    IsCharacter = true,
+                                    Name = characterName.ToString(),
+                                    Id = playerId,
+                                    LogId = playerId
+                                });
+                            }
+                            entityToReturn.Entity = player;
                         }
 
                         return;
@@ -606,14 +616,18 @@ namespace SWTORCombatParser.Model.LogParsing
                             if (long.TryParse(idSpan, NumberStyles.Integer, CultureInfo.InvariantCulture,
                                     out var compId))
                             {
-                                entityToReturn.Entity = _currentEntities.GetOrAdd(compId, new Entity
+                                if (!_currentEntities.TryGetValue(compId, out var companion))
                                 {
-                                    IsCharacter = true,
-                                    IsCompanion = true,
-                                    Name = nameOnly.ToString(),
-                                    Id = compId,
-                                    LogId = compId
-                                });
+                                    companion = _currentEntities.GetOrAdd(compId, new Entity
+                                    {
+                                        IsCharacter = true,
+                                        IsCompanion = true,
+                                        Name = nameOnly.ToString(),
+                                        Id = compId,
+                                        LogId = compId
+                                    });
+                                }
+                                entityToReturn.Entity = companion;
                             }
 
                             return;
@@ -632,13 +646,17 @@ namespace SWTORCombatParser.Model.LogParsing
 
                 if (long.TryParse(idSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out var unknownEntityId))
                 {
-                    entityToReturn.Entity = _currentEntities.GetOrAdd(unknownEntityId, new Entity
+                    if (!_currentEntities.TryGetValue(unknownEntityId, out var unknown))
                     {
-                        IsCharacter = false,
-                        Name = "Unknown",
-                        Id = unknownEntityId,
-                        LogId = unknownEntityId
-                    });
+                        unknown = _currentEntities.GetOrAdd(unknownEntityId, new Entity
+                        {
+                            IsCharacter = false,
+                            Name = "Unknown",
+                            Id = unknownEntityId,
+                            LogId = unknownEntityId
+                        });
+                    }
+                    entityToReturn.Entity = unknown;
                 }
 
                 return;
@@ -649,13 +667,17 @@ namespace SWTORCombatParser.Model.LogParsing
                 var idSpan = name.Slice(2); // skip the ::
                 if (long.TryParse(idSpan, NumberStyles.Integer, CultureInfo.InvariantCulture, out var starFighterId))
                 {
-                    entityToReturn.Entity = _currentEntities.GetOrAdd(starFighterId, new Entity
+                    if (!_currentEntities.TryGetValue(starFighterId, out var starFighter))
                     {
-                        IsCharacter = false,
-                        Name = starFighterId.ToString(),
-                        Id = starFighterId,
-                        LogId = starFighterId
-                    });
+                        starFighter = _currentEntities.GetOrAdd(starFighterId, new Entity
+                        {
+                            IsCharacter = false,
+                            Name = starFighterId.ToString(),
+                            Id = starFighterId,
+                            LogId = starFighterId
+                        });
+                    }
+                    entityToReturn.Entity = starFighter;
                 }
 
                 return;
@@ -676,13 +698,17 @@ namespace SWTORCombatParser.Model.LogParsing
                 NumberStyles.Integer, CultureInfo.InvariantCulture);
             var entityName = name.Slice(0, leftBraceIdx).Trim();
 
-            entityToReturn.Entity = _currentEntities.GetOrAdd(idParsed, new Entity
+            if (!_currentEntities.TryGetValue(idParsed, out var npc))
             {
-                IsCharacter = false,
-                Name = entityName.ToString(),
-                Id = idParsed,
-                LogId = logIdParsed
-            });
+                npc = _currentEntities.GetOrAdd(idParsed, new Entity
+                {
+                    IsCharacter = false,
+                    Name = entityName.ToString(),
+                    Id = idParsed,
+                    LogId = logIdParsed
+                });
+            }
+            entityToReturn.Entity = npc;
         }
 
 

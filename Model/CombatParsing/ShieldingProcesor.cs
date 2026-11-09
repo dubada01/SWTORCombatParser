@@ -38,11 +38,18 @@ namespace SWTORCombatParser.Model.CombatParsing
                                       .ToHashSet(StringComparer.Ordinal);
 
     var state = CombatLogStateBuilder.CurrentState;
+    // Historical combats build in parallel against the same modifier history.
+    // Consumption belongs to this calculation, never to the shared modifiers.
+    var countedAbsorbs = new HashSet<CombatModifier>();
 
     var modifiersByTarget = state.Modifiers
         .SelectMany(bag => bag.Value)
         .Select(kvp => kvp.Value)
-        .Where(m => absorbNames.Contains(m.EffectName))
+        // Live calculations cannot use an effect removal that has not happened
+        // yet. A later removal must not retrospectively introduce an overlapping
+        // shield and steal attribution from an earlier completed combat.
+        .Where(m => absorbNames.Contains(m.EffectName) &&
+                    m.StopTime != DateTime.MinValue && m.StopTime <= combat.EndTime)
         .GroupBy(m => m.Target)
         .ToDictionary(g => g.Key, g => g.ToList());
 
@@ -67,7 +74,7 @@ namespace SWTORCombatParser.Model.CombatParsing
 
         foreach (var log in targetGroup)
         {
-            var activeAbsorbs = mods.Where(m => IsModifierActive(m, log))
+            var activeAbsorbs = mods.Where(m => IsModifierActive(m, log, countedAbsorbs))
                                      .OrderBy(a => a.StartTime)
                                      .ToList();
             if (activeAbsorbs.Count == 0) continue;
@@ -75,7 +82,7 @@ namespace SWTORCombatParser.Model.CombatParsing
             for (var i = 0; i < activeAbsorbs.Count; i++)
             {
                 var absorb = activeAbsorbs[i];
-                var amount = GetAbsorbAmount(log, activeAbsorbs, i);
+                var amount = GetAbsorbAmount(log, activeAbsorbs, i, countedAbsorbs);
                 if (amount <= 0) continue;
 
                 var source = absorb.Source;
@@ -121,11 +128,25 @@ namespace SWTORCombatParser.Model.CombatParsing
     // ------------------------------------------------------------------
     // 3. Inject synthetic "Processed Absorb" logs & totals
     // ------------------------------------------------------------------
-    var nextLineNo = combat.AllLogs.Count == 0 ? 1 : combat.AllLogs.Keys.Max() + 1;
+    // Every pass recomputes the complete derived shielding result. Replace the
+    // previous derived records while retaining any physical record that has
+    // since taken its key. Keep generated IDs outside the physical reader's
+    // nonnegative Int32 line-number range, so later appends cannot overwrite them.
+    foreach (var previous in combat.AllLogs.Where(pair => pair.Value.Effect.EffectType == EffectType.AbsorbShield).ToArray())
+        combat.AllLogs.TryRemove(previous.Key, out _);
+    var nextLineNo = (long)int.MaxValue + 1;
 
-    foreach (var (source, events) in shieldEventsBySource)
+    foreach (var (source, events) in shieldEventsBySource.OrderBy(pair => pair.Key.LogId).ThenBy(pair => pair.Key.Id))
     {
-        events.Sort(static (a, b) => a.ShieldingTime.CompareTo(b.ShieldingTime));
+        events.Sort(static (a, b) =>
+        {
+            var order = a.ShieldingTime.CompareTo(b.ShieldingTime);
+            if (order != 0) return order;
+            order = string.CompareOrdinal(a.ShieldName, b.ShieldName);
+            if (order != 0) return order;
+            order = a.Target.LogId.CompareTo(b.Target.LogId);
+            return order != 0 ? order : a.Target.Id.CompareTo(b.Target.Id);
+        });
 
         var srcLogs = combat.GetLogsInvolvingEntity(source)
                              .Where(l => l.Effect.EffectType != EffectType.AbsorbShield)
@@ -142,6 +163,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 idx++;
             if (idx == srcLogs.Count) break;
 
+            while (combat.AllLogs.ContainsKey(nextLineNo)) nextLineNo++;
             var p = new ParsedLogEntry
             {
                 TimeStamp     = ev.ShieldingTime,
@@ -169,10 +191,6 @@ namespace SWTORCombatParser.Model.CombatParsing
         }
     }
 
-    // reset flags for next pass
-    foreach (var bag in state.Modifiers.Values)
-        foreach (var mod in bag.Values)
-            mod.HasAbsorbBeenCounted = false;
 }
 
 
@@ -181,20 +199,21 @@ namespace SWTORCombatParser.Model.CombatParsing
         // ------------------------------------------------------------------
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        private static bool IsModifierActive(CombatModifier m, ParsedLogEntry log)
+        private static bool IsModifierActive(CombatModifier m, ParsedLogEntry log, HashSet<CombatModifier> countedAbsorbs)
         {
-            if (m.HasAbsorbBeenCounted) return false;
+            if (countedAbsorbs.Contains(m)) return false;
             return m.StartTime < log.TimeStamp && m.StopTime.AddSeconds(4.25) >= log.TimeStamp;
         }
 
-        private static double GetAbsorbAmount(ParsedLogEntry log, List<CombatModifier> absorbs, int index)
+        private static double GetAbsorbAmount(ParsedLogEntry log, List<CombatModifier> absorbs, int index,
+            HashSet<CombatModifier> countedAbsorbs)
         {
             var modVal = log.Value.Modifier.DblValue;
 
             if (absorbs.Count == 1)
             {
                 if (log.Value.MitigatedDblValue > 0)
-                    absorbs[index].HasAbsorbBeenCounted = true;
+                    countedAbsorbs.Add(absorbs[index]);
                 return modVal;
             }
 
@@ -213,7 +232,7 @@ namespace SWTORCombatParser.Model.CombatParsing
                 else
                 {
                     if (index == 0)
-                        absorbs[index].HasAbsorbBeenCounted = true;
+                        countedAbsorbs.Add(absorbs[index]);
 
                     firstPortion     = (log.Value.DblValue - modVal) - log.Value.MitigatedDblValue;
                     remainderPortion = modVal;

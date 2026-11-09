@@ -1,20 +1,18 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.BossFrame.RaidDotInstance"
-             xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.RaidHOTs"
-             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Timers"
-             x:DataType="vm:TimerInstanceViewModel"
-             mc:Ignorable="d" 
-             d:DesignHeight="50" d:DesignWidth="150">
-    <Grid HorizontalAlignment="Stretch">
-        <Image IsVisible="{Binding ShowIcon}" Margin="5,2,0,2" HorizontalAlignment="Left" Source="{Binding InfoIcon}"></Image>
-        <Border x:Name="TimerBar" FlowDirection="RightToLeft" HorizontalAlignment="Stretch" VerticalAlignment="Stretch" BorderThickness="1" BorderBrush="DimGray" Margin="0,0,0,0" Grid.Column="0" RenderTransformOrigin="1,0" CornerRadius="3" Background="{Binding TimerForeground}" >
-            <Border.RenderTransform>
-                <ScaleTransform ScaleX="{Binding CurrentRatio, Mode=OneTime}" ScaleY="1"></ScaleTransform>
-            </Border.RenderTransform>
-        </Border>
-            
-    </Grid>
+<UserControl x:Class="SWTORCombatParser.Views.Overlay.BossFrame.RaidDotInstance"
+             xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Timers" x:DataType="vm:TimerInstanceViewModel">
+    <Border Classes="TimerTrack" Margin="0,2">
+        <Grid ColumnDefinitions="Auto,*,Auto">
+            <Border x:Name="TimerBar" Grid.ColumnSpan="3" Background="{Binding TimerForeground}" Opacity="0.35" RenderTransformOrigin="1,0">
+                <Border.RenderTransform><ScaleTransform ScaleX="{Binding CurrentRatio, Mode=OneTime}" ScaleY="1"/></Border.RenderTransform>
+            </Border>
+            <Image IsVisible="{Binding ShowIcon}" Source="{Binding InfoIcon}" MaxWidth="{Binding IconSize}"
+                   MaxHeight="{Binding IconSize}" Margin="3,0" VerticalAlignment="Center"/>
+            <TextBlock Grid.Column="1" Classes="TimerLabel" Text="{Binding TimerName}" FontSize="{Binding LabelFontSize}"
+                       FontFamily="{StaticResource MainFont}" Foreground="#DCE7E0" TextTrimming="CharacterEllipsis" VerticalAlignment="Center" Margin="7,0"/>
+            <TextBlock Grid.Column="2" Text="{Binding TimerValue, StringFormat=N1}" IsVisible="{Binding DisplayTimerValue}"
+                       FontSize="{Binding LabelFontSize}" FontFamily="{StaticResource MainFont}" Foreground="{Binding TimerBackground}"
+                       VerticalAlignment="Center" Margin="7,0"/>
+        </Grid>
+    </Border>
 </UserControl>

@@ -7,6 +7,7 @@ namespace SWTORCombatParser.ViewModels.RunRace;
 
 public sealed class RunRaceOverlayViewModel : BaseOverlayViewModel, IDisposable
 {
+    public override bool SupportsPresentation => true;
     public RunRaceViewModel Race { get; }
     public override bool ShouldBeVisible => Race.HasRun;
     public override string OverlayDisplayName => "Run Race";
@@ -17,7 +18,7 @@ public sealed class RunRaceOverlayViewModel : BaseOverlayViewModel, IDisposable
         MainContent = new RunRaceOverlayView { DataContext = this };
         var placeholderSize = OverlayScaledSize == new Point(250, 100) || _overlayWindow.Width == 250 && _overlayWindow.Height == 100;
         _overlayWindow.MinWidth = 380;
-        _overlayWindow.MinHeight = 200;
+        _overlayWindow.MinHeight = 150;
         // Upgrade only the generic first-run placeholder; keep existing custom dimensions and placement.
         if (placeholderSize)
         {

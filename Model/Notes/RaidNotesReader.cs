@@ -8,7 +8,7 @@ namespace SWTORCombatParser.Model.Notes
 {
     public static class RaidNotesReader
     {
-        private static string appDataPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
+        private static string appDataPath = Utilities.LogLoadDiagnostics.ProfileDataDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
         private static string infoPath = Path.Combine(appDataPath, "raid_notes.json");
         private static readonly string imagesPath = Path.Combine(appDataPath, "raid_note_images.json");
 

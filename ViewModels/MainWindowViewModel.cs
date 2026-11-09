@@ -53,6 +53,9 @@ using SWTORCombatParser.Model.SessionReview;
 using SWTORCombatParser.Views.SessionReview;
 using SWTORCombatParser.Model.RunRace;
 using SWTORCombatParser.Views.RunRace;
+using SWTORCombatParser.Model.Progression;
+using SWTORCombatParser.ViewModels.Progression;
+using SWTORCombatParser.Views.Progression;
 
 namespace SWTORCombatParser.ViewModels
 {
@@ -66,9 +69,10 @@ namespace SWTORCombatParser.ViewModels
         private SessionReviewWindow? _sessionReviewWindow;
         private readonly RunRaceService _runRaceService;
         private RunRaceWindow? _runRaceWindow;
+        private readonly ProgressionReviewService _progressionReviewService;
+        private ProgressionReviewWindow? _progressionReviewWindow;
         private readonly OverviewViewModel _tableViewModel;
         private readonly DataGridViewModel _dataGridViewModel;
-        private readonly RaidwideBattleReviewViewModel _deathViewModel;
         //private readonly LeaderboardViewModel _leaderboardViewModel;
         private readonly PhaseBarViewModel _phaseBarViewModel;
         private Entity localEntity;
@@ -84,17 +88,17 @@ namespace SWTORCombatParser.ViewModels
         public PastCombatsView PastCombatsView { get; set; }
 
         public PhaseBar PhasesBar { get; set; }
+        public CombatMonitorViewModel CombatMonitor => _combatMonitorViewModel;
         public Combat CurrentlyDisplayedCombat { get; set; }
         public Combat UnfilteredDisplayedCombat { get; set; }
-        private bool _allViewsUpToDate;
+        private readonly bool[] _combatViewDirty = { true, true, true, true };
+        private readonly bool[] _combatViewLoaded = new bool[4];
         private int activeRowSpan;
         private TabInstance _selectedTab;
         private bool _logLoaded;
-        private bool _viewingLogs;
         private readonly BattleReviewView _logView;
         private readonly TimersCreationView _timersView;
         private readonly ChallengeSetupView _challengeView;
-        private readonly RaidwideBattleReviewWindow _deathView;
 
         public TabInstance SelectedTab
         {
@@ -183,6 +187,7 @@ namespace SWTORCombatParser.ViewModels
             _combatMonitorViewModel.OnMonitoringStateChanged += _runRaceService.SetMonitoringState;
             _runRaceService.Start();
             CombatSelectionMonitor.CombatSelected += SelectCombat;
+            _combatMonitorViewModel.HistoricalCombatDataReady += DisplayHistoricalCombat;
             Observable.FromEvent<double>(
                 manager => _combatMonitorViewModel.OnNewLogTimeOffsetMs += manager,
                 manager => _combatMonitorViewModel.OnNewLogTimeOffsetMs -= manager).Buffer(TimeSpan.FromSeconds(2)).Subscribe(UpdateLogTimeOffset);
@@ -220,6 +225,7 @@ namespace SWTORCombatParser.ViewModels
             
             
             _sessionReviewService = new SessionReviewService(_combatMonitorViewModel);
+            _progressionReviewService = new ProgressionReviewService(_combatMonitorViewModel);
             _overlayViewModel = new OverlayViewModel(_sessionReviewService, _runRaceService);
             _overlayViewModel.OverlayLockStateChanged += () => this.RaisePropertyChanged(nameof(OverlayLockIcon));
             _timersView = new TimersCreationView();
@@ -236,14 +242,6 @@ namespace SWTORCombatParser.ViewModels
                 s.Cancel = true;
                 _challengeView.Hide();
             };
-            _deathViewModel = new RaidwideBattleReviewViewModel();
-            _deathView = new RaidwideBattleReviewWindow(_deathViewModel);
-            _deathView.Closing += (e, s) =>
-            {
-                s.Cancel = true;
-                _deathView.Hide();
-            };
-             
             _phaseBarViewModel = new PhaseBarViewModel();
             PhasesBar = new PhaseBar(_phaseBarViewModel);
             var selectedTab = Settings.ReadSettingOfType<string>("current_tab");
@@ -267,14 +265,17 @@ namespace SWTORCombatParser.ViewModels
             MainWindowClosing.Closing -= DisposeSessionFeatures;
             _sessionReviewWindow?.Close();
             _runRaceWindow?.Close();
+            _progressionReviewWindow?.Close();
             _combatMonitorViewModel.OnHistoricalCombatsParsed -= _runRaceService.ImportHistoricalCombats;
             _combatMonitorViewModel.OnMonitoringStateChanged -= _runRaceService.SetMonitoringState;
+            _combatMonitorViewModel.HistoricalCombatDataReady -= DisplayHistoricalCombat;
             _runRaceService.Dispose();
             _sessionReviewService.Dispose();
+            _progressionReviewService.Dispose();
         }
         private void FilterForPhase(List<PhaseInstance> list)
         {
-            if (UnfilteredDisplayedCombat == null || CurrentlyDisplayedCombat == null)
+            if (!CombatMonitor.CanShowCombatPhases || UnfilteredDisplayedCombat == null || CurrentlyDisplayedCombat == null)
                 return;
             if (list.Count == 0)
             {
@@ -350,15 +351,29 @@ namespace SWTORCombatParser.ViewModels
                 _timersView.Show(desktop.MainWindow);
             }
         }
-        public void ShowDeathReviewForCombat(Combat viewModelCombat)
+        public void ShowProgressionReview(PastCombat? focus)
         {
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            if (Application.Current?.ApplicationLifetime is not IClassicDesktopStyleApplicationLifetime { MainWindow: { } owner }) return;
+            if (_progressionReviewWindow is { } existing)
             {
-                _deathViewModel.Reset();
-                _deathViewModel.SetCombat(viewModelCombat);
-                _deathView.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                _deathView.Show(desktop.MainWindow);
+                ((ProgressionReviewViewModel)existing.DataContext!).Open(focus);
+                existing.Activate();
+                return;
             }
+            var viewModel = new ProgressionReviewViewModel(_progressionReviewService);
+            var window = new ProgressionReviewWindow(viewModel);
+            _progressionReviewWindow = window;
+            viewModel.DetailedReviewRequested += combat =>
+            {
+                var details = new RaidwideBattleReviewWindow(new RaidwideBattleReviewViewModel(combat))
+                {
+                    WindowStartupLocation = WindowStartupLocation.CenterOwner
+                };
+                details.Show(window);
+            };
+            window.Closed += (_, _) => _progressionReviewWindow = null;
+            viewModel.Open(focus);
+            window.Show(owner);
         }
         public ReactiveCommand<Unit,Unit> ShowChallengeWindowCommand => ReactiveCommand.Create(ShowChallengeWindow);
 
@@ -376,7 +391,10 @@ namespace SWTORCombatParser.ViewModels
             : ImageHelper.LoadFromResource("avares://Orbs/resources/unlockedIcon.png");
         public ReactiveCommand<Unit, Unit> OpenPastCombatsCommand => _combatMonitorViewModel.LoadSpecificLogCommand;
         public ReactiveCommand<Unit, Unit> OpenSessionReviewCommand => ReactiveCommand.Create(OpenSessionReview);
+        public ReactiveCommand<Unit, Unit> OpenProgressionReviewCommand => ReactiveCommand.Create(OpenProgressionReview);
         public ReactiveCommand<Unit, Unit> OpenRunRaceCommand => ReactiveCommand.Create(OpenRunRace);
+
+        public void OpenProgressionReview() => ShowProgressionReview(null);
 
         private void OpenRunRace()
         {
@@ -501,8 +519,51 @@ namespace SWTORCombatParser.ViewModels
 
         private void UpdateDataForNewTab()
         {
-            if (CurrentlyDisplayedCombat != null && _allViewsUpToDate == false)
-                SelectCombat(CurrentlyDisplayedCombat);
+            if (CurrentlyDisplayedCombat != null && _combatViewDirty[SelectedTabIndex])
+                UpdateSelectedCombatTab(CurrentlyDisplayedCombat);
+        }
+
+        private void InvalidateCombatTabs()
+        {
+            for (var tab = 0; tab < _combatViewDirty.Length; tab++)
+            {
+                _combatViewDirty[tab] = true;
+                if (tab == SelectedTabIndex || !_combatViewLoaded[tab]) continue;
+                // Hidden pages must neither rebuild nor retain the previous fight.
+                switch (tab)
+                {
+                    case 0: _dataGridViewModel.ReleaseCombat(); break;
+                    case 1: _plotViewModel.Reset(); break;
+                    case 2: _tableViewModel.Reset(); break;
+                    case 3: _reviewViewModel.ReleaseCombat(); break;
+                }
+                _combatViewLoaded[tab] = false;
+            }
+        }
+
+        private void UpdateSelectedCombatTab(Combat combat)
+        {
+            switch (SelectedTabIndex)
+            {
+                case 0:
+                    using (LogLoadDiagnostics.Measure("Selected combat raid data grid")) _dataGridViewModel.UpdateCombat(combat);
+                    break;
+                case 1:
+                    using (LogLoadDiagnostics.Measure("Selected combat plot"))
+                    {
+                        _plotViewModel.UpdateParticipants(combat);
+                        _plotViewModel.AddCombatPlot(combat);
+                    }
+                    break;
+                case 2:
+                    using (LogLoadDiagnostics.Measure("Selected combat detail tables")) _tableViewModel.AddCombat(combat);
+                    break;
+                case 3:
+                    using (LogLoadDiagnostics.Measure("Selected combat log review")) _reviewViewModel.CombatSelected(combat);
+                    break;
+            }
+            _combatViewDirty[SelectedTabIndex] = false;
+            _combatViewLoaded[SelectedTabIndex] = true;
         }
 
         private async void ProcessChanged(bool obj)
@@ -530,7 +591,6 @@ namespace SWTORCombatParser.ViewModels
                 {
                     _plotViewModel.Reset();
                     _tableViewModel.Reset();
-                    _deathViewModel.Reset();
                     _dataGridViewModel.Reset();
                     _reviewViewModel.Reset();
                 });
@@ -552,14 +612,17 @@ namespace SWTORCombatParser.ViewModels
         }
         private void UpdateCombat(Combat updatedCombat)
         {
-            CurrentlyDisplayedCombat = updatedCombat;
-            if (LoadingWindowFactory.MainWindowHidden)
-                return;
             try
             {
                 Dispatcher.UIThread.Invoke(delegate
                 {
+                    if (CombatMonitor.IsReviewingHistoricalCombat) return;
+                    CombatMonitor.ClearHistoricalCombatDisplay();
+                    CurrentlyDisplayedCombat = updatedCombat;
+                    UnfilteredDisplayedCombat = updatedCombat;
+                    if (LoadingWindowFactory.MainWindowHidden) return;
                     _overlayViewModel.CombatUpdated(updatedCombat);
+                    InvalidateCombatTabs();
                     switch (SelectedTabIndex)
                     {
                         case 1:
@@ -572,12 +635,14 @@ namespace SWTORCombatParser.ViewModels
                         case 0:
                             _dataGridViewModel.UpdateCombat(updatedCombat);
                             break;
+                        case 3:
+                            _reviewViewModel.CombatSelected(updatedCombat);
+                            break;
                     }
-                    if(_viewingLogs)
-                        _reviewViewModel.CombatSelected(updatedCombat);
+                    _combatViewDirty[SelectedTabIndex] = false;
+                    _combatViewLoaded[SelectedTabIndex] = true;
                     
                 });
-                _allViewsUpToDate = false;
             }
             catch (Exception e)
             {
@@ -586,33 +651,48 @@ namespace SWTORCombatParser.ViewModels
         }
         private void SelectCombat(Combat selectedCombat)
         {
+            if (CombatMonitor.HistoricalSelection?.Stage == HistoricalCombatSelectionStage.LoadingPhases &&
+                ReferenceEquals(UnfilteredDisplayedCombat, selectedCombat))
+            {
+                UpdateSelectedCombatOverlays(selectedCombat);
+                return;
+            }
             LogLoaded = true;
             UnfilteredDisplayedCombat = selectedCombat;
             UpdateViewsWithSelectedCombat(selectedCombat);
         }
-        private void UpdateViewsWithSelectedCombat(Combat selectedCombat)
+
+        private void DisplayHistoricalCombat(Combat combat)
         {
+            LogLoaded = true;
+            UnfilteredDisplayedCombat = combat;
+            UpdateViewsWithSelectedCombat(combat, updateOverlays: false);
+        }
+
+        private void UpdateViewsWithSelectedCombat(Combat selectedCombat, bool updateOverlays = true)
+        {
+            using var timing = LogLoadDiagnostics.Measure("Selected combat UI dispatch");
             try
             {
                 Dispatcher.UIThread.Invoke(delegate
                 {
                     CurrentlyDisplayedCombat = selectedCombat;
-                    _overlayViewModel.CombatSeleted(selectedCombat);
-                    _plotViewModel.UpdateParticipants(selectedCombat);
-                    _plotViewModel.AddCombatPlot(selectedCombat);
-                    _tableViewModel.AddCombat(selectedCombat);
-                    if(_deathView.IsVisible) 
-                        _deathViewModel.SetCombat(selectedCombat);
-                    _reviewViewModel.CombatSelected(selectedCombat);
-                    _dataGridViewModel.UpdateCombat(selectedCombat);
-
-                    _allViewsUpToDate = true;
+                    InvalidateCombatTabs();
+                    UpdateSelectedCombatTab(selectedCombat);
+                    if (updateOverlays) UpdateSelectedCombatOverlays(selectedCombat);
                 });
             }
             catch (Exception e)
             {
                 Logging.LogError("Failed to update combat visuals: " + e.Message + "\r\n" + e.StackTrace);
             }
+        }
+
+        private void UpdateSelectedCombatOverlays(Combat combat)
+        {
+            using var timing = LogLoadDiagnostics.Measure("Selected combat overlays");
+            try { _overlayViewModel.CombatSeleted(combat); }
+            catch (Exception error) { Logging.LogError("Failed to update selected combat overlays: " + error); }
         }
 
         private void LocalPlayerChanged(Entity obj)
@@ -625,7 +705,6 @@ namespace SWTORCombatParser.ViewModels
                 {
                     _plotViewModel.Reset();
                     _tableViewModel.Reset();
-                    _deathViewModel.Reset();
                     _dataGridViewModel.Reset();
                 }
                 localEntity = obj;

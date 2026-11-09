@@ -12,4 +12,11 @@ public partial class RaidwideBattleReviewWindow : Window
         DataContext = viewModel;
         InitializeComponent();
     }
+
+    protected override void OnClosed(System.EventArgs e)
+    {
+        (DataContext as RaidwideBattleReviewViewModel)?.Dispose();
+        DataContext = null;
+        base.OnClosed(e);
+    }
 }

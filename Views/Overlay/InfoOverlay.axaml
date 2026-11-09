@@ -19,7 +19,7 @@
                 <ItemsControl ItemsSource="{Binding MetricBars, UpdateSourceTrigger=PropertyChanged}">
                     <ItemsControl.ItemTemplate>
                         <DataTemplate>
-                            <Grid ToolTip.Tip="{Binding InfoText}"  Margin="0,2,2,2" MaxHeight="{Binding BarHeight}">
+                            <Grid ToolTip.Tip="{Binding InfoText}" Margin="0,1,0,1" Height="{Binding BarHeight}">
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="Auto"/>
                                     <ColumnDefinition Width="*"/>
@@ -29,8 +29,9 @@
                                     <RowDefinition/>
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
-                                <Image Grid.Column="0" MaxWidth="25" VerticalAlignment="Center" Margin="1,3,3,4" Source="{Binding ClassIcon}"/> 
-                                <Grid Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch">
+                                <Border Grid.ColumnSpan="3" Background="{DynamicResource OverlaySurfaceBrush}" CornerRadius="2"/>
+                                <Image Grid.Column="0" MaxWidth="23" VerticalAlignment="Center" Margin="2,2,3,2" Source="{Binding ClassIcon}"/>
+                                <Grid Grid.Column="1" Grid.ColumnSpan="2" HorizontalAlignment="Stretch" Opacity="0.55">
                                     <Grid.ColumnDefinitions>
                                         <ColumnDefinition Width="{Binding SecondaryBarWidth, Mode=TwoWay}"/>
                                         <ColumnDefinition Width="{Binding BarWidth, Mode=TwoWay}"/>
@@ -65,17 +66,17 @@
                                     </Border>
                                 </Grid>
                                 
-                                <TextBlock Margin="0,0,10,2" Grid.Column="2" FontSize="{Binding FontSize}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="Beige" Text="{Binding TotalValue}"></TextBlock>
+                                <TextBlock Margin="0,0,7,0" Grid.Column="2" FontSize="{Binding FontSize}" FontWeight="SemiBold" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#EFF4F0" Text="{Binding TotalValue}"/>
    
-                                <Grid Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Left" Margin="3,0,2,0">
+                                <Grid Grid.Column="1" VerticalAlignment="Center" Margin="5,0,5,0">
                                     <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="0.25*"/>
+                                        <ColumnDefinition Width="Auto"/>
                                         <ColumnDefinition Width="*"/>
                                     </Grid.ColumnDefinitions>
                                     <Image Grid.Column="0" IsVisible="{Binding IsLeaderboardValue, Converter={StaticResource BooleanToVisibiityConverter}}" MaxWidth="25" VerticalAlignment="Stretch" Margin="1,3,3,4" Source="{Binding MedalIconPath}"></Image>
                                     <TextBlock Margin="0,0,3,0" Grid.Column="0" FontFamily="{StaticResource MainFont}" Grid.Row="0" HorizontalAlignment="Left"  VerticalAlignment="Center" FontSize="{Binding RankFontSize}" Foreground="Beige" TextDecorations="{Binding RankDecoration}" Text="{Binding LeaderboardRank}" >
                                     </TextBlock>
-                                    <TextBlock Margin="0,0,0,2" Grid.Column="1" FontFamily="{StaticResource MainFont}" FontSize="{Binding InfoFontSize}" VerticalAlignment="Center" Grid.Row="0" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" HorizontalAlignment="Right" FontWeight="{Binding  PlayerTextWeight}" TextDecorations="{Binding PlayerTextDecorations}" Text="{Binding PlayerName}" ></TextBlock>
+                                    <TextBlock Grid.Column="1" FontFamily="{StaticResource MainFont}" Foreground="#EFF4F0" FontSize="{Binding InfoFontSize}" VerticalAlignment="Center" TextWrapping="NoWrap" TextTrimming="CharacterEllipsis" FontWeight="{Binding PlayerTextWeight}" TextDecorations="{Binding PlayerTextDecorations}" Text="{Binding PlayerName}"/>
                                 </Grid>
                               </Grid>
                             
@@ -84,12 +85,12 @@
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
             </ScrollViewer>
-            <Grid Height="30" IsVisible="{Binding OverlaysMoveable, Converter={StaticResource BooleanToVisibiityConverter}}">
+            <Grid Height="24" Classes="OverlayDetail" Background="{DynamicResource OverlaySurfaceBrush}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
-                <Viewbox HorizontalAlignment="Left" MaxHeight="50">
+                <Viewbox HorizontalAlignment="Left" MaxHeight="14">
                     <StackPanel Orientation="Horizontal">
                         <TextBlock FontFamily="{StaticResource MainFont}" Foreground="{Binding Type, Converter={StaticResource OverlayMetricTypeToColorConverter}}" FontWeight="Bold" VerticalAlignment="Center" Margin="10,2,5,2"
             Text="{Binding Type, Converter={StaticResource OverlayTypeToReadableNameConverter}}"/>
@@ -100,12 +101,13 @@
 
                 </Viewbox>
             </Grid>
-            <Grid Grid.Row="2" IsVisible="{Binding CreatedType, Converter={StaticResource OverlayTypeToShowTotalConverter}}">
+            <Grid Grid.Row="2" Background="{DynamicResource OverlaySurfaceBrush}" IsVisible="{Binding CreatedType, Converter={StaticResource OverlayTypeToShowTotalConverter}}">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="0.33*"/>
                     <ColumnDefinition Width="0.66*"/>
                 </Grid.ColumnDefinitions>
-                <TextBlock Margin="0,0,10,0" Grid.Column="1" FontSize="{Binding TotalFontSize}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="PaleGoldenrod" Text="{Binding MetricTotal}"></TextBlock>
+                <TextBlock Text="TOTAL" Classes="OverlayLabel" Margin="6,0" VerticalAlignment="Center"/>
+                <TextBlock Margin="0,0,7,0" Grid.Column="1" FontSize="{Binding TotalFontSize}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Right" VerticalAlignment="Center" Foreground="#D8C599" Text="{Binding MetricTotal}"/>
             </Grid>
             <StackPanel IsVisible="{Binding HasLeaderboard, Converter={StaticResource BooleanToVisibiityConverter}}" Margin="15,2,2,2" Grid.Row="3" Orientation="Horizontal">
                 <Viewbox MaxHeight="18"  HorizontalAlignment="Left" >

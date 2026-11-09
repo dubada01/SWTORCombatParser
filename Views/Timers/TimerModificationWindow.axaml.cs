@@ -1,129 +1,92 @@
-﻿using Avalonia;
+using System;
+using System.ComponentModel;
+using System.Linq;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
+using Avalonia.VisualTree;
 using SWTORCombatParser.ViewModels.Timers;
-using RoutedEventArgs = Avalonia.Interactivity.RoutedEventArgs;
-using TextChangedEventArgs = Avalonia.Controls.TextChangedEventArgs;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Views.Timers
 {
-    /// <summary>
-    /// Interaction logic for TimerModificationWindow.xaml
-    /// </summary>
     public partial class TimerModificationWindow : Window
     {
-        private ModifyTimerViewModel _vm;
-        private bool _isDragging;
-        private Point _startPoint;
+        private readonly ModifyTimerViewModel _vm;
+        private bool _saved;
 
-        public TimerModificationWindow()
-        {
-            InitializeComponent();
-            _vm = new ModifyTimerViewModel("Shared");
-            DataContext = _vm;
-        }
+        public TimerModificationWindow() : this(new ModifyTimerViewModel("Shared")) { }
+
         public TimerModificationWindow(ModifyTimerViewModel vm)
         {
             InitializeComponent();
             _vm = vm;
             DataContext = vm;
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                Position = new PixelPoint((int)(desktop.MainWindow.Position.X + (desktop.MainWindow.Width / 2) - (750 / 2)), (int)(desktop.MainWindow.Position.Y + (desktop.MainWindow.Height / 2) - (450 / 2)));
-            }
-            TimerName.TextChanged += UpdateNameHelpText;
-            EffectName.TextChanged += UpdateValueHelpText;
-            AbilityName.TextChanged += UpdateValueHelpText;
+            Opened += (_, _) => BehaviorOptions.IsExpanded =
+                _vm.DontRefresh || _vm.ResetOnEffectLoss || _vm.CanBeRefreshed || !string.IsNullOrEmpty(_vm.SelectedCancelTimerId);
+            TabContent.Content = new VisualsTabContent();
             _vm.OnNewTimer += CloseWindow;
-            CancelButton.Click += Cancel;
-            VariableCheck.Click += CheckForForceToVisualsTab;
-            Loaded += (sender, args) => { TabContent.Content = new VisualsTabContent(); };
+            _vm.PropertyChanged += OnViewModelChanged;
+            CancelButton.Click += (_, _) => Close();
+            SaveButton.Click += (_, e) =>
+            {
+                var invalidInput = this.GetVisualDescendants().OfType<TextBox>()
+                    .FirstOrDefault(input => input.IsEffectivelyVisible && DataValidationErrors.GetHasErrors(input));
+                if (invalidInput == null) return;
+                _vm.ReportInvalidInput();
+                invalidInput.Focus();
+                e.Handled = true;
+            };
+            VariableCheck.Click += (_, _) => EffectsTabStrip.SelectedIndex = _vm.IsModifyingVariables ? 1 : 0;
+            KeyDown += (_, e) =>
+            {
+                if (e.Key != Key.Escape) return;
+                e.Handled = true;
+                Close();
+            };
+            Closed += (_, _) =>
+            {
+                _vm.OnNewTimer -= CloseWindow;
+                _vm.PropertyChanged -= OnViewModelChanged;
+                if (!_saved) _vm.Cancel();
+            };
+            UpdateEffectsTab();
         }
 
-        private void CheckForForceToVisualsTab(object? sender, RoutedEventArgs routedEventArgs)
+        private void OnViewModelChanged(object? sender, PropertyChangedEventArgs e)
         {
-            if (!VariableCheck.IsChecked.Value)
-            {
-                EffectsTabStrip.SelectedIndex = 0;
-            }
-            if (VariableCheck.IsChecked.Value && EffectsTabStrip.SelectedIndex == 0)
-            {
-                EffectsTabStrip.SelectedIndex = 1;
-            }
+            if (e.PropertyName == nameof(_vm.IncludeTimerVisuals) || e.PropertyName == nameof(_vm.IsModifyingVariables))
+                UpdateEffectsTab();
         }
 
-        private void UpdateNameHelpText(object? sender, Avalonia.Controls.TextChangedEventArgs textChangedEventArgs)
+        private void UpdateEffectsTab()
         {
-            //if (!string.IsNullOrEmpty(TimerName.Text))
-            //    TimerHelpText.Visibility = Visibility.Hidden;
-            //else
-            //    TimerHelpText.Visibility = Visibility.Visible;
+            if (!_vm.IsModifyingVariables) EffectsTabStrip.SelectedIndex = 0;
+            else if (!_vm.IncludeTimerVisuals) EffectsTabStrip.SelectedIndex = 1;
         }
-        private void UpdateValueHelpText(object? sender, TextChangedEventArgs textChangedEventArgs)
+
+        private void CloseWindow(Timer timer, bool editing, bool imported)
         {
-            //if (!string.IsNullOrEmpty(EffectName.Text) || !string.IsNullOrEmpty(AbilityName.Text))
-            //    ValueHelpText.Visibility = Visibility.Hidden;
-            //else
-            //    ValueHelpText.Visibility = Visibility.Visible;
-        }
-        private void CloseWindow(Timer throwAway, bool meh, bool megaMeh)
-        {
+            _saved = true;
             Close();
         }
-        private void Cancel(object? sender, Avalonia.Interactivity.RoutedEventArgs routedEventArgs)
+
+        private void SourceEntered(object? sender, KeyEventArgs e)
         {
-            _vm.Cancel();
-            Close();
+            if (e.Key != Key.Enter) return;
+            _vm.SaveSource();
+            e.Handled = true;
         }
 
-        private void SourceEntered(object sender, KeyEventArgs e)
+        private void TargetEntered(object? sender, KeyEventArgs e)
         {
-            if (e.Key == Key.Enter)
-            {
-                _vm.SaveSource();
-            }
-        }
-        private void TargetEntered(object sender, KeyEventArgs e)
-        {
-            if (e.Key == Key.Enter)
-            {
-                _vm.SaveTarget();
-            }
-        }
-        public void StartDrag(object sender, PointerPressedEventArgs args)
-        {
-            _isDragging = true;
-            _startPoint = args.GetPosition(this);
-        }
-        public void DragWindow(object sender, PointerEventArgs args)
-        {
-            if (_isDragging)
-            {
-                // Get the current scaling factor to adjust the movement correctly
-                var scalingFactor = this.VisualRoot.RenderScaling;
-
-                var currentPosition = args.GetPosition(this);
-                var delta = (currentPosition - _startPoint) / scalingFactor;  // Adjust for DPI scaling
-
-                // Move the window (or element) by the delta
-                var currentPositionInScreen = this.Position;
-                this.Position = new PixelPoint(
-                    currentPositionInScreen.X + (int)delta.X,
-                    currentPositionInScreen.Y + (int)delta.Y
-                );
-            }
-        }
-        public void StopDrag(object sender, PointerReleasedEventArgs args)
-        {
-            _isDragging = false;
+            if (e.Key != Key.Enter) return;
+            _vm.SaveTarget();
+            e.Handled = true;
         }
 
         private void EffectsTabStrip_OnSelectionChanged(object? sender, SelectionChangedEventArgs e)
         {
-            if (TabContent == null)
-                return;
+            if (TabContent == null) return;
             TabContent.Content = EffectsTabStrip.SelectedIndex switch
             {
                 0 => new VisualsTabContent(),

@@ -1,0 +1,29 @@
+<Styles xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <Style Selector="UserControl.AnalysisPage TextBox">
+  <Setter Property="FontSize" Value="12"/><Setter Property="MinHeight" Value="32"/><Setter Property="Padding" Value="9,6"/>
+ </Style>
+ <Style Selector="UserControl.AnalysisPage ComboBox">
+  <Setter Property="FontSize" Value="12"/><Setter Property="MinHeight" Value="32"/><Setter Property="Padding" Value="8,5"/>
+ </Style>
+ <Style Selector="Button.AnalysisAction">
+  <Setter Property="FontSize" Value="12"/><Setter Property="MinHeight" Value="32"/><Setter Property="Padding" Value="10,5"/>
+  <Setter Property="Background" Value="{StaticResource Gray3Brush}"/><Setter Property="BorderBrush" Value="{StaticResource Gray5Brush}"/>
+  <Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="3"/>
+ </Style>
+ <Style Selector="TextBlock.AnalysisLabel">
+  <Setter Property="FontSize" Value="11"/><Setter Property="Foreground" Value="{StaticResource Gray12Brush}"/><Setter Property="VerticalAlignment" Value="Center"/>
+ </Style>
+ <Style Selector="DataGrid.AnalysisTable">
+  <Setter Property="RowHeight" Value="32"/><Setter Property="ColumnHeaderHeight" Value="34"/><Setter Property="FontSize" Value="12"/>
+  <Setter Property="Background" Value="{StaticResource Gray1Brush}"/><Setter Property="BorderBrush" Value="{StaticResource Gray4Brush}"/>
+  <Setter Property="BorderThickness" Value="1"/><Setter Property="GridLinesVisibility" Value="None"/>
+  <Setter Property="HeadersVisibility" Value="Column"/><Setter Property="CanUserResizeColumns" Value="True"/>
+  <Setter Property="HorizontalScrollBarVisibility" Value="Auto"/><Setter Property="VerticalScrollBarVisibility" Value="Auto"/>
+ </Style>
+ <Style Selector="DataGrid.AnalysisTable DataGridColumnHeader"><Setter Property="FontSize" Value="11"/></Style>
+ <Style Selector="DataGrid.AnalysisTable DataGridRow:nth-child(even)"><Setter Property="Background" Value="#191919"/></Style>
+ <Style Selector="DataGrid.AnalysisTable DataGridCell.rightAlign"><Setter Property="HorizontalContentAlignment" Value="Right"/></Style>
+ <Style Selector="DataGrid.AnalysisTable DataGridCell TextBlock"><Setter Property="FontSize" Value="12"/></Style>
+ <Style Selector="DataGrid.AnalysisTable DataGridCell.static"><Setter Property="IsHitTestVisible" Value="False"/></Style>
+ <Style Selector="CheckBox.AnalysisMetric:disabled /template/ ContentPresenter"><Setter Property="Foreground" Value="{StaticResource Gray12Brush}"/><Setter Property="Opacity" Value="0.75"/></Style>
+</Styles>

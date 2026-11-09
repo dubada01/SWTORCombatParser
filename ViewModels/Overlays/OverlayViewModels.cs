@@ -97,26 +97,72 @@ namespace SWTORCombatParser.ViewModels.Overlays
         }
         public double SizeScalar
         {
-            get { return sizeScalar; }
+            get => sizeScalar;
             set
             {
-                this.RaiseAndSetIfChanged(ref sizeScalar, value);
-                if (sizeScalar > maxScalar)
-                {
-                    SizeScalarString = maxScalar.ToString();
-                    return;
-                }
-                if (sizeScalar < minScalar)
-                {
-                    SizeScalarString = minScalar.ToString();
-                    return;
-                }
-                _currentOverlays.ForEach(overlay => overlay.Value.SizeScalar = sizeScalar);
-
+                if (!double.IsFinite(value)) return;
+                var next = Math.Clamp(value, minScalar, maxScalar);
+                if (Math.Abs(next - sizeScalar) < 0.00001) return;
+                this.RaiseAndSetIfChanged(ref sizeScalar, next);
+                this.RaiseAndSetIfChanged(ref sizeScalarString, next.ToString(), nameof(SizeScalarString));
+                this.RaisePropertyChanged(nameof(OverlayScalePercent));
+                _currentOverlays.ForEach(overlay => overlay.Value.SizeScalar = next);
                 SetOverlaysScale();
-
-                Settings.WriteSetting<double>("overlay_bar_scale", sizeScalar);
+                Settings.WriteSetting("overlay_bar_scale", next);
             }
+        }
+        public double OverlayScalePercent
+        {
+            get => SizeScalar * 100;
+            set => SizeScalar = value / 100;
+        }
+        public double ContentOpacityPercent
+        {
+            get => OverlayAppearanceSettings.ContentOpacity * 100;
+            set => OverlayAppearanceSettings.SetContentOpacity(value / 100);
+        }
+        public bool UseCustomBackground
+        {
+            get => OverlayAppearanceSettings.BackgroundOpacity.HasValue;
+            set => OverlayAppearanceSettings.SetBackgroundOpacity(value ? OverlayAppearanceSettings.BackgroundOpacity ?? 0.15 : null);
+        }
+        public double BackgroundOpacityPercent
+        {
+            get => (OverlayAppearanceSettings.BackgroundOpacity ?? 0.15) * 100;
+            set { if (UseCustomBackground) OverlayAppearanceSettings.SetBackgroundOpacity(value / 100); }
+        }
+        public ReactiveCommand<Unit, Unit> ResetAppearanceCommand => ReactiveCommand.Create(OverlayAppearanceSettings.Reset);
+        public List<OverlayPresentationOption> PresentationOverlays { get; } = CreatePresentationOptions();
+        private OverlayPresentationOption _selectedPresentationOverlay;
+        public OverlayPresentationOption SelectedPresentationOverlay
+        {
+            get => _selectedPresentationOverlay ?? PresentationOverlays[0];
+            set => this.RaiseAndSetIfChanged(ref _selectedPresentationOverlay, value);
+        }
+        private static List<OverlayPresentationOption> CreatePresentationOptions()
+        {
+            var options = new List<OverlayPresentationOption>
+            {
+                new("BossFrame", "Boss info"), new("Encounter", "Encounter timers"),
+                new("Discipline", "Discipline timers"), new("Challenges", "Challenges"), new("Timeline", "Run race")
+            };
+            var names = new Utilities.Converters.OverlayTypeToReadableNameConverter();
+            options.AddRange(Enum.GetValues<OverlayType>().Where(t => t != OverlayType.None)
+                .Select(t => new OverlayPresentationOption(t.ToString(), names.Convert(t, typeof(string), null, System.Globalization.CultureInfo.CurrentCulture).ToString())));
+            return options;
+        }
+        public RaidHots.RaidHotsConfigViewModel RaidFrameConfig => _otherOverlayViewModel._raidHotsConfigViewModel;
+        private void AppearanceChanged(string setting)
+        {
+            if (setting.StartsWith(OverlayPresentationSettings.Prefix, StringComparison.Ordinal))
+                Dispatcher.UIThread.Post(() => PresentationOverlays.ForEach(option => option.Refresh()));
+            if (!OverlayAppearanceSettings.IsAppearanceSetting(setting)) return;
+            Dispatcher.UIThread.Post(() =>
+            {
+                this.RaisePropertyChanged(nameof(ContentOpacityPercent));
+                this.RaisePropertyChanged(nameof(UseCustomBackground));
+                this.RaisePropertyChanged(nameof(BackgroundOpacityPercent));
+            });
         }
         private void SetOverlaysScale()
         {
@@ -142,6 +188,8 @@ namespace SWTORCombatParser.ViewModels.Overlays
             CombatLogStreamer.HistoricalLogsFinished += FinishHistoricalParse;
             CombatLogStreamer.HistoricalLogsStarted += HistoricalLogsStarted;
             sizeScalar = Settings.ReadSettingOfType<double>("overlay_bar_scale");
+            if (!double.IsFinite(sizeScalar) || sizeScalar < minScalar || sizeScalar > maxScalar) sizeScalar = 1;
+            Settings.SettingsUpdated += AppearanceChanged;
             useDynamicLayout = Settings.ReadSettingOfType<bool>("DynamicLayout");
             sizeScalarString = sizeScalar.ToString();
             LeaderboardTypes = EnumUtil.GetValues<LeaderboardType>().ToList();

@@ -82,6 +82,78 @@ public class CombatLogReplayTests
     }
 
     [Test]
+    public async Task AcceleratedReplayPreservesLogTimeAndContentWhileShorteningWallTime()
+    {
+        var source = Source("[18:00:00.000] first", "[18:00:03.000] last");
+        var original = File.ReadAllBytes(source);
+        using var replay = await CombatLogReplay.PrepareAsync(new LogReplayRequest(source, SpeedMultiplier: 20));
+        await replay.WritePreludeAsync(Anchor);
+        LogReplayProgress finalProgress = null;
+        var progress = new InlineProgress(value => finalProgress = value);
+        var clock = Stopwatch.StartNew();
+        await replay.PlayAsync(Anchor, progress);
+        Assert.Multiple(() =>
+        {
+            Assert.That(clock.Elapsed, Is.LessThan(TimeSpan.FromSeconds(2)), "Three seconds of log time should be paced at 20x.");
+            Assert.That(File.ReadAllLines(replay.OutputPath), Is.EqualTo(new[] { "[12:00:00.000] first", "[12:00:03.000] last" }));
+            Assert.That(File.ReadAllBytes(source), Is.EqualTo(original));
+            Assert.That(replay.Duration, Is.EqualTo(TimeSpan.FromSeconds(3)));
+            Assert.That(finalProgress.Elapsed, Is.EqualTo(replay.Duration));
+            Assert.That(finalProgress.WrittenLines, Is.EqualTo(2));
+        });
+    }
+
+    [Test]
+    public async Task AcceleratedClockRemainsPausedDuringWarmupAndAdvancesInLogTime()
+    {
+        using var context = LogReplayContext.Begin(Anchor, 10);
+        await Task.Delay(20);
+        Assert.That(TimeUtility.CorrectedTime, Is.EqualTo(Anchor));
+        var clock = Stopwatch.StartNew();
+        context.Start();
+        await Task.Delay(40);
+        var elapsedLogTime = (TimeUtility.CorrectedTime - Anchor).TotalMilliseconds;
+        var elapsedWallTime = clock.Elapsed.TotalMilliseconds;
+        Assert.That(elapsedLogTime, Is.InRange(elapsedWallTime * 8, elapsedWallTime * 11));
+    }
+
+    [TestCase(0)]
+    [TestCase(-1)]
+    [TestCase(0.05)]
+    [TestCase(121)]
+    [TestCase(double.NaN)]
+    [TestCase(double.PositiveInfinity)]
+    public void InvalidReplaySpeedIsRejectedBeforeCreatingAReplay(double speed)
+    {
+        var source = Source("[18:00:00.000] event");
+        Assert.ThrowsAsync<ArgumentOutOfRangeException>(async () =>
+            await CombatLogReplay.PrepareAsync(new LogReplayRequest(source, SpeedMultiplier: speed)));
+        Assert.Throws<ArgumentOutOfRangeException>(() => LogReplayContext.Begin(Anchor, speed));
+        Assert.That(LogReplayContext.IsActive, Is.False);
+    }
+
+    private sealed class InlineProgress(Action<LogReplayProgress> report) : IProgress<LogReplayProgress>
+    {
+        public void Report(LogReplayProgress value) => report(value);
+    }
+
+    [Test]
+    public void ReplayIdleClockCannotAdvancePastBufferedOrUnreadRecords()
+    {
+        using var context = LogReplayContext.Begin(Anchor);
+        void Publish(DateTime through, long bytes) => typeof(LogReplayContext)
+            .GetMethod("PublishDelivery", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, new object[] { through, bytes });
+        DateTime? Delivered(long bytes) => (DateTime?)typeof(LogReplayContext)
+            .GetMethod("GetDeliveredTime", BindingFlags.Static | BindingFlags.NonPublic)!.Invoke(null, new object[] { bytes });
+        Publish(Anchor.AddSeconds(-2), 128);
+        Assert.That(Delivered(127), Is.Null, "A flush after an empty read still has to be consumed.");
+        Assert.That(Delivered(128), Is.EqualTo(Anchor.AddSeconds(-2)), "The clock cannot overtake the writer's flushed event boundary.");
+        Publish(Anchor.AddSeconds(5), 256);
+        Assert.That(Delivered(128), Is.Null);
+        Assert.That(Delivered(256), Is.EqualTo(Anchor), "A future event boundary cannot advance the simulation clock.");
+    }
+
+    [Test]
     public async Task MidnightAndSmallOutOfOrderEventsKeepPhysicalOrdering()
     {
         var path = Path.Combine(_directory, "combat_2026-11-06_23_59_59.txt");

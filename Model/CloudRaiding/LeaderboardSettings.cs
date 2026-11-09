@@ -1,12 +1,13 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.IO;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.Model.CloudRaiding
 {
     public static class LeaderboardSettings
     {
-        private static string appDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
+        private static string appDataPath => LogLoadDiagnostics.ProfileDataDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
         private static string _leaderboardSettingsPath => Path.Combine(appDataPath, "leaderboard_settings.json");
 
         public static void SaveLeaderboardSettings(LeaderboardType setting)

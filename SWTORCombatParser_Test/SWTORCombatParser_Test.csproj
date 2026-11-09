@@ -7,7 +7,31 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="PlatformHarness\**" />
+    <EmbeddedResource Remove="PlatformHarness\**" />
+    <None Remove="PlatformHarness\**" />
     <None Remove="keetsuneTimers.json" />
+    <!-- The full UI profiler is a separate executable, not part of NUnit. -->
+    <Compile Remove="FullLoadProfile\**" />
+    <EmbeddedResource Remove="FullLoadProfile\**" />
+    <None Remove="FullLoadProfile\**" />
+    <AvaloniaXaml Remove="FullLoadProfile\**" />
+    <AvaloniaResource Remove="FullLoadProfile\**" />
+    <AdditionalFiles Remove="FullLoadProfile\**" />
+    <!-- The raid-frame UI harness also runs as a separate executable. -->
+    <Compile Remove="RaidFrameHarness\**" />
+    <EmbeddedResource Remove="RaidFrameHarness\**" />
+    <None Remove="RaidFrameHarness\**" />
+    <AvaloniaXaml Remove="RaidFrameHarness\**" />
+    <AvaloniaResource Remove="RaidFrameHarness\**" />
+    <AdditionalFiles Remove="RaidFrameHarness\**" />
+    <!-- Configuration visual checks run in their own isolated desktop process. -->
+    <Compile Remove="ConfigurationHarness\**" />
+    <EmbeddedResource Remove="ConfigurationHarness\**" />
+    <None Remove="ConfigurationHarness\**" />
+    <AvaloniaXaml Remove="ConfigurationHarness\**" />
+    <AvaloniaResource Remove="ConfigurationHarness\**" />
+    <AdditionalFiles Remove="ConfigurationHarness\**" />
   </ItemGroup>
 
   <ItemGroup>

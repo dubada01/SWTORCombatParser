@@ -1,5 +1,6 @@
 ﻿using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.LogReview;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Collections.Generic;
@@ -31,6 +32,53 @@ namespace SWTORCombatParser.DataStructures
         private readonly static SolidColorBrush _damageBackground = new (Color.Parse("#613b3b"));
         private readonly string _logPath;
         private readonly long _lineNumber;
+        private Task? _iconTask;
+        private Bitmap? _abilityIcon;
+        private Bitmap? _effectIcon;
+        private ReactiveCommand<string, Unit>? _cellClickedCommand;
+        private ReactiveCommand<Unit, Unit>? _openLogCommand;
+        private ReactiveCommand<string, Unit>? _openJedipediaCommand;
+        public ParsedLogEntry? LogEntry { get; }
+        public double ElapsedSeconds { get; }
+        public string Kind => LogEntry == null ? ValueType : LogSearchQuery.Kind(LogEntry);
+        public string Amount => LogEntry == null ? Value : LogEntry.Value.EffectiveDblValue != 0 || Kind is "Damage" or "Healing"
+            ? LogEntry.Value.EffectiveDblValue.ToString("N0") : string.IsNullOrWhiteSpace(Value) ? "—" : Value;
+        public string EffectLabel => Kind == "Activation" ? "Activated" : EffectName;
+        public string Result => WasValueCrit ? "Critical" : LogEntry?.Value.ValueType == DamageType.none
+            ? Kind switch { "Apply" => "Applied", "Remove" => "Removed", _ => Kind }
+            : ValueType switch { "intern" => "Internal", "heal" => "Healing", "none" => Kind,
+                _ => string.IsNullOrEmpty(ValueType) ? Kind : char.ToUpperInvariant(ValueType[0]) + ValueType[1..] };
+        public IBrush EventColor => Kind switch {
+            "Damage" => Brushes.IndianRed, "Healing" => Brushes.MediumSeaGreen, "Death" => Brushes.Salmon,
+            "Revive" => Brushes.CornflowerBlue, "Activation" => Brushes.MediumPurple, _ => Brushes.Silver };
+        public string SourceDetail => EntityDetail(Source, _sourceId, LogEntry?.SourceInfo);
+        public string TargetDetail => EntityDetail(Target, _targetId, LogEntry?.TargetInfo);
+        public string AbilityDetail => Ability + "\nID " + _abilityId;
+        public string EffectDetail => EffectName + "\n" + Kind + " · ID " + _effectId;
+        public string TimeDetail => LogEntry == null ? SecondsSinceCombatStart : LogEntry.TimeStamp.ToString("HH:mm:ss.fff") + "\n" + _logPath + " · line " + _lineNumber;
+        public string AmountDetail => LogEntry == null ? Value :
+            $"{Result} · {ValueType}\nEffective: {LogEntry.Value.EffectiveDblValue:N0}\nRaw: {LogEntry.Value.DblValue:N0}\nMitigated: {LogEntry.Value.MitigatedDblValue:N0}\nThreat: {LogEntry.Threat:N0}" +
+            (string.IsNullOrWhiteSpace(ModifierType) ? "" : $"\n{ModifierType}: {ModifierValue}");
+        public string Summary => $"{SecondsSinceCombatStart}   {Source} → {Target}   ·   {Ability}";
+        public string DetailSummary => $"{Kind} · {EffectName} · {Result} · {Amount}" +
+            (LogEntry?.TargetInfo.MaxHP > 0 ? $"   |   Target HP {LogEntry.TargetInfo.CurrentHP:N0} / {LogEntry.TargetInfo.MaxHP:N0}" : "");
+        public bool CanOpenLog => !string.IsNullOrEmpty(_logPath);
+        public Uri? JedipediaAbilityUrl => JedipediaLookup.Ability(_abilityId);
+        public Uri? JedipediaEffectUrl => JedipediaLookup.Effect(_effectId);
+        public bool CanLookupAbility => JedipediaAbilityUrl != null;
+        public bool CanLookupEffect => JedipediaEffectUrl != null;
+        public bool CanLookupJedipedia => CanLookupAbility || CanLookupEffect;
+        public string JedipediaAbilityLabel => "Ability: " + (string.IsNullOrWhiteSpace(Ability) ? "Unavailable" : Ability);
+        public string JedipediaEffectLabel => "Effect: " + (string.IsNullOrWhiteSpace(EffectName) ? "Unavailable" : EffectName);
+        private static string EntityDetail(string name, long id, EntityInfo? info) => name + "\nID " + id +
+            (info?.MaxHP > 0 ? $"\nHP {info.CurrentHP:N0} / {info.MaxHP:N0} ({100d * info.CurrentHP / info.MaxHP:N1}%)" : "");
+
+        public DisplayableLogEntry(ParsedLogEntry log, DateTime start) : this(
+            (log.TimeStamp - start).TotalSeconds.ToString(CultureInfo.InvariantCulture), log.Source.Name, log.Source.LogId,
+            log.Target.Name, log.Target.LogId, log.Ability, log.AbilityId, log.Effect.EffectName, log.Effect.EffectId,
+            log.Value.DisplayValue, log.Value.WasCrit, log.Value.ValueType != DamageType.none ? log.Value.ValueType.ToString() : log.Effect.EffectType.ToString(),
+            log.Value.ModifierType, log.Value.ModifierDisplayValue, 0, log.Value.EffectiveDblValue, log.Threat, log.LogName, log.LogLineNumber)
+        { LogEntry = log; }
         public DisplayableLogEntry(string sec, string source, long sourceId, string target, long targetId, string ability, ulong abilityId, string effectName, ulong effectId, string value, bool wasValueCrit, string type, string modifiertype, string modifierValue, double maxValue, double logValue, double threat,string logPath, long lineNumber)
         {
             _sourceId = sourceId;
@@ -42,7 +90,9 @@ namespace SWTORCombatParser.DataStructures
             _lineNumber = lineNumber + 1;
 
             var doubleSeconds = double.Parse(sec, CultureInfo.InvariantCulture);
-            SecondsSinceCombatStart = TimeSpan.FromSeconds(doubleSeconds).ToString(@"mm\:ss\.fff");
+            ElapsedSeconds = doubleSeconds;
+            var span = TimeSpan.FromSeconds(Math.Abs(doubleSeconds));
+            SecondsSinceCombatStart = (doubleSeconds < 0 ? "−" : "") + ((int)span.TotalMinutes).ToString("00") + span.ToString(@"\:ss\.fff");
             Source = source;
             Target = target;
             Ability = ability;
@@ -72,7 +122,7 @@ namespace SWTORCombatParser.DataStructures
 
             }
 
-            if (double.TryParse(value, out var r))
+            if (maxValue > 0 && double.TryParse(value, out var r))
             {
                 ValueBackground = new SolidColorBrush(GetColorForValue(logValue / maxValue));
             }
@@ -84,10 +134,15 @@ namespace SWTORCombatParser.DataStructures
             ModifierType = modifiertype;
             ModifierValue = modifierValue;
         }
-        public async Task AddIcons()
+        public Task AddIcons() => _iconTask ??= LoadIcons();
+        private async Task LoadIcons()
         {
-            AbilityIcon = _abilityId != 0 && IconGetter.HasIcon(_abilityId) ? await IconGetter.GetIconForId(_abilityId) : null;
-            EffectIcon = _effectId != 0 && IconGetter.HasIcon(_effectId) ? await IconGetter.GetIconForId(_effectId) : null;
+            var ability = _abilityId != 0 && IconGetter.HasIcon(_abilityId) ? await IconGetter.GetIconForId(_abilityId) : null;
+            var effect = _effectId != 0 && IconGetter.HasIcon(_effectId) ? await IconGetter.GetIconForId(_effectId) : null;
+            await Dispatcher.UIThread.InvokeAsync(() => {
+                this.RaiseAndSetIfChanged(ref _abilityIcon, ability, nameof(AbilityIcon));
+                this.RaiseAndSetIfChanged(ref _effectIcon, effect, nameof(EffectIcon));
+            });
         }
         public SolidColorBrush EffectBackground { get; set; }
         public SolidColorBrush ValueBackground { get; set; }
@@ -95,9 +150,9 @@ namespace SWTORCombatParser.DataStructures
         public string Source { get; }
         public string Target { get; }
         public string Ability { get; }
-        public Bitmap AbilityIcon { get; set; }
+        public Bitmap? AbilityIcon => _abilityIcon;
         public string EffectName { get; }
-        public Bitmap EffectIcon { get; set; }
+        public Bitmap? EffectIcon => _effectIcon;
         public Thickness EffectTextMargin { get; set; }
         public Thickness AbilityTextMargin { get; set; }
         public string Value { get; }
@@ -106,7 +161,7 @@ namespace SWTORCombatParser.DataStructures
         public string ValueType { get; }
         public string ModifierType { get; }
         public string ModifierValue { get; }
-        public ReactiveCommand<string, Unit> CellClickedCommand => ReactiveCommand.Create<string>(CellClicked);
+        public ReactiveCommand<string, Unit> CellClickedCommand => _cellClickedCommand ??= ReactiveCommand.Create<string>(CellClicked);
 
         private void CellClicked(string obj)
         {
@@ -128,7 +183,16 @@ namespace SWTORCombatParser.DataStructures
 
             }
         }
-        public ReactiveCommand<Unit, Unit> OpenLogCommand => ReactiveCommand.Create(OpenLog);
+        public ReactiveCommand<Unit, Unit> OpenLogCommand => _openLogCommand ??= ReactiveCommand.Create(OpenLog);
+        public ReactiveCommand<string, Unit> OpenJedipediaCommand => _openJedipediaCommand ??= ReactiveCommand.Create<string>(OpenJedipedia);
+
+        private void OpenJedipedia(string field)
+        {
+            var url = field switch { "Ability" => JedipediaAbilityUrl, "Effect" => JedipediaEffectUrl, _ => null };
+            if (url == null) return;
+            try { Process.Start(new ProcessStartInfo(url.AbsoluteUri) { UseShellExecute = true }); }
+            catch (Exception error) { Logging.LogError("Could not open Jedipedia: " + error.Message); }
+        }
 
         private void OpenLog()
         {

@@ -13,8 +13,8 @@ namespace SWTORCombatParser.ViewModels.Challenges
     {
         private double relativeLength;
         private double _value;
-        private static double defaultBarHeight = 35;
-        private static double defaultFontSize = 18;
+        private static double defaultBarHeight = 28;
+        private static double defaultFontSize = 14;
         private static double defaultValueWidth = 70;
 
         private string valueStringFormat = "#,##0";

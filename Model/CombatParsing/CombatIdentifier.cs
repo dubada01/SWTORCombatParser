@@ -73,7 +73,8 @@ namespace SWTORCombatParser.Model.CombatParsing
             {
                 combatToUpdate.AllLogs[log.LogLineNumber] = log;
                 MergeEntityLog(log.Source, log, combatToUpdate);
-                if (log.Source != log.Target)
+                // This queue is keyed by LogId, so same-type NPC instances share it.
+                if (log.Source.LogId != log.Target.LogId)
                     MergeEntityLog(log.Target, log, combatToUpdate);
 
                 if (log.Source.IsCharacter || log.Source.IsCompanion)
@@ -140,10 +141,13 @@ namespace SWTORCombatParser.Model.CombatParsing
         /// </summary>
         private static void PostMetadata(bool isRealtime, bool combatEndUpdate, List<ParsedLogEntry> newLogs, bool isFirstUpdate, Combat combatToUpdate)
         {
+            using (LogLoadDiagnostics.Measure("Combat metadata (parallel sum)"))
+            {
             if(isFirstUpdate)
                 CombatMetaDataParse.PopulateMetaData(combatToUpdate);
             else
                 CombatMetaDataParse.ApplyIncrementalMetaData(combatToUpdate, newLogs);
+            }
 
             var absorbLogs = combatToUpdate.IncomingDamageMitigatedLogs
                 .ToDictionary(
@@ -153,8 +157,10 @@ namespace SWTORCombatParser.Model.CombatParsing
                         .OrderBy(e => e.TimeStamp)
                         .ToList()
                 );
-            ShieldingProcessor.AddShieldLogsByTarget(absorbLogs, combatToUpdate);
-            TankCooldownProcessor.AddDamageSavedDuringCooldown(combatToUpdate);
+            using (LogLoadDiagnostics.Measure("Shielding calculation (parallel sum)"))
+                ShieldingProcessor.AddShieldLogsByTarget(absorbLogs, combatToUpdate);
+            using (LogLoadDiagnostics.Measure("Cooldown calculation (parallel sum)"))
+                TankCooldownProcessor.AddDamageSavedDuringCooldown(combatToUpdate);
 
             if (combatToUpdate.IsCombatWithBoss)
             {
@@ -181,7 +187,7 @@ namespace SWTORCombatParser.Model.CombatParsing
 
         private static void AddParticipant(Entity e, DateTime timestamp, Combat combatToUpdate)
         {
-            if (combatToUpdate.CharacterParticipants.All(p => p.Value.LogId != e.LogId))
+            if (!combatToUpdate.CharacterParticipants.ContainsKey(e.LogId))
             {
                 combatToUpdate.CharacterParticipants[e.LogId] = e;
                 combatToUpdate.CharacterClases[e] = CombatLogStateBuilder.CurrentState

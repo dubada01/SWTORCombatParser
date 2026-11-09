@@ -60,6 +60,10 @@ namespace SWTORCombatParser.ViewModels.Timers
         }
         public bool IsTriggered => isActive;
         public double BarHeight => defaultBarHeight * scale;
+        public double DetailedBarHeight => 44 * scale;
+        public double LabelFontSize => 14 * scale;
+        public double ValueFontSize => 16 * scale;
+        public double IconSize => 22 * scale;
         public Guid TimerId { get; set; }
         public DateTime StartTime { get; set; }
         public bool ShowCharges => Charges > 1;
@@ -69,6 +73,12 @@ namespace SWTORCombatParser.ViewModels.Timers
         public string TargetAddendem { get; set; }
         public long TargetId { get; set; }
         public string TimerName => GetTimerName();
+        public string OverlayTimerLabel => SourceTimer.TriggerType == TimerKeyType.AbsorbShield ? SourceTimer.Name : TimerName;
+        public string OverlayTimerValue => SourceTimer.TriggerType == TimerKeyType.AbsorbShield ? _absorbRemaining.ToString("N0") : TimerValue.ToString("N1");
+        public bool ShowOverlayTimerValue => DisplayTimerValue || SourceTimer.TriggerType == TimerKeyType.AbsorbShield;
+        public string HealthTimerLabel => SourceTimer.Name;
+        public string HealthTimerValue => SourceTimer.TriggerType == TimerKeyType.EntityHP ? TimerValue.ToString("0.#") + "%"
+            : SourceTimer.TriggerType == TimerKeyType.AbsorbShield ? $"{_absorbRemaining:N0} / {_maxAbsorb:N0}" : TimerValue.ToString("N1");
         
         public double MaxTimerValue
         {
@@ -131,9 +141,12 @@ namespace SWTORCombatParser.ViewModels.Timers
                 else
                     TimerDuration = TimeSpan.FromSeconds(timerValue);
                 this.RaisePropertyChanged(nameof(TimerDuration));
+                this.RaisePropertyChanged(nameof(OverlayTimerValue));
+                this.RaisePropertyChanged(nameof(HealthTimerValue));
                 if (SourceTimer.TriggerType != TimerKeyType.AbsorbShield) return;
                 this.RaisePropertyChanged(nameof(CurrentRatio));
                 this.RaisePropertyChanged(nameof(TimerName));
+                this.RaisePropertyChanged(nameof(HealthTimerLabel));
             }
         }
         public bool DisplayTimer
@@ -148,6 +161,7 @@ namespace SWTORCombatParser.ViewModels.Timers
             get => displayTimerValue; set
             {
                 this.RaiseAndSetIfChanged(ref displayTimerValue, value);
+                this.RaisePropertyChanged(nameof(ShowOverlayTimerValue));
             }
         }
 
@@ -159,6 +173,10 @@ namespace SWTORCombatParser.ViewModels.Timers
                     return;
                 this.RaiseAndSetIfChanged(ref scale, value);
                 this.RaisePropertyChanged(nameof(BarHeight));
+                this.RaisePropertyChanged(nameof(DetailedBarHeight));
+                this.RaisePropertyChanged(nameof(LabelFontSize));
+                this.RaisePropertyChanged(nameof(ValueFontSize));
+                this.RaisePropertyChanged(nameof(IconSize));
             }
         }
         public TimerInstanceViewModel(Timer swtorTimer)
@@ -195,7 +213,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                                 "resources/Audio/AlertSound.wav") :
                             Path.Combine(Environment.CurrentDirectory, "resources/Audio/3210_Sound.wav");
                     }
-#if WINDOWS
+#if WINDOWS || LINUX
                     _libvlc = new LibVLC();
                     var media = new Media(_libvlc, new Uri(_audioPath, UriKind.RelativeOrAbsolute));
                     _mediaPlayer = new MediaPlayer(media);
@@ -314,7 +332,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 {
                     Dispatcher.UIThread.Invoke(() =>
                     {
-#if WINDOWS
+#if WINDOWS || LINUX
                         _mediaPlayer.Play();
 #endif
 #if MACOS
@@ -392,7 +410,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 _hasAudioPlayed = true;
                 Dispatcher.UIThread.Invoke(() =>
                 {
-#if WINDOWS
+#if WINDOWS || LINUX
                         _mediaPlayer.Play();
 #endif
 #if MACOS

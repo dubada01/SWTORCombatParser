@@ -36,6 +36,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public event Action<double> NewLogTimeOffsetMs = delegate { };
         public event Action<double> NewTotalTimeOffsetMs = delegate { };
         public event Action<string> ErrorParsingLogs = delegate { };
+        public event Action LogFileRotated = delegate { };
 
         private static bool _isInCombat = false;
         private bool _isWaitingForExitCombatTimout;
@@ -135,12 +136,15 @@ namespace SWTORCombatParser.Model.LogParsing
 
         private void ParseExisitingLogs(bool deferIncompleteTail, DateTime? parseDate = null)
         {
+            LogLoadDiagnostics.Start(_logToMonitor);
+            using var loadTiming = LogLoadDiagnostics.Measure("Historical load pipeline");
             HistoricalLogsStarted.InvokeSafely();
             var file = CombatLogLoader.LoadSpecificLog(_logToMonitor);
             CombatLogParser.SetParseDate(parseDate ?? file.Time);
             List<ParsedLogEntry> currentLogs;
             using (file.Data)
             {
+                using var parseTiming = LogLoadDiagnostics.Measure("Read, parse and build log state");
                 currentLogs = CombatLogParser.ParseAllLines(file, true, out _numberOfProcessedBytes, out numberOfProcessedLines, deferIncompleteTail);
                 _fileEncoding = file.Data.CurrentEncoding;
             }
@@ -230,6 +234,8 @@ namespace SWTORCombatParser.Model.LogParsing
                 using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
                 using (var sr = new StreamReader(fs, _fileEncoding))
                     GetNewlines2(sr, lines);
+                if (lines.Count == 0)
+                    _combatDetector.CheckReplayTimeout(_numberOfProcessedBytes);
 
                 for (int i = 0; i < lines.Count; i++)
                 {
@@ -361,21 +367,32 @@ private void FlushPendingLiveLogs()
 
         private void ParseHistoricalLog(List<ParsedLogEntry> logs)
         {
-            var usableLogs = logs.Where(l => l.Error != ErrorType.IncompleteLine).ToList();
             _currentCombatLogs.Clear();
             var localPlayerIdentified = false;
-            foreach (var t in usableLogs)
+            Entity lastLocalPlayer = null;
+            using (LogLoadDiagnostics.Measure("Detect historical combat boundaries"))
             {
-                if (t.Source.IsLocalPlayer)
+                foreach (var t in logs)
                 {
-                    LocalPlayerIdentified.InvokeSafely(t.Source);
-                    localPlayerIdentified = true;
-                }
+                    if (t.Error == ErrorType.IncompleteLine)
+                        continue;
+                    if (t.Source.IsLocalPlayer)
+                    {
+                        // Historical records frequently repeat the same player. Only
+                        // identity changes require resetting the UI's player views.
+                        if (!ReferenceEquals(lastLocalPlayer, t.Source))
+                        {
+                            LocalPlayerIdentified.InvokeSafely(t.Source);
+                            lastLocalPlayer = t.Source;
+                        }
+                        localPlayerIdentified = true;
+                    }
 
-                CheckForCombatState(t, false, false);
-                if (_isInCombat)
-                {
-                    _currentCombatLogs.Add(t);
+                    CheckForCombatState(t, false, false);
+                    if (_isInCombat)
+                    {
+                        _currentCombatLogs.Add(t);
+                    }
                 }
             }
 
@@ -391,8 +408,7 @@ private void FlushPendingLiveLogs()
             var mostRecentFile = CombatLogLoader.GetMostRecentLogPath();
             if (mostRecentFile != _logToMonitor)
             {
-                _logToMonitor = mostRecentFile;
-                ResetMonitoring();
+                RotateToLog(mostRecentFile);
             }
         }
 
@@ -402,8 +418,7 @@ private void FlushPendingLiveLogs()
             var mostRecentFile = CombatLogLoader.GetMostRecentLogPath();
             if (mostRecentFile != _logToMonitor)
             {
-                _logToMonitor = mostRecentFile;
-                ResetMonitoring();
+                RotateToLog(mostRecentFile);
                 return true;
             }
 
@@ -412,6 +427,35 @@ private void FlushPendingLiveLogs()
                 return false;
             _lastUpdateTime = fileInfo.LastWriteTime;
             return true;
+        }
+
+        private void RotateToLog(string path)
+        {
+            lock (_combatLock)
+            {
+                // The old writer can append its final records just before the new
+                // file appears. Drain those with the old identity and encoding.
+                try
+                {
+                    if (File.Exists(_logToMonitor))
+                        ParseLogFile();
+                }
+                catch (FileNotFoundException) { }
+                catch (DirectoryNotFoundException) { }
+                // Finish the previous fight while its start and source file still
+                // identify it. The new file must not inherit detector or UI state.
+                EndCombat(true);
+                _combatDetector.Reset();
+                _pendingLiveLogs.Clear();
+                _currentCombatLogs.Clear();
+                LogFileRotated.InvokeSafely();
+                _logToMonitor = path;
+                ResetMonitoring();
+                EncounterTimerTrigger.CurrentEncounter = ("", "", "");
+                // Use the same initialization as an explicit load: this resets
+                // entities/state and detects the file's date, encoding and cursor.
+                ParseExisitingLogs(true);
+            }
         }
 
         private ProcessedLineResult ProcessNewLine(

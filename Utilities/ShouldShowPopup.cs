@@ -7,7 +7,7 @@ namespace SWTORCombatParser.Utilities
 {
     public static class ShouldShowPopup
     {
-        private static string appDataPath => Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
+        private static string appDataPath => LogLoadDiagnostics.ProfileDataDirectory ?? Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData), "DubaTech", "SWTORCombatParser");
         private static string _checkedStateFile => Path.Combine(appDataPath, "popupShowAgainStates.json");
 
         public static void SaveShouldShowPopup(string key, bool state)

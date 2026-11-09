@@ -1,9 +1,6 @@
 ﻿using System.Linq;
 using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.Model.Phases;
-using SWTORCombatParser.ViewModels.Phases;
 using SWTORCombatParser.Views.Death_Review;
-using SWTORCombatParser.Views.Phases;
 
 namespace SWTORCombatParser.ViewModels.Death_Review;
 
@@ -11,8 +8,6 @@ public class DamageTakenViewModel
 {
     private DeathPlotViewModel _deathPlotViewModel;
     public DeathPlot DeathPlotContent { get; set; }
-    private PhaseBarViewModel _phaseBarViewModel;
-    public PhaseBar PhasebarContent { get; set; }
     
     private DamageTakenBarsViewModel _totalDamageTakenViewModel;
     public DamageTakenBarsView TotalDamageTakenContent { get; set; }
@@ -24,9 +19,6 @@ public class DamageTakenViewModel
     {
         _deathPlotViewModel = new DeathPlotViewModel();
         DeathPlotContent = new DeathPlot(_deathPlotViewModel);
-        
-        _phaseBarViewModel = new PhaseBarViewModel();
-        PhasebarContent = new PhaseBar(_phaseBarViewModel);
         
         _totalDamageTakenViewModel = new DamageTakenBarsViewModel(BarType.Ability);
         _totalDamageTakenViewModel.OnBarSelected += SelectAbility;

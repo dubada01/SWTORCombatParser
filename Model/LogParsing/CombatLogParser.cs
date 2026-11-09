@@ -110,6 +110,7 @@ namespace SWTORCombatParser.Model.LogParsing
         public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog, bool includeIncomplete, out long completedBytes, out int physicalLines, bool deferIncompleteTail = false)
         {
             CombatLogStateBuilder.ClearState();
+            _7_0LogParsing.ResetEntities();
 
             var logLines = ReadCompletedLines(combatLog.Data, out completedBytes, out var lastLineStart);
             physicalLines = logLines.Count;
@@ -142,17 +143,18 @@ namespace SWTORCombatParser.Model.LogParsing
                 physicalLines--;
             }
 
-            var cleanedLogs = parsedLog.Where(l => l != null);
-            CombatTimestampRectifier.RectifyTimeStamps(cleanedLogs.ToList());
-            var orderdedLog = cleanedLogs.OrderBy(l => l.TimeStamp);
-            UpdateStateAndLogs(orderdedLog.ToList(), false);
-            if (includeIncomplete)
+            var cleanedLogs = parsedLog.Where(l => l != null).ToList();
+            CombatTimestampRectifier.RectifyTimeStamps(cleanedLogs);
+            // Keep the stable file order for equal timestamps: apply/remove events
+            // at the same instant must update state in their original order.
+            var orderedLogs = cleanedLogs.OrderBy(l => l.TimeStamp).ToList();
+            UpdateStateAndLogs(orderedLogs, false);
+            if (includeIncomplete && !incompleteLines.IsEmpty)
             {
-                var includedLines = orderdedLog.ToList();
-                includedLines.AddRange(incompleteLines);
-                orderdedLog = includedLines.OrderBy(l => l.TimeStamp);
+                orderedLogs.AddRange(incompleteLines);
+                orderedLogs = orderedLogs.OrderBy(l => l.TimeStamp).ToList();
             }
-            return orderdedLog.ToList();
+            return orderedLogs;
         }
         private static List<string> ReadCompletedLines(StreamReader reader, out long completedBytes, out long lastLineStart)
         {
@@ -174,24 +176,33 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (read == preamble.Length && bytes.SequenceEqual(preamble))
                     completedBytes = preamble.Length;
             }
+            var encoding = reader.CurrentEncoding;
+            var newlineBytes = encoding.GetByteCount("\n");
+            var carriageReturnBytes = encoding.GetByteCount("\r");
             int count;
             while ((count = reader.Read(buffer, 0, buffer.Length)) > 0)
             {
-                for (int i = 0; i < count; i++)
+                var remaining = buffer.AsSpan(0, count);
+                while (!remaining.IsEmpty)
                 {
-                    char c = buffer[i];
-                    if (c != '\n')
+                    var newlineIndex = remaining.IndexOf('\n');
+                    if (newlineIndex < 0)
                     {
-                        line.Append(c);
-                        continue;
+                        line.Append(remaining);
+                        break;
                     }
 
+                    line.Append(remaining.Slice(0, newlineIndex));
                     lastLineStart = completedBytes;
-                    completedBytes += reader.CurrentEncoding.GetByteCount(line.ToString()) + reader.CurrentEncoding.GetByteCount("\n");
-                    if (line.Length > 0 && line[line.Length - 1] == '\r')
+                    var hasCarriageReturn = line.Length > 0 && line[line.Length - 1] == '\r';
+                    if (hasCarriageReturn)
                         line.Length--;
-                    lines.Add(line.ToString());
+                    var completedLine = line.ToString();
+                    completedBytes += encoding.GetByteCount(completedLine) + newlineBytes +
+                        (hasCarriageReturn ? carriageReturnBytes : 0);
+                    lines.Add(completedLine);
                     line.Clear();
+                    remaining = remaining.Slice(newlineIndex + 1);
                 }
             }
             return lines;

@@ -9,6 +9,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading.Tasks;
 using Timer = SWTORCombatParser.DataStructures.Timer;
 
 namespace SWTORCombatParser.Model.Timers
@@ -160,6 +161,18 @@ namespace SWTORCombatParser.Model.Timers
         {
             _singleUseTriggerUsed = false;
         }
+
+        // The replay owner calls this on the UI thread before restoring the
+        // real clock. Complete every target instance, including hidden clauses.
+        internal Task CompleteActiveTimersAsync()
+        {
+            TimerInstanceViewModel[] active;
+            lock (_timerChangeLock) active = _activeTimerInstancesForTimer.Values.ToArray();
+            // Completion invokes subscribers that remove instances from this
+            // dictionary; never keep the snapshot lock while running callbacks.
+            return Task.WhenAll(active.Select(timer => timer.Complete(false, force: true)));
+        }
+
         private void CompleteTimer(TimerInstanceViewModel timer, bool endedNatrually)
         {
             TimerOfTypeExpired.InvokeSafely(timer, endedNatrually);

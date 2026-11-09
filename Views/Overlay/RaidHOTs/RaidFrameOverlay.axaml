@@ -18,21 +18,25 @@
             <ColumnDefinition/>
             <ColumnDefinition Width="50"/>
         </Grid.ColumnDefinitions>
-        <Button Grid.Column="0" Grid.Row="0" Margin="5,0,0,0" IsVisible="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}" Command="{Binding SetFramesToManualCorrect}" CommandParameter="{Binding RelativeSource={RelativeSource Self}}" Content="Manual Set" FontSize="{StaticResource NormalFontSize}" Classes="RoundedCorner" Background="{StaticResource Gray3Brush}" Padding="2" Height="35" Width="75">
-        </Button>
-        <StackPanel Grid.Row="0" HorizontalAlignment="Right" Grid.Column="1" Orientation="Horizontal" IsVisible="{Binding Editable, Converter={StaticResource BooleanToVisibiityConverter}}">
-            <Border Background="{StaticResource Gray3Brush}" CornerRadius="5" Height="25">
-                <StackPanel Orientation="Horizontal">
-                    <TextBlock Margin="5,0,2,0" VerticalAlignment="Center" Foreground="WhiteSmoke" FontSize="{StaticResource NormalFontSize}" Text="Columns"></TextBlock>
-                    <TextBox Text="{Binding Columns, UpdateSourceTrigger=PropertyChanged}" FontSize="10" FontFamily="{StaticResource MainFont}" HorizontalContentAlignment="Center" FontWeight="Normal" Width="25" Height="20" Margin="0,0,10,0"></TextBox>
-                    <TextBlock VerticalAlignment="Center" Foreground="WhiteSmoke" FontSize="{StaticResource NormalFontSize}" Text="Rows"></TextBlock>
-                    <TextBox Margin="1,0,2,0" Text="{Binding Rows, UpdateSourceTrigger=PropertyChanged}" FontSize="10" FontFamily="{StaticResource MainFont}" HorizontalContentAlignment="Center" FontWeight="Normal" Width="25" Height="20"></TextBox>
-                </StackPanel>
-            </Border>
-            <Button Margin="15,0,0,0" Command="{Binding RefreshFramesCommand}" IsEnabled="{Binding CanDetect}" Classes="RoundedCorner" Background="{StaticResource Gray3Brush}" Padding="2" Height="35" Width="35">
-                <Image Source="../../../resources/detect.png"></Image>
-            </Button>
-        </StackPanel>
+        <Grid Grid.Row="0" Grid.ColumnSpan="3" RowDefinitions="30,20" ColumnDefinitions="Auto,*,Auto"
+              IsVisible="{Binding Editable}">
+            <Button Grid.Row="0" Grid.Column="0" Margin="2,0" Command="{Binding SetFramesToManualCorrect}"
+                    Content="Assign by click" ToolTip.Tip="Click SWTOR raid frames to assign players from the combat log. Do this out of combat."
+                    FontSize="11" Classes="RoundedCorner" Background="{StaticResource Gray3Brush}" Padding="5,2" Height="28"/>
+            <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" HorizontalAlignment="Center" VerticalAlignment="Center" Spacing="3">
+                <TextBlock VerticalAlignment="Center" Foreground="WhiteSmoke" FontSize="11" Text="Columns"/>
+                <NumericUpDown Value="{Binding Columns}" Minimum="1" Maximum="24" FormatString="0" ShowButtonSpinner="False"
+                               FontSize="11" Width="30" MinWidth="0" Height="25" MinHeight="0" Padding="2" HorizontalContentAlignment="Center"/>
+                <TextBlock VerticalAlignment="Center" Foreground="WhiteSmoke" FontSize="11" Text="Rows" Margin="3,0,0,0"/>
+                <NumericUpDown Value="{Binding Rows}" Minimum="1" Maximum="24" FormatString="0" ShowButtonSpinner="False"
+                               FontSize="11" Width="30" MinWidth="0" Height="25" MinHeight="0" Padding="2" HorizontalContentAlignment="Center"/>
+            </StackPanel>
+            <Button Grid.Row="0" Grid.Column="2" Margin="2,0" Command="{Binding RefreshFramesCommand}" IsEnabled="{Binding CanDetect}"
+                    Content="Detect names" FontSize="11" Classes="RoundedCorner" Background="{StaticResource Gray3Brush}" Padding="5,2" Height="28"
+                    ToolTip.Tip="Read player names from the visible raid frames. Hotkey: Ctrl+Alt+R"/>
+            <TextBlock Grid.Row="1" Grid.ColumnSpan="3" Text="{Binding AlignmentStatus}" ToolTip.Tip="{Binding AlignmentStatus}"
+                       FontSize="10" Foreground="WhiteSmoke" Margin="3,1" TextTrimming="CharacterEllipsis" VerticalAlignment="Center"/>
+        </Grid>
         <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3"  IsHitTestVisible="{Binding Editable}" IsVisible="{Binding DisplayGrid, Converter={StaticResource BooleanToVisibiityConverter}}"
                  VerticalAlignment="Top" Background="{StaticResource Gray5Brush}" Height="20" Opacity="0.8" CornerRadius="3,3,3,3"></Border>
         <Border Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" IsHitTestVisible="False" IsVisible="{Binding DisplayGrid, Converter={StaticResource BooleanToVisibiityConverter}}"

@@ -43,7 +43,8 @@ public sealed class RunRaceViewModel : ReactiveObject, IDisposable
     public string GhostMode { get => _snapshot.GhostMode; set { if (!_updating && value != null && value != _snapshot.GhostMode) _service.SetGhostMode(value); } }
     public string Title => _snapshot.Cohort?.Encounter ?? "Run Race";
     public string Details => _snapshot.Cohort == null ? "Story operations & flashpoints"
-        : $"{_snapshot.Cohort.Difficulty} · {_snapshot.Cohort.GroupSize.Replace(" Players", "", StringComparison.OrdinalIgnoreCase).Replace(" Player", "", StringComparison.OrdinalIgnoreCase)} players · timed from area entry";
+        : $"{_snapshot.Cohort.Difficulty} · {_snapshot.Cohort.GroupSize.Replace(" Players", "", StringComparison.OrdinalIgnoreCase).Replace(" Player", "", StringComparison.OrdinalIgnoreCase)} players · " +
+            (_snapshot.IsHistorical ? $"recorded {_snapshot.Entered:MMM d, yyyy HH:mm}" : "timed from area entry");
     public string Status => _snapshot.Status;
     public RunRaceSnapshot TimelineSnapshot => _snapshot;
     public bool HasRun => _snapshot.Cohort != null;
@@ -74,6 +75,7 @@ public sealed class RunRaceViewModel : ReactiveObject, IDisposable
         {
             if (!HasRun) return "Enter a Story operation or flashpoint to start";
             if (_snapshot.IsComplete) return "Route finished · " + ProgressLabel;
+            if (_snapshot.IsHistorical) return "Recorded encounter · " + ProgressLabel;
             if (_snapshot.IsPaused) return "Monitoring stopped · resume live parsing to continue";
             var next = NextReferenceCheckpoint;
             if (next == null) return !string.IsNullOrEmpty(_snapshot.ActiveBossName) ? "In combat · " + _snapshot.ActiveBossName
@@ -129,7 +131,7 @@ public sealed class RunRaceViewModel : ReactiveObject, IDisposable
             }
             if (Math.Floor(previous.ElapsedSeconds) != Math.Floor(snapshot.ElapsedSeconds) || ghostChanged || checkpointsChanged ||
                 previous.ActiveBossName != snapshot.ActiveBossName || previous.ActiveBossStartSeconds != snapshot.ActiveBossStartSeconds ||
-                previous.IsComplete != snapshot.IsComplete || previous.IsPaused != snapshot.IsPaused)
+                previous.IsComplete != snapshot.IsComplete || previous.IsPaused != snapshot.IsPaused || previous.IsHistorical != snapshot.IsHistorical)
             {
                 this.RaisePropertyChanged(nameof(PaceHeadline));
                 this.RaisePropertyChanged(nameof(PaceBrush));
@@ -154,6 +156,8 @@ public sealed class RunRaceViewModel : ReactiveObject, IDisposable
                 this.RaisePropertyChanged(nameof(HasRun));
                 DisplayUpdated?.Invoke();
             }
+            if (!cohortChanged && (previous.Entered != snapshot.Entered || previous.IsHistorical != snapshot.IsHistorical))
+                this.RaisePropertyChanged(nameof(Details));
             if (ghostChanged || checkpointsChanged)
             {
                 this.RaisePropertyChanged(nameof(HasGhost));

@@ -62,19 +62,30 @@ namespace SWTORCombatParser.Model.LogParsing
     }
     public class LogState
     {
+        // A disk combat cache is valid only while its original parsed state exists.
+        // It must never reconnect repeated player/NPC IDs to a different log file.
+        internal Guid CacheIdentity { get; } = Guid.NewGuid();
         private List<DateTime> _orderedEncounterChangeTimes = new();
 
         public ConcurrentDictionary<Entity, ConcurrentDictionary<DateTime, SWTORClass>> PlayerClassChangeInfo = new();
         public ConcurrentDictionary<Entity, ConcurrentDictionary<DateTime, EntityInfo>> PlayerTargetsInfo = new();
         public ConcurrentDictionary<Entity, ConcurrentDictionary<DateTime, EntityInfo>> EnemyTargetsInfo = new();
-        public Dictionary<Entity, ConcurrentDictionary<DateTime, bool>> PlayerDeathChangeInfo = new();
-        public Dictionary<Entity, ConcurrentDictionary<DateTime, bool>> EnemyDeathChangeInfo = new();
+        public ConcurrentDictionary<Entity, ConcurrentDictionary<DateTime, bool>> PlayerDeathChangeInfo = new();
+        public ConcurrentDictionary<Entity, ConcurrentDictionary<DateTime, bool>> EnemyDeathChangeInfo = new();
         public Dictionary<DateTime, EncounterInfo> EncounterEnteredInfo = new();
 
         public LogVersion LogVersion { get; set; } = LogVersion.Legacy;
         public string CurrentLocation { get; set; }
         public ConcurrentDictionary<ulong, ConcurrentDictionary<Guid, CombatModifier>> Modifiers { get; set; } = new();
-        public Dictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new();
+        // Only the state builder changes modifier lifetimes. Keep its working set separate
+        // from the complete history used by combat/scope queries, and owned by this log state.
+        internal Dictionary<ulong, ConcurrentDictionary<Guid, CombatModifier>> ActiveModifiers { get; } = new();
+        // Unknown removals can precede explicit removals of the same effect in one
+        // timestamp. Keep only that timestamp's assignments so later exact sources
+        // can disambiguate them without reordering the live log stream.
+        internal DateTime UnknownRemovalTimestamp { get; set; }
+        internal Dictionary<ulong, List<CombatModifier>> UnknownSourceRemovals { get; } = new();
+        public ConcurrentDictionary<Entity, PositionData> CurrentCharacterPositions { get; set; } = new();
         public PositionData CurrentLocalCharacterPosition => LocalPlayer == null ? new PositionData() : CurrentCharacterPositions[LocalPlayer];
         public Entity LocalPlayer { get; internal set; }
 
@@ -247,22 +258,16 @@ namespace SWTORCombatParser.Model.LogParsing
             if (trackedEntity != null)
                 return trackedEntity;
 
-            if (entity.LogId != 0)
-            {
-                trackedEntity = trackedEntities.FirstOrDefault(e => e.LogId == entity.LogId);
-                if (trackedEntity != null)
-                    return trackedEntity;
-            }
-
             if (entity.Id != 0)
-            {
-                trackedEntity = trackedEntities.FirstOrDefault(e => e.Id == entity.Id);
-                if (trackedEntity != null)
-                    return trackedEntity;
-            }
+                return trackedEntities.FirstOrDefault(e => e.Id == entity.Id);
+
+            // A type-only NPC ID is not an instance ID. Neither a shared type nor
+            // a shared display name can identify which tracked instance was meant.
+            if (entity.LogId != 0)
+                return trackedEntities.FirstOrDefault(e => e.Id == 0 && e.LogId == entity.LogId);
 
             if (!string.IsNullOrEmpty(entity.Name))
-                return trackedEntities.FirstOrDefault(e => e.Name == entity.Name);
+                return trackedEntities.FirstOrDefault(e => e.Id == 0 && e.LogId == 0 && e.Name == entity.Name);
 
             return null;
         }

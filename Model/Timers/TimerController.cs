@@ -259,6 +259,15 @@ public static class TimerController
         return _currentlyActiveTimers;
     }
 
+    // Replay cleanup must include every instance of a definition, not only the
+    // single representative retained by the public active-timer lookup.
+    internal static Task CompleteActiveTimersAsync()
+    {
+        TimerInstance[] definitions;
+        lock (_timerLock) definitions = _availableTimers.ToArray();
+        return Task.WhenAll(definitions.Select(timer => timer.CompleteActiveTimersAsync()));
+    }
+
     private static void ReorderRequest(string id)
     {
         ReorderRequested.InvokeSafely(id);

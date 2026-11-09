@@ -143,7 +143,11 @@ public class RunRaceBenchmarkTests
         Assert.Multiple(() =>
         {
             Assert.That(oldRequests.All(request => request.Cancellation.IsCancellationRequested), Is.True);
-            Assert.That(_service.Snapshot, Is.SameAs(currentSnapshot));
+            // A checkpoint autosave can publish a fresh, equivalent snapshot.
+            // Assert the selected visit's data stays intact, not object identity.
+            Assert.That(_service.Snapshot.Checkpoints, Is.EqualTo(currentSnapshot.Checkpoints));
+            Assert.That(_service.Snapshot.ElapsedSeconds, Is.EqualTo(currentSnapshot.ElapsedSeconds));
+            Assert.That(_service.Snapshot.Wipes, Is.EqualTo(currentSnapshot.Wipes));
             Assert.That(_service.Snapshot.Entered, Is.EqualTo(nextVisit));
             Assert.That(_service.Snapshot.Cohort.Encounter, Is.EqualTo(area.Name));
             Assert.That(_service.Snapshot.ReferenceDurationSeconds, Is.EqualTo(200));

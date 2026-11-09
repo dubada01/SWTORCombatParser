@@ -12,7 +12,7 @@
         <ItemsControl ItemsSource="{Binding UpcomingMechanics}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <timers:HPTimerInstanceView Height="{Binding BarHeight}"/>
+                    <timers:HPTimerInstanceView/>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>
         </ItemsControl>

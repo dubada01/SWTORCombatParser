@@ -93,7 +93,8 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!log.Target.IsCharacter)
                 return;
             var player = log.Target;
-            if (CurrentState.PlayerDeathChangeInfo.Keys.All(k => k.Id != player.Id))
+            if (!CurrentState.PlayerDeathChangeInfo.ContainsKey(player) &&
+                CurrentState.PlayerDeathChangeInfo.Keys.All(k => k.Id != player.Id))
             {
                 CurrentState.PlayerDeathChangeInfo[player] = new ConcurrentDictionary<DateTime, bool>
                 {
@@ -115,7 +116,8 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             if (e.IsCharacter)
                 return;
-            if (CurrentState.EnemyDeathChangeInfo.Keys.All(k => k.Id != e.Id))
+            if (!CurrentState.EnemyDeathChangeInfo.ContainsKey(e) &&
+                CurrentState.EnemyDeathChangeInfo.Keys.All(k => k.Id != e.Id))
             {
                 CurrentState.EnemyDeathChangeInfo[e] = new ConcurrentDictionary<DateTime, bool>
                 {
@@ -161,31 +163,56 @@ namespace SWTORCombatParser.Model.LogParsing
             if (!string.IsNullOrEmpty(log.Source.Name))
                 CurrentState.CurrentCharacterPositions[log.Source] = log.SourceInfo.Position;
         }
-        private static CombatModifier GetModifierInScope(ConcurrentDictionary<Guid, CombatModifier> mods, ParsedLogEntry parsedLine)
+        private static CombatModifier GetModifierInScope(ConcurrentDictionary<Guid, CombatModifier> mods, ParsedLogEntry parsedLine, out Guid modifierId,
+            bool matchAnySource = false)
         {
             // Store the parsedLine properties in local variables if they are used multiple times.
             var parsedTarget = parsedLine.Target;
             var parsedSource = parsedLine.Source;
-            var isSourceNameEmpty = string.IsNullOrEmpty(parsedSource.Name);
+            var isSourceNameEmpty = matchAnySource || string.IsNullOrEmpty(parsedSource.Name);
+            CombatModifier closest = null;
+            modifierId = default;
 
             foreach (var kvp in mods)
             {
                 var mod = kvp.Value;
 
-                // Now we only have one if-statement with all the conditions.
                 if (!mod.Complete &&
                     mod.Target == parsedTarget &&
                     (mod.Source == parsedSource || isSourceNameEmpty))
                 {
-                    return mod;
+                    if (!isSourceNameEmpty)
+                    {
+                        modifierId = kvp.Key;
+                        return mod;
+                    }
+
+                    // Missing-source removals/charge changes cannot identify an old
+                    // caster instance. Use the latest application on this target, not
+                    // random Guid dictionary order, which can close a previous pull's
+                    // unremoved effect and make it appear throughout later combats.
+                    if (mod.StartTime > parsedLine.TimeStamp)
+                        continue;
+                    if (closest == null || mod.StartTime > closest.StartTime ||
+                        (mod.StartTime == closest.StartTime &&
+                         (mod.Source.Id < closest.Source.Id ||
+                          (mod.Source.Id == closest.Source.Id && mod.Source.LogId < closest.Source.LogId))))
+                    {
+                        closest = mod;
+                        modifierId = kvp.Key;
+                    }
                 }
             }
 
-            // If no modifier is found that matches the criteria, return null.
-            return null;
+            return closest;
         }
         private static void UpdateCombatModifierState(ParsedLogEntry parsedLine)
         {
+            if (CurrentState.UnknownRemovalTimestamp != parsedLine.TimeStamp)
+            {
+                CurrentState.UnknownSourceRemovals.Clear();
+                CurrentState.UnknownRemovalTimestamp = parsedLine.TimeStamp;
+            }
             if (parsedLine.Error == ErrorType.IncompleteLine ||
                 parsedLine.Effect.EffectType == EffectType.AbsorbShield ||
                 parsedLine.Effect.EffectId == _7_0LogParsing._damageEffectId ||
@@ -196,12 +223,18 @@ namespace SWTORCombatParser.Model.LogParsing
                 parsedLine.Effect.EffectType != EffectType.ModifyCharges)
                 return;
             var effectId = parsedLine.Effect.EffectId;
-            if (!CurrentState.Modifiers.ContainsKey(effectId))
+            if (!CurrentState.Modifiers.TryGetValue(effectId, out var mods))
             {
-                CurrentState.Modifiers[effectId] = new ConcurrentDictionary<Guid, CombatModifier>();
+                mods = new ConcurrentDictionary<Guid, CombatModifier>();
+                CurrentState.Modifiers[effectId] = mods;
             }
-            var mods = CurrentState.Modifiers[effectId];
-            var modifierOfInterest = GetModifierInScope(mods, parsedLine);
+            if (!CurrentState.ActiveModifiers.TryGetValue(effectId, out var activeMods))
+            {
+                // Also support a state whose modifier history was populated before its first update.
+                activeMods = new ConcurrentDictionary<Guid, CombatModifier>(mods.Where(pair => !pair.Value.Complete));
+                CurrentState.ActiveModifiers[effectId] = activeMods;
+            }
+            var modifierOfInterest = GetModifierInScope(activeMods, parsedLine, out var modifierId);
 
             if (parsedLine.Effect.EffectType == EffectType.Apply)
             {
@@ -209,13 +242,13 @@ namespace SWTORCombatParser.Model.LogParsing
                 {
                     modifierOfInterest.StopTime = parsedLine.TimeStamp;
                     modifierOfInterest.Complete = true;
+                    activeMods.TryRemove(modifierId, out _);
                 }
 
-                ulong koltoShellsId = 985226842996736;
-                ulong traumaProbeId = 999516199190528;
-                List<ulong> longRunningHotIds = new List<ulong>() { koltoShellsId, traumaProbeId };
-                int charges = longRunningHotIds.Contains(effectId) ? 7 : (int)parsedLine.Value.DblValue == 0 ? 1 : (int)parsedLine.Value.DblValue;
-                mods[Guid.NewGuid()] = new CombatModifier()
+                const ulong koltoShellsId = 985226842996736;
+                const ulong traumaProbeId = 999516199190528;
+                int charges = effectId == koltoShellsId || effectId == traumaProbeId ? 7 : (int)parsedLine.Value.DblValue == 0 ? 1 : (int)parsedLine.Value.DblValue;
+                var newModifier = new CombatModifier()
                 {
                     Name = parsedLine.ModifierEffectName,
                     EffectName = parsedLine.Effect.EffectName,
@@ -229,6 +262,9 @@ namespace SWTORCombatParser.Model.LogParsing
                             { parsedLine.TimeStamp, charges}
                         }
                 };
+                var newModifierId = Guid.NewGuid();
+                mods[newModifierId] = newModifier;
+                activeMods[newModifierId] = newModifier;
             }
             if (parsedLine.Effect.EffectType == EffectType.ModifyCharges)
             {
@@ -239,10 +275,36 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             if (parsedLine.Effect.EffectType == EffectType.Remove)
             {
+                var unknownSource = string.IsNullOrEmpty(parsedLine.Source.Name);
+                if (modifierOfInterest == null && !unknownSource &&
+                    CurrentState.UnknownSourceRemovals.TryGetValue(effectId, out var previousUnknownRemovals))
+                {
+                    var previousIndex = previousUnknownRemovals.FindIndex(modifier =>
+                        modifier.Source == parsedLine.Source && modifier.Target == parsedLine.Target);
+                    if (previousIndex >= 0)
+                    {
+                        // An earlier unknown removal provisionally claimed this caster.
+                        // The explicit event now owns that closure; reassign the unknown
+                        // event to another active instance at this same timestamp.
+                        previousUnknownRemovals.RemoveAt(previousIndex);
+                        modifierOfInterest = GetModifierInScope(activeMods, parsedLine, out modifierId, matchAnySource: true);
+                        unknownSource = true;
+                    }
+                }
                 if (modifierOfInterest != null)
                 {
                     modifierOfInterest.StopTime = parsedLine.TimeStamp;
                     modifierOfInterest.Complete = true;
+                    activeMods.TryRemove(modifierId, out _);
+                    if (unknownSource)
+                    {
+                        if (!CurrentState.UnknownSourceRemovals.TryGetValue(effectId, out var unknownRemovals))
+                        {
+                            unknownRemovals = new List<CombatModifier>();
+                            CurrentState.UnknownSourceRemovals[effectId] = unknownRemovals;
+                        }
+                        unknownRemovals.Add(modifierOfInterest);
+                    }
                 }
             }
 

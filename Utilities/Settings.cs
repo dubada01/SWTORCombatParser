@@ -9,6 +9,7 @@ namespace SWTORCombatParser.Utilities;
 
 public static class Settings
 {
+    public const string ShowOverlaysInObsSetting = "show_overlays_in_obs";
     public static string RaidFrameBossTargetVisibilitySetting = "overlay_show_targeted";
     
     public static string BossFrameDurationVisibilitySetting = "overlay_show_boss_frame_duration";

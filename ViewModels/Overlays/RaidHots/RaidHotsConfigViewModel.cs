@@ -1,59 +1,114 @@
-﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Model.Overlays;
 using SWTORCombatParser.Utilities;
 using System;
-using System.Linq;
+using System.ComponentModel;
 using System.Reactive;
-using System.Threading;
-using System.Threading.Tasks;
 using Avalonia.Threading;
 using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
-    public class RaidHotsConfigViewModel :ReactiveObject
+    public class RaidHotsConfigViewModel : ReactiveObject
     {
         private string raidFrameRows = "4";
         private string raidFrameColumns = "2";
-        private RaidFrameOverlayViewModel _currentOverlayViewModel;
-        private bool _isRaidFrameEditable = false;
-        private bool raidHotsEnabled = false;
-        private string _editText = "Reposition\nRaid Frame";
-        private string _unEditText = "Lock Raid Frame";
-        private string toggleEditText;
+        private readonly RaidFrameOverlayViewModel _currentOverlayViewModel;
+        private bool _isRaidFrameEditable;
+        private bool raidHotsEnabled;
+        private string toggleEditText = "Move grid";
         private string _currentCharacter = "no character";
         private bool _decreasedSpecificity;
-        private bool canDetect = true;
+        private bool _loadingLayout;
+
         public event Action<bool> EnabledChanged = delegate { };
+        public RaidFrameOverlayViewModel Overlay => _currentOverlayViewModel;
+        public bool CanDetect => RaidHotsEnabled && Overlay.CanDetect;
+        public string AlignmentStatus => RaidHotsEnabled ? Overlay.AlignmentStatus : "Enable raid HOTs to align frames.";
+
         public RaidHotsConfigViewModel()
         {
             RaidFrameOverlayManager.Init();
-            HotkeyHandler.OnRefreshHOTsHotkey += AutoDetection;
-            _currentOverlayViewModel = new RaidFrameOverlayViewModel("RaidFrame") { Columns = int.Parse(RaidFrameColumns), Rows = int.Parse(RaidFrameRows), Editable = _isRaidFrameEditable};
-            _currentOverlayViewModel.CloseRequested += ()=> RaidHotsEnabled = false;
-            raidHotsEnabled = _currentOverlayViewModel.Active;
-            CombatLogStreamer.HistoricalLogsFinished += (t, b) =>
+            _currentOverlayViewModel = new RaidFrameOverlayViewModel("RaidFrame")
             {
-                if (!b || CombatLogStateBuilder.CurrentState?.LocalPlayer == null)
+                Columns = 2,
+                Rows = 4,
+                Editable = _isRaidFrameEditable
+            };
+            _currentOverlayViewModel.CloseRequested += () => RaidHotsEnabled = false;
+            _currentOverlayViewModel.PropertyChanged += OverlayPropertyChanged;
+            _currentOverlayViewModel.ActiveChanged += SynchronizeEnabledState;
+            HotkeyHandler.OnRefreshHOTsHotkey += AutoDetection;
+            CombatLogStreamer.HistoricalLogsFinished += (t, isLive) =>
+            {
+                if (!isLive || CombatLogStateBuilder.CurrentState?.LocalPlayer == null)
                     return;
-                var player = CombatLogStateBuilder.CurrentState.LocalPlayer;
-                var classInfo = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(t);
-                SetClass(player, classInfo);
+                SetClass(CombatLogStateBuilder.CurrentState.LocalPlayer,
+                    CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(t));
             };
             CombatLogStateBuilder.PlayerDiciplineChanged += SetClass;
 
-            ToggleEditText = _editText;
-
-            var defaults = RaidFrameOverlayManager.GetDefaults(_currentCharacter);
-            Task.Run(() =>
-            {
-                RaidFrameRows = defaults.Rows.ToString();
-                Thread.Sleep(100);
-                RaidFrameColumns = defaults.Columns.ToString();
-            });
+            LoadLayout();
+            EnsureCharacterOverlayDefaults(_currentCharacter);
             _currentOverlayViewModel.FirePlayerChanged(_currentCharacter);
+            SynchronizeEnabledState(_currentOverlayViewModel.Active);
+        }
+
+        private void OverlayPropertyChanged(object? sender, PropertyChangedEventArgs e)
+        {
+            if (e.PropertyName == nameof(Overlay.CanDetect))
+                this.RaisePropertyChanged(nameof(CanDetect));
+            if (e.PropertyName == nameof(Overlay.AlignmentStatus))
+                this.RaisePropertyChanged(nameof(AlignmentStatus));
+            if (e.PropertyName == nameof(Overlay.Editable))
+            {
+                _isRaidFrameEditable = Overlay.Editable;
+                ToggleEditText = Overlay.Editable ? "Lock grid" : "Move grid";
+                this.RaisePropertyChanged(nameof(RaidFrameEditable));
+            }
+            if (e.PropertyName != nameof(Overlay.Rows) && e.PropertyName != nameof(Overlay.Columns))
+                return;
+
+            this.RaiseAndSetIfChanged(ref raidFrameRows, Overlay.Rows.ToString(), nameof(RaidFrameRows));
+            this.RaiseAndSetIfChanged(ref raidFrameColumns, Overlay.Columns.ToString(), nameof(RaidFrameColumns));
+            if (!_loadingLayout)
+                RaidFrameOverlayManager.SetRowsColumns(Overlay.Rows, Overlay.Columns, _currentCharacter);
+        }
+
+        private void LoadLayout()
+        {
+            var defaults = RaidFrameOverlayManager.GetDefaults(_currentCharacter);
+            _loadingLayout = true;
+            try
+            {
+                Overlay.Rows = (int)defaults.Rows;
+                Overlay.Columns = (int)defaults.Columns;
+            }
+            finally
+            {
+                _loadingLayout = false;
+            }
+            this.RaiseAndSetIfChanged(ref raidFrameRows, Overlay.Rows.ToString(), nameof(RaidFrameRows));
+            this.RaiseAndSetIfChanged(ref raidFrameColumns, Overlay.Columns.ToString(), nameof(RaidFrameColumns));
+        }
+
+        private static void EnsureCharacterOverlayDefaults(string character)
+        {
+            var characterDefaults = DefaultCharacterOverlays.GetCharacterDefaults(character);
+            if (characterDefaults.ContainsKey("RaidFrame"))
+                return;
+
+            var layout = RaidFrameOverlayManager.GetDefaults(character);
+            var active = layout.Acive;
+            if (character != "no character" &&
+                DefaultCharacterOverlays.GetCharacterDefaults("no character").TryGetValue("RaidFrame", out var template))
+                active = template.Acive;
+            // BaseOverlayViewModel restores geometry and enabled state from the character
+            // overlay store. New roles need an entry there as well as their raid grid settings.
+            DefaultCharacterOverlays.SetCharacterDefaults("RaidFrame", layout.Position, layout.WidtHHeight, character);
+            DefaultCharacterOverlays.SetActiveStateCharacter("RaidFrame", active, character);
         }
 
         public bool DecreasedSpecificity
@@ -61,148 +116,122 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             get => _decreasedSpecificity;
             set
             {
-                _decreasedSpecificity = value;
-                _currentOverlayViewModel.SetTextMatchAccuracy(_decreasedSpecificity);
+                this.RaiseAndSetIfChanged(ref _decreasedSpecificity, value);
+                Overlay.SetTextMatchAccuracy(value);
             }
         }
 
-        public ReactiveCommand<Unit,Unit> ManuallyRefreshPlayersCommand => ReactiveCommand.Create(AutoDetection);
+        public ReactiveCommand<Unit, Unit> ManuallyRefreshPlayersCommand => ReactiveCommand.Create(AutoDetection);
+        public ReactiveCommand<Unit, Unit> TogglePositionCommand => ReactiveCommand.Create(() => { Overlay.Editable = !Overlay.Editable; });
         public bool RaidFrameEditable => _isRaidFrameEditable;
         public string ToggleEditText
         {
-            get => toggleEditText; set
-            {
-                this.RaiseAndSetIfChanged(ref toggleEditText, value);
-            }
+            get => toggleEditText;
+            set => this.RaiseAndSetIfChanged(ref toggleEditText, value);
         }
+
         public string RaidFrameRows
         {
             get => raidFrameRows;
             set
             {
-                if (value.Any(v => !char.IsDigit(v)))
+                if (value == "")
+                {
+                    this.RaiseAndSetIfChanged(ref raidFrameRows, value);
                     return;
-                this.RaiseAndSetIfChanged(ref raidFrameRows,value);
-                if (raidFrameRows == "")
+                }
+                if (!int.TryParse(value, out var count) || !RaidFrameOverlayManager.IsValidGridDimension(count))
                     return;
-                _currentOverlayViewModel.Rows = int.Parse(RaidFrameRows);
-                RaidFrameOverlayManager.SetRowsColumns(_currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns, _currentCharacter);
+                this.RaiseAndSetIfChanged(ref raidFrameRows, value);
+                Overlay.Rows = count;
             }
         }
+
         public string RaidFrameColumns
         {
-            get => raidFrameColumns; set
+            get => raidFrameColumns;
+            set
             {
-                if (value.Any(v => !char.IsDigit(v)))
+                if (value == "")
+                {
+                    this.RaiseAndSetIfChanged(ref raidFrameColumns, value);
+                    return;
+                }
+                if (!int.TryParse(value, out var count) || !RaidFrameOverlayManager.IsValidGridDimension(count))
                     return;
                 this.RaiseAndSetIfChanged(ref raidFrameColumns, value);
-                if (raidFrameColumns == "")
-                    return;
-                _currentOverlayViewModel.Columns = int.Parse(RaidFrameColumns);
-                RaidFrameOverlayManager.SetRowsColumns(_currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns, _currentCharacter);
+                Overlay.Columns = count;
             }
         }
 
-        public void HideRaidHots()
-        {
-            _currentOverlayViewModel.HideOverlayWindow();
-        }
+        public void HideRaidHots() => Overlay.HideOverlayWindow();
 
-        public bool CanDetect
-        {
-            get => canDetect; set
-            {
-                this.RaiseAndSetIfChanged(ref canDetect, value);
-            }
-        }
         public bool RaidHotsEnabled
         {
-            get => raidHotsEnabled; set
+            get => raidHotsEnabled;
+            set
             {
-                if (raidHotsEnabled == value)
-                    return;
-                _currentOverlayViewModel.Active = value;
-                this.RaiseAndSetIfChanged(ref raidHotsEnabled, value);
-
-                if (!raidHotsEnabled)
+                if (!Dispatcher.UIThread.CheckAccess())
                 {
-                    _currentOverlayViewModel.CurrentNames.Clear();
+                    Dispatcher.UIThread.Invoke(() => RaidHotsEnabled = value);
+                    return;
                 }
-                EnabledChanged(raidHotsEnabled);
+                if (Overlay.Active != value)
+                    Overlay.Active = value;
+                SynchronizeEnabledState(value);
             }
         }
-        private void StartPositioning(bool isLocked)
+
+        private void SynchronizeEnabledState(bool enabled)
         {
-            if (!isLocked)
+            if (!Dispatcher.UIThread.CheckAccess())
             {
-                ToggleEditText = _unEditText;
-                _isRaidFrameEditable = true;
-                _currentOverlayViewModel.Editable = true;
+                Dispatcher.UIThread.Post(() => SynchronizeEnabledState(enabled));
+                return;
             }
-            else
-            {
-                ToggleEditText = _editText;
-                _isRaidFrameEditable = false;
-                _currentOverlayViewModel.Editable = false;
-            }
-            this.RaisePropertyChanged(nameof(RaidFrameEditable));
+            if (raidHotsEnabled == enabled)
+                return;
+            this.RaiseAndSetIfChanged(ref raidHotsEnabled, enabled, nameof(RaidHotsEnabled));
+            this.RaisePropertyChanged(nameof(CanDetect));
+            this.RaisePropertyChanged(nameof(AlignmentStatus));
+            EnabledChanged(enabled);
         }
 
         private void AutoDetection()
         {
-            if (!RaidHotsEnabled || !CanDetect)
-                return;
-            CanDetect = false;
-            Task.Run(() =>
+            // Both the settings button and hotkey use the overlay's single in-flight request.
+            Dispatcher.UIThread.Post(async () =>
             {
-                var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(_currentOverlayViewModel.OverlayPosition,
-                    (int)_currentOverlayViewModel.OverlayScaledSize.X, (int)_currentOverlayViewModel.OverlayScaledSize.Y, _currentOverlayViewModel.Rows);
-                var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(_currentOverlayViewModel.OverlayPosition,
-                    raidFrameBitmap, _currentOverlayViewModel.Rows, _currentOverlayViewModel.Columns,(int)_currentOverlayViewModel.OverlayScaledSize.Y, (int)_currentOverlayViewModel.OverlayScaledSize.X).Result;
-                raidFrameBitmap.Dispose();
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    _currentOverlayViewModel.UpdateNames(names);
-                });
-                CanDetect = true;
-
+                if (CanDetect)
+                    await Overlay.DetectPlayersAsync();
             });
         }
 
         internal void ToggleLock(bool overlaysLocked)
         {
-            StartPositioning(overlaysLocked);
-        }
-        private void UpdateVisualsBasedOnRole(SWTORClass mostRecentDiscipline)
-        {
-            if (mostRecentDiscipline == null)
-                return;
-            if (mostRecentDiscipline.Role == Role.Healer)
-            {
-                var defaults = RaidFrameOverlayManager.GetDefaults(_currentCharacter);
-                RaidFrameRows = defaults.Rows.ToString();
-                RaidFrameColumns = defaults.Columns.ToString();
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    RaidHotsEnabled = defaults.Acive;
-                    _currentOverlayViewModel.FirePlayerChanged(_currentCharacter);
-                });
-            }
-            else
-            {
-                Dispatcher.UIThread.Invoke(() =>
-                {
-                    RaidHotsEnabled = false;
-                });
-            }
+            Dispatcher.UIThread.Invoke(() => Overlay.Editable = !overlaysLocked);
         }
 
-        private void SetClass(Entity arg1, SWTORClass arg2)
+        private void SetClass(Entity player, SWTORClass discipline)
         {
-            if (_currentCharacter == arg1.Name + "/" + arg2.Discipline)
+            if (player == null || discipline == null)
                 return;
-            _currentCharacter = arg1.Name + "/" + arg2.Discipline;
-            UpdateVisualsBasedOnRole(arg2);
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                var character = player.Name + "/" + discipline.Discipline;
+                if (_currentCharacter == character)
+                    return;
+                _currentCharacter = character;
+                LoadLayout();
+                EnsureCharacterOverlayDefaults(_currentCharacter);
+                // Select the new character before changing Active so the old healer's
+                // saved enabled state is not overwritten when switching to a damage role.
+                Overlay.FirePlayerChanged(_currentCharacter);
+                if (discipline.Role != Role.Healer)
+                    RaidHotsEnabled = false;
+                else
+                    SynchronizeEnabledState(Overlay.Active);
+            });
         }
     }
 }

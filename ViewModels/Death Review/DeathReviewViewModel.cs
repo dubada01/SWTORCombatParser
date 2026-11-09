@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 
 namespace SWTORCombatParser.ViewModels.Death_Review
 {
-    public class DeathReviewViewModel : INotifyPropertyChanged
+    public class DeathReviewViewModel : INotifyPropertyChanged, IDisposable
     {
         public ChallengeControl DeathChallengeView { get; set; }
         private DeathChallengeViewModel _challengeViewModel;
@@ -30,6 +30,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
         private Combat _currentCombat;
         private bool _initializingCombat;
         private int _selectionVersion;
+        private readonly IDisposable _positionSubscription;
 
         public DeathReviewViewModel()
         {
@@ -43,7 +44,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
 
             _plotViewModel = new LegacyDeathReviewPlotVM();
             DeathPlotView = new LegacyDeathPlot(_plotViewModel);
-            Observable.FromEvent<double>(
+            _positionSubscription = Observable.FromEvent<double>(
                 handler => _plotViewModel.XValueSelected += handler,
                 handler => _plotViewModel.XValueSelected -= handler).Sample(TimeSpan.FromSeconds(0.1)).Subscribe(SeekToPosition);
 
@@ -59,6 +60,7 @@ namespace SWTORCombatParser.ViewModels.Death_Review
 
         private void SeekToPosition(double obj)
         {
+            if (_currentCombat == null) return;
             List<EntityInfo> mostRecentInfos = _deathLogsViewModel.Seek(obj);
             _playerListViewModel.SetEntityHPS(mostRecentInfos);
         }
@@ -106,9 +108,12 @@ namespace SWTORCombatParser.ViewModels.Death_Review
             _ = UpdateSelectedPlayers(selectedParticipants);
         }
 
-        internal void RemoveCombat(Combat obj)
+        public void Dispose()
         {
-            //throw new NotImplementedException();
+            _positionSubscription.Dispose();
+            _currentCombat = null;
+            _deathLogsViewModel.ClearCombat();
+            Reset();
         }
     }
 }

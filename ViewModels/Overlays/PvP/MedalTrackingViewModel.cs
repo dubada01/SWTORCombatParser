@@ -7,6 +7,7 @@ using SWTORCombatParser.Views.Overlay.PvP;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using Avalonia.Threading;
 using DynamicData;
@@ -15,6 +16,7 @@ using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.DataStructures.PvP;
 using SWTORCombatParser.Model.CombatParsing;
+using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Overlays.PvP
 {
@@ -170,7 +172,32 @@ namespace SWTORCombatParser.ViewModels.Overlays.PvP
         {
             if (currentCombat.IsPvPCombat)
             {
-                _mostRecentCombat = await EncounterMonitor.GetCurrentEncounter().GetOverallCombat();
+                try
+                {
+                    _mostRecentCombat = await EncounterMonitor.GetCurrentEncounter().GetOverallCombat();
+                }
+                catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException)
+                {
+                    // A missing fight makes the session total incomplete. Do not keep
+                    // showing previous/partial medals or let an async-void failure escape.
+                    _isTriggered = false;
+                    _mostRecentCombat = null;
+                    Dispatcher.UIThread.Invoke(() =>
+                    {
+                        AvailablePvPMedals = new List<PvPMedalProgressViewModel>();
+                        ShowFrame = false;
+                    });
+                    try
+                    {
+                        Logging.LogError("PvP medal totals are unavailable because combat data could not be loaded. " +
+                            "Reload the source log to restore the session. " + error.Message, tryCloudLogs: false);
+                    }
+                    catch (Exception logError) when (logError is IOException or UnauthorizedAccessException)
+                    {
+                        System.Diagnostics.Debug.WriteLine("Could not record the PvP cache error: " + logError.Message);
+                    }
+                    return;
+                }
                 if (string.IsNullOrEmpty(_currentPlayerClass.Discipline))
                 {
                     _currentPlayerClass = CombatLogStateBuilder.CurrentState.GetCharacterClassAtTime(currentCombat.LocalPlayer, currentCombat.StartTime);

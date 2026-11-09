@@ -16,6 +16,12 @@ namespace SWTORCombatParser.Model.Challenge
             switch (type)
             {
                 case ChallengeType.DamageIn:
+                    if (IsAny(activeChallenge.Value) && IsAny(activeChallenge.ChallengeSource))
+                    {
+                        value = combat.IncomingDamageLogs.TryGetValue(participant, out var incoming) ? incoming.Sum(log => log.Value.EffectiveDblValue) : 0;
+                        value = divisor > 0 ? value / divisor : 0;
+                        break;
+                    }
                     value = string.IsNullOrEmpty(activeChallenge.Value) || activeChallenge.Value.ToLower() == "any" ?
 
                          combat.GetDamageFromEntityByPlayer(activeChallenge.ChallengeSource, participant)
@@ -25,6 +31,12 @@ namespace SWTORCombatParser.Model.Challenge
                     value = divisor > 0 ? value / divisor : 0;
                     break;
                 case ChallengeType.DamageOut:
+                    if (IsAny(activeChallenge.Value) && IsAny(activeChallenge.ChallengeTarget))
+                    {
+                        value = combat.OutgoingDamageLogs.TryGetValue(participant, out var outgoing) ? outgoing.Sum(log => log.Value.EffectiveDblValue) : 0;
+                        value = divisor > 0 ? value / divisor : 0;
+                        break;
+                    }
                     value = string.IsNullOrEmpty(activeChallenge.Value) || activeChallenge.Value.ToLower() == "any" ?
                         combat.GetDamageToEntityByPlayer(activeChallenge.ChallengeTarget, participant) :
                         string.IsNullOrEmpty(activeChallenge.ChallengeTarget) || activeChallenge.ChallengeTarget.ToLower() == "any" ?
@@ -48,6 +60,8 @@ namespace SWTORCombatParser.Model.Challenge
             }
             return value;
         }
+
+        private static bool IsAny(string value) => string.IsNullOrEmpty(value) || value.Equals("any", System.StringComparison.OrdinalIgnoreCase);
 
     }
 }

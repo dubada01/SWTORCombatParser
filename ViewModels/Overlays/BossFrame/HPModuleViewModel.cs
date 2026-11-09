@@ -14,15 +14,25 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         private double bossCurrentHP;
         private double bossMaxHP;
         private string bossName;
-        private double defaultHeight = 50;
+        private double defaultHeight = 28;
         private double height;
         private string currentBossTarget;
         private bool _currentTargetIndicatorVisible;
 
         public double Height
         {
-            get => height; set => this.RaiseAndSetIfChanged(ref height, value);
+            get => height;
+            set
+            {
+                this.RaiseAndSetIfChanged(ref height, value);
+                this.RaisePropertyChanged(nameof(NameFontSize));
+                this.RaisePropertyChanged(nameof(HealthFontSize));
+                this.RaisePropertyChanged(nameof(TargetFontSize));
+            }
         }
+        public double NameFontSize => Height * 0.5;
+        public double HealthFontSize => Height * 0.57;
+        public double TargetFontSize => Height * 0.43;
         public string BossName
         {
             get => bossName; set => this.RaiseAndSetIfChanged(ref bossName, value);
@@ -36,11 +46,14 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 
         public string CurrentBossTarget
         {
-            get => currentBossTarget; set => this.RaiseAndSetIfChanged(ref currentBossTarget, value);
+            get => currentBossTarget;
+            set { this.RaiseAndSetIfChanged(ref currentBossTarget, value); this.RaisePropertyChanged(nameof(BossTargetText)); }
         }
+        public string BossTargetText => string.IsNullOrWhiteSpace(CurrentBossTarget) ? "—" : CurrentBossTarget;
         public double BossMaxHP
         {
-            get => bossMaxHP; set => this.RaiseAndSetIfChanged(ref bossMaxHP, value);
+            get => bossMaxHP;
+            set { this.RaiseAndSetIfChanged(ref bossMaxHP, double.IsFinite(value) ? Math.Max(0, value) : 0); RefreshHealth(); }
         }
         public double BossCurrentHP
         {
@@ -48,31 +61,28 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
             {
                 if (double.IsNaN(value) || double.IsInfinity(value))
                     value = 0;
-                this.RaiseAndSetIfChanged(ref bossCurrentHP, value);
-                var ratio = BossMaxHP <= 0 ? 0 : bossCurrentHP / BossMaxHP;
-                if (double.IsNaN(ratio) || double.IsInfinity(ratio) || ratio < 0 || ratio > 1)
-                    ratio = Math.Clamp(ratio, 0, 1); // or just ratio = 0;
-
-                try
-                {
-                    BarWidth = new GridLength(ratio, GridUnitType.Star);
-                    RemainderWidth = new GridLength(1 - ratio, GridUnitType.Star);
-                }
-                catch
-                {
-                    BarWidth = new GridLength(0, GridUnitType.Star);
-                    RemainderWidth = new GridLength(1, GridUnitType.Star);
-                }
-                this.RaisePropertyChanged(nameof(HPPercentText));
-                this.RaisePropertyChanged(nameof(BarWidth));
-                this.RaisePropertyChanged(nameof(RemainderWidth));
+                this.RaiseAndSetIfChanged(ref bossCurrentHP, Math.Max(0, value));
+                RefreshHealth();
             }
         }
-        public string HPPercentText => ((BossCurrentHP / BossMaxHP) * 100).ToString("N2") + "%";
+        private double HealthRatio => BossMaxHP > 0 ? Math.Clamp(BossCurrentHP / BossMaxHP, 0, 1) : 0;
+        public string HPPercentText => BossMaxHP > 0 ? (HealthRatio * 100).ToString("0.0") + "%" : "—";
+        public string CompactHealth => BossCurrentHP >= 1_000_000 ? (BossCurrentHP / 1_000_000).ToString("0.0") + "m"
+            : BossCurrentHP >= 1_000 ? (BossCurrentHP / 1_000).ToString("0.0") + "k" : BossCurrentHP.ToString("N0");
+        public string DetailedHealth => $"{BossCurrentHP:N0} / {BossMaxHP:N0} HP";
+        private void RefreshHealth()
+        {
+            BarWidth = new GridLength(HealthRatio, GridUnitType.Star);
+            RemainderWidth = new GridLength(1 - HealthRatio, GridUnitType.Star);
+            this.RaisePropertyChanged(nameof(HPPercentText));
+            this.RaisePropertyChanged(nameof(CompactHealth));
+            this.RaisePropertyChanged(nameof(DetailedHealth));
+            this.RaisePropertyChanged(nameof(BarWidth));
+            this.RaisePropertyChanged(nameof(RemainderWidth));
+        }
         public GridLength RemainderWidth { get; set; }
         public GridLength BarWidth { get; set; }
 
-        public event PropertyChangedEventHandler PropertyChanged;
         public HPModuleViewModel(EntityInfo sourceBossInfo, bool isDuplicate, double scale)
         {
             UpdateScale(scale);

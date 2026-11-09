@@ -79,6 +79,10 @@ namespace SWTORCombatParser.Views.Phases
         }
         private void UpdatePhaseBar(Combat newCombat)
         {
+            // Live updates keep streaming while an older combat is displayed.
+            // Do not draw that combat's phases against the live combat's time range.
+            if (!PhaseManager.IsDisplayingCombat(newCombat))
+                return;
             Reset();
             var currentCombat = newCombat;
             var combatDuration = currentCombat.DurationSeconds;

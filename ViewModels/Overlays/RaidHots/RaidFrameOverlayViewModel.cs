@@ -1,4 +1,4 @@
-﻿//using MoreLinq;
+//using MoreLinq;
 using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.EncounterInfo;
 using SWTORCombatParser.Model.CombatParsing;
@@ -32,19 +32,27 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
 {
     public class RaidFrameOverlayViewModel : BaseOverlayViewModel
     {
-        private Dictionary<DateTime, Point> _mostRecentlyClickedCell = new Dictionary<DateTime, Point>();
-        private object _cellClickLock = new object();
-        private bool _isMouseInFrame;
+        private readonly ManualRaidFrameAlignment _manualAlignment = new();
+        private readonly DispatcherTimer _manualTimeout = new() { Interval = TimeSpan.FromMilliseconds(250) };
+        private Window? _manualWindow;
+        private CancellationTokenSource? _detectionCancellation;
+        private int _layoutVersion;
+        private bool _detecting;
+        private string _alignmentStatus = "Ready to align raid frames.";
+        public string AlignmentStatus
+        {
+            get => _alignmentStatus;
+            private set => this.RaiseAndSetIfChanged(ref _alignmentStatus, value);
+        }
+        public bool IsManuallyAligning => _isManuallyModifiying;
+        public bool ManualAlignmentSupported => OperatingSystem.IsWindows() || OperatingSystem.IsLinux() || OperatingSystem.IsMacOS();
         private int rows;
         private int columns;
         private bool editable;
-        private bool active;
         private bool _inCombat;
         private bool _usingDecreasedAccuracy;
         private List<long> _validBossIds = new List<long>();
         private object _cellUpdateLock = new object();
-        private bool canDetect = true;
-        private bool tryingToRemoveUpdates = false;
         private ObservableCollection<RaidHotCell> _raidHotCells = new ObservableCollection<RaidHotCell>();
         public override bool ShouldBeVisible => true;
         public bool DisplayGrid => Editable || _isManuallyModifiying;
@@ -54,18 +62,15 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             get => editable;
             set
             {
+                if (_isManuallyModifiying) EndManualAlignment(false);
+                if (editable == value) return;
+                InvalidateDetection();
                 this.RaiseAndSetIfChanged(ref editable, value);
                 this.RaisePropertyChanged(nameof(DisplayGrid));
                 OverlaysMoveable = editable;
             }
         }
-        public bool CanDetect
-        {
-            get => canDetect; private set
-            {
-                this.RaiseAndSetIfChanged(ref canDetect, value);
-            }
-        }
+        public bool CanDetect => Active && !_detecting && !_isManuallyModifiying;
         public double ColumnWidth => OverlayScaledSize.X / Columns;
         public double RowHeight => OverlayScaledSize.Y / Rows;
 
@@ -83,110 +88,237 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
             CombatLogStateBuilder.AreaEntered += NewEncounterEntered;
             HotkeyHandler.OnHideOverlaysHotkey += ToggleHide;
             _raidFrameView = new RaidFrameOverlay(this);
-            _raidFrameView.MouseInArea += MouseInArea;
             _raidFrameView.AreaClicked += CellClicked;
-            MainContent = _raidFrameView;
             BackgroundLockedOpacity = 0;
             BackgroundUnLockedOpacity = 0.05;
             SettingsType = OverlaySettingsType.Character;
+            MainContent = _raidFrameView;
+            Settings.SettingsUpdated += SettingsChanged;
+            _overlayWindow.Closed += (_, _) => Settings.SettingsUpdated -= SettingsChanged;
+            _overlayWindow.PropertyChanged += (_, change) =>
+            {
+                if (change.Property == Window.IsVisibleProperty && !_overlayWindow.IsVisible)
+                {
+                    EndManualAlignment(false);
+                    InvalidateDetection();
+                }
+            };
+            _manualTimeout.Tick += (_, _) => ExpireManualClick();
+            ActiveChanged += enabled => Dispatcher.UIThread.Invoke(() =>
+            {
+                if (!enabled)
+                {
+                    EndManualAlignment(false);
+                    InvalidateDetection();
+                }
+                this.RaisePropertyChanged(nameof(CanDetect));
+            });
+        }
+        private void SettingsChanged(string setting)
+        {
+            if (setting == "offline_mode" && Settings.ReadSettingOfType<bool>(setting))
+                Dispatcher.UIThread.Post(InvalidateDetection);
         }
         
         private void OnStartCombat(CombatStatusUpdate update)
         {
-            if (update.Type == UpdateType.Start)
+            if (update.Type != UpdateType.Start && update.Type != UpdateType.Stop) return;
+            Dispatcher.UIThread.Post(() =>
             {
-                _inCombat = true;
-            }
-            if (update.Type == UpdateType.Stop)
-            {
-                _inCombat = false;
-            }
-
-        }
-        public ReactiveCommand<Unit,Unit> RefreshFramesCommand => ReactiveCommand.Create(AutoDetection);
-        private void AutoDetection()
-        {
-            if (!CanDetect)
-                return;
-            CanDetect = false;
-            Task.Run(() =>
-            {
-                try
+                _inCombat = update.Type == UpdateType.Start;
+                if (!_isManuallyModifiying) return;
+                ClearPendingClick();
+                try { _raidFrameView.SetManualEditing(!_inCombat); }
+                catch (Exception error)
                 {
-                    var raidFrameBitmap = RaidFrameScreenGrab.GetRaidFrameBitmapStream(OverlayPosition,
-                (int)OverlayScaledSize.X, (int)OverlayScaledSize.Y, Rows);
-                    var names = AutoHOTOverlayPosition.GetCurrentPlayerLayoutLOCAL(OverlayPosition,
-                        raidFrameBitmap, Rows, Columns, (int)OverlayScaledSize.Y, (int)OverlayScaledSize.X).Result;
-                    raidFrameBitmap.Dispose();
-                    Dispatcher.UIThread.Invoke(() =>
-                    {
-                        UpdateNames(names);
-                    });
-
+                    EndManualAlignment(true);
+                    Logging.LogError("Could not resume raid frame click capture: " + error.Message);
+                    AlignmentStatus = "Could not resume click capture. Try Assign by click again.";
+                    return;
                 }
-                catch (Exception ex)
-                {
-                    Logging.LogError("Failed to detect raid frame names: " + ex.Message);
-                }
-                finally
-                {
-                    CanDetect = true;
-                }
-
+                AlignmentStatus = _inCombat
+                    ? "Assignment paused during combat. Your saved names are unchanged."
+                    : "Click a player in SWTOR's raid frames, then wait for their name to appear.";
             });
         }
-        public ReactiveCommand<Button,Unit> SetFramesToManualCorrect => ReactiveCommand.Create<Button>(FramesToManualCorrect);
+        public ReactiveCommand<Unit, Unit> RefreshFramesCommand => ReactiveCommand.CreateFromTask(DetectPlayersAsync);
 
-        private void FramesToManualCorrect(Button clicked)
+        public async Task DetectPlayersAsync()
         {
+            if (!CanDetect) return;
+            if (!_raidFrameView.TryGetRaidBounds(out var position, out var size, out var scale))
+            {
+                AlignmentStatus = "Show the raid overlay and match its grid to your raid frames first.";
+                return;
+            }
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+            {
+                AlignmentStatus = "Name detection requires online mode. Use Assign by click while offline.";
+                return;
+            }
+            _detecting = true;
+            this.RaisePropertyChanged(nameof(CanDetect));
+            var version = _layoutVersion;
+            var scanRows = Rows;
+            var scanColumns = Columns;
+            using var cancellation = new CancellationTokenSource();
+            _detectionCancellation = cancellation;
+            AlignmentStatus = "Detecting player names… Keep the raid frames visible.";
+            try
+            {
+                // Capture the game's text, without our labels, borders, or timer icons.
+                // Give the compositor a frame to remove the overlay before screen capture.
+                System.IO.MemoryStream bitmap;
+                var opacity = _overlayWindow.Opacity;
+                try
+                {
+                    _overlayWindow.Opacity = 0;
+                    await Task.Delay(150, cancellation.Token);
+                    cancellation.Token.ThrowIfCancellationRequested();
+                    bitmap = await Task.Run(() => RaidFrameScreenGrab.GetRaidFrameBitmapStream(position,
+                        (int)size.X, (int)size.Y, scanRows, scale, maskOverlayNames: false), cancellation.Token);
+                }
+                finally { _overlayWindow.Opacity = opacity; }
+                using var capturedBitmap = bitmap;
+                var result = await AutoHOTOverlayPosition.DetectCurrentPlayerLayoutAsync(position, bitmap,
+                    scanRows, scanColumns, (int)size.Y, (int)size.X, cancellation.Token);
+                if (cancellation.IsCancellationRequested || version != _layoutVersion || !Active) return;
+                if (!_raidFrameView.TryGetRaidBounds(out var currentPosition, out var currentSize, out _) ||
+                    position != currentPosition || size != currentSize)
+                {
+                    AlignmentStatus = "The grid moved during detection. Detect names again in its new position.";
+                    return;
+                }
+                if (!result.Success)
+                {
+                    AlignmentStatus = result.ErrorMessage + " Your existing names were kept. Retry or use Assign by click.";
+                    return;
+                }
+                if (result.Names.Count == 0)
+                {
+                    AlignmentStatus = "No names detected. Existing names were kept. Check grid alignment and make sure SWTOR is visible.";
+                    return;
+                }
+                UpdateNames(result.Names);
+                AlignmentStatus = $"Detected {CurrentNames.Count} of {Rows * Columns} slots. Check the names; use Assign by click to correct any mistakes.";
+            }
+            catch (OperationCanceledException) { }
+            catch (Exception error)
+            {
+                Logging.LogError("Failed to detect raid frame names: " + error.Message);
+                AlignmentStatus = error.Message + " Existing names were kept.";
+            }
+            finally
+            {
+                _detectionCancellation = null;
+                _detecting = false;
+                this.RaisePropertyChanged(nameof(CanDetect));
+            }
+        }
+
+        private void InvalidateDetection()
+        {
+            _layoutVersion++;
+            if (_detectionCancellation != null)
+            {
+                _detectionCancellation.Cancel();
+                AlignmentStatus = "Setup changed. Detect names again when the grid is ready.";
+            }
+        }
+
+        public ReactiveCommand<Unit, Unit> SetFramesToManualCorrect => ReactiveCommand.Create(BeginManualAlignment);
+        public void BeginManualAlignment()
+        {
+            if (_isManuallyModifiying || !Active) return;
+            if (!ManualAlignmentSupported)
+            {
+                AlignmentStatus = "Assign by click is available on Windows. Use Detect names on this platform.";
+                return;
+            }
+            InvalidateDetection();
             Editable = false;
             _isManuallyModifiying = true;
-            _raidFrameView._manuallyEditing = true;
+            this.RaisePropertyChanged(nameof(IsManuallyAligning));
             this.RaisePropertyChanged(nameof(DisplayGrid));
-            
-            // Create a new window
+            this.RaisePropertyChanged(nameof(CanDetect));
+            AlignmentStatus = _inCombat ? "Assignment paused during combat." :
+                "Click a player in SWTOR's raid frames, then wait for their name to appear.";
+            try { _raidFrameView.SetManualEditing(!_inCombat); }
+            catch (Exception error)
+            {
+                EndManualAlignment(true);
+                Logging.LogError("Could not start raid frame click capture: " + error.Message);
+                AlignmentStatus = error.Message + " Try again or use Detect names.";
+                return;
+            }
+            _manualTimeout.Start();
+            var instructions = new TextBlock
+            {
+                Text = "Return to SWTOR and click each player's raid frame. If they are already selected, select someone else first. Combat logging must be enabled.",
+                TextWrapping = TextWrapping.Wrap
+            };
+            var status = new TextBlock { TextWrapping = TextWrapping.Wrap, FontWeight = FontWeight.Bold };
+            status.Bind(TextBlock.TextProperty, new Avalonia.Data.Binding(nameof(AlignmentStatus)));
+            var finish = new Button { Content = "Finish assigning", HorizontalAlignment = HorizontalAlignment.Right };
+            var panel = new StackPanel { Margin = new Thickness(12), Spacing = 10 };
+            panel.Children.Add(instructions);
+            panel.Children.Add(status);
+            panel.Children.Add(finish);
             var window = new Window
             {
-                SizeToContent = SizeToContent.WidthAndHeight,
-                CanResize = false,
+                Title = "Assign raid players", Width = 340, SizeToContent = SizeToContent.Height,
+                CanResize = false, Topmost = true, ShowInTaskbar = false, ShowActivated = false,
                 WindowStartupLocation = WindowStartupLocation.Manual,
-                SystemDecorations = SystemDecorations.None,
-                Topmost = true
+                DataContext = this, Content = panel
             };
-            // Create a button
-            var button = new Button
-            {
-                Content = "Finished",
-                Classes = { "RoundedCorner" },
-                FontSize = 10,
-                Height = clicked.Height,
-                Width = clicked.Width,
-                HorizontalAlignment = HorizontalAlignment.Center,
-                VerticalAlignment = VerticalAlignment.Center,
-                Command = SetFramesToNormal
-            };
-
-            // Close the window when the button is clicked
-            button.Click += (sender, args) => window.Close();
-
-            // Add the button to the window
-            window.Content = button;
-
-            // Show the window
+            _manualWindow = window;
+            finish.Click += (_, _) => EndManualAlignment(true);
+            window.Closed += (_, _) => EndManualAlignment(true);
             window.Show();
-            // Get the current cursor position
-            var cursorPosition = (_raidFrameView.GetVisualRoot() as Window).Position;
-            window.Position = new PixelPoint((int)cursorPosition.X + 7, (int)cursorPosition.Y + 45);
+            var parent = _overlayWindow;
+            var area = parent.Screens.ScreenFromWindow(parent)?.WorkingArea;
+            var x = parent.Position.X + (int)(parent.Width * parent.RenderScaling) + 8;
+            var y = parent.Position.Y;
+            if (area.HasValue)
+            {
+                var dialogWidth = (int)(window.Width * window.RenderScaling);
+                var dialogHeight = (int)(window.Height * window.RenderScaling);
+                // Keep the instruction window off the raid frames whenever the monitor has room.
+                if (x + dialogWidth > area.Value.Right)
+                {
+                    x = parent.Position.X - dialogWidth - 8;
+                    if (x < area.Value.X)
+                    {
+                        x = parent.Position.X;
+                        y = parent.Position.Y - dialogHeight - 8;
+                        if (y < area.Value.Y)
+                            y = parent.Position.Y + (int)(parent.Height * parent.RenderScaling) + 8;
+                    }
+                }
+                x = Math.Clamp(x, area.Value.X, Math.Max(area.Value.X, area.Value.Right - dialogWidth));
+                y = Math.Clamp(y, area.Value.Y, Math.Max(area.Value.Y, area.Value.Bottom - dialogHeight));
+            }
+            window.Position = new PixelPoint(x, y);
         }
-        public ReactiveCommand<Unit,Unit> SetFramesToNormal => ReactiveCommand.Create(FramesToNormal);
-        private void FramesToNormal()
+
+        public ReactiveCommand<Unit, Unit> SetFramesToNormal => ReactiveCommand.Create(() => EndManualAlignment(true));
+        public void EndManualAlignment(bool restoreEditing = true)
         {
-            Editable = true;
+            if (!_isManuallyModifiying) return;
             _isManuallyModifiying = false;
-            _raidFrameView._manuallyEditing = false;
+            _raidFrameView.SetManualEditing(false);
+            _manualTimeout.Stop();
+            ClearPendingClick();
+            var window = _manualWindow;
+            _manualWindow = null;
+            window?.Close();
+            if (restoreEditing) Editable = true;
+            this.RaisePropertyChanged(nameof(IsManuallyAligning));
             this.RaisePropertyChanged(nameof(DisplayGrid));
+            this.RaisePropertyChanged(nameof(CanDetect));
+            AlignmentStatus = $"{CurrentNames.Count} of {Rows * Columns} slots assigned. Lock the overlay when the grid and names are correct.";
         }
-        
+
         private void SetCurrentEncounter(DateTime arg1, bool arg2)
         {
             NewEncounterEntered(CombatLogStateBuilder.CurrentState.GetEncounterActiveAtTime(arg1));
@@ -196,122 +328,59 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         {
             _validBossIds = obj.BossIds.Any() ? obj.BossIds.SelectMany(kvp => kvp.Value.SelectMany(kvp => kvp.Value)).ToList() : new List<long>();
         }
-        private void MouseInArea(bool obj)
-        {
-            _isMouseInFrame = obj;
-        }
         public void CellClicked(double xFract, double yFract)
         {
-            if(!_isManuallyModifiying)
-                return;
-            var cellX = (int)(xFract * columns);
-            var cellY = (int)(yFract * rows);
-            DateTime clickedTime = TimeUtility.CorrectedTime;
-            lock (_cellClickLock)
-            {
-                var clickedPoint = new Point(cellX, cellY);
-                var cellClicked = RaidHotCells.FirstOrDefault(n => n.Row == clickedPoint.Y && n.Column == clickedPoint.X);
-                var nameClicked = CurrentNames.FirstOrDefault(n => n.Row == clickedPoint.Y && n.Column == clickedPoint.X);
-                if (nameClicked != null)
-                    nameClicked.Name = "";
-                if (cellClicked != null)
-                    cellClicked.Name = "Updating...";
-                _mostRecentlyClickedCell[clickedTime] = clickedPoint;
-                Task.Run(() =>
-                {
-                    TryRemoveUpdatingNames();
-                });
-
-            }
+            if (!_isManuallyModifiying || _inCombat || !Active || LogReplayContext.IsActive ||
+                !double.IsFinite(xFract) || !double.IsFinite(yFract) || xFract < 0 || yFract < 0 ||
+                xFract >= 1 || yFract >= 1) return;
+            ClearPendingClick();
+            var row = (int)(yFract * Rows);
+            var column = (int)(xFract * Columns);
+            var now = DateTime.Now;
+            now = now.AddTicks(-(now.Ticks % TimeSpan.TicksPerMillisecond));
+            _manualAlignment.RecordClick(row, column, now);
+            AlignmentStatus = $"Waiting for row {row + 1}, column {column + 1}. Keep this player selected until their name appears.";
         }
-        private void TryRemoveUpdatingNames()
+
+        private void ClearPendingClick() => _manualAlignment.Clear();
+
+        private void ExpireManualClick()
         {
-            if (tryingToRemoveUpdates)
-                return;
-            tryingToRemoveUpdates = true;
-            while (true)
+            if (_manualAlignment.Expire(DateTime.Now))
+                AlignmentStatus = "No new player selection received. Select a different player first, then retry this frame. Check that combat logging is enabled.";
+        }
+        private void CheckForTargetChanged(ParsedLogEntry entry)
+        {
+            if (entry.Effect.EffectType != EffectType.TargetChanged) return;
+            Dispatcher.UIThread.Post(() =>
             {
-                lock (_cellClickLock)
+                if (_validBossIds.Contains(entry.Source.LogId))
                 {
-                    if (!_mostRecentlyClickedCell.Any())
-                        break;
-                    var previousClickTimes = _mostRecentlyClickedCell.Keys.ToList();
-                    foreach (var clickTime in previousClickTimes)
+                    ResetCellPreviouslyTargeted();
+                    if (entry.Effect.EffectId == _7_0LogParsing.TargetSetId)
                     {
-                        if ((TimeUtility.CorrectedTime - clickTime).TotalSeconds > 4)
+                        var cell = GetCellThatMatchesName(entry.Target.Name);
+                        if (cell != null)
                         {
-                            var toBeRemoved = _mostRecentlyClickedCell[clickTime];
-                            _mostRecentlyClickedCell.Remove(clickTime);
-                            var expiredCell = RaidHotCells.FirstOrDefault(n => n.Row == toBeRemoved.Y && n.Column == toBeRemoved.X);
-                            if (expiredCell != null)
-                                expiredCell.Name = "";
+                            cell.IsTargeted = true;
+                            cell.TargetedBy = entry.Source.LogId;
                         }
                     }
                 }
-                Thread.Sleep(500);
-            }
-            tryingToRemoveUpdates = false;
+                CorrectCellWhenTargeted(entry);
+            });
         }
-        private void CheckForTargetChanged(ParsedLogEntry obj)
+        private void CorrectCellWhenTargeted(ParsedLogEntry entry)
         {
-            if (obj.Effect.EffectType == EffectType.TargetChanged)
-            {
-                foreach (var bossId in _validBossIds)
-                {
-                    if (obj.Source.LogId == bossId)
-                    {
-                        ResetCellPreviouslyTargeted();
-                        if (obj.Effect.EffectId == _7_0LogParsing.TargetSetId)
-                        {
-                            var cellToUpdate = GetCellThatMatchesName(obj.Target.Name);
-                            if (cellToUpdate == null)
-                                return;
-                            cellToUpdate.IsTargeted = true;
-                            cellToUpdate.TargetedBy = bossId;
-                        }
-                    }
-                }
-            }
-            CorrectCellWhenTargeted(obj);
-        }
-        private void CorrectCellWhenTargeted(ParsedLogEntry obj)
-        {
-            if (_inCombat)
-                return;
-
-            if (!obj.Source.IsLocalPlayer || obj.Effect.EffectType != EffectType.TargetChanged || !obj.Target.IsCharacter)
-            {
-                return;
-            }
-            var oldestUnhandledCell = new Point();
-            var oldestClickedCellTime = new DateTime();
-            lock (_cellClickLock)
-            {
-                if (!_mostRecentlyClickedCell.Any())
-                    return;
-                oldestUnhandledCell = _mostRecentlyClickedCell.MinBy(d => d.Key).Value;
-                oldestClickedCellTime = _mostRecentlyClickedCell.MinBy(d => d.Key).Key;
-                if (oldestClickedCellTime.AddSeconds(-1) > obj.TimeStamp)
-                    return;
-                _mostRecentlyClickedCell.Remove(_mostRecentlyClickedCell.MinBy(d => d.Key).Key);
-            }
-            var cellClicked = CurrentNames.FirstOrDefault(n => n.Row == oldestUnhandledCell.Y && n.Column == oldestUnhandledCell.X);
-            if (cellClicked != null)
-            {
-                if (AreNamesCloseEnough(cellClicked.Name.ToLower(), GetNameWithoutSpecials(obj.Target.Name).ToLower(), 4))
-                {
-                    return;
-                }
-                var frameToUpdate = RaidHotCells.FirstOrDefault(n => n.Row == oldestUnhandledCell.Y && n.Column == oldestUnhandledCell.X);
-                frameToUpdate.Name = obj.Target.Name.ToUpper();
-                cellClicked.Name = obj.Target.Name;
-            }
-            else
-            {
-                var frameToUpdate = RaidHotCells.FirstOrDefault(n => n.Row == oldestUnhandledCell.Y && n.Column == oldestUnhandledCell.X);
-                frameToUpdate.Name = obj.Target.Name.ToUpper();
-                CurrentNames.Add(new PlacedName { Column = (int)oldestUnhandledCell.X, Row = (int)oldestUnhandledCell.Y, Name = obj.Target.Name });
-            }
+            if (!_isManuallyModifiying || _inCombat || !Active || LogReplayContext.IsActive ||
+                !ManualRaidFrameAlignment.IsPlayerSelection(entry)) return;
+            ExpireManualClick();
+            if (!_manualAlignment.TryMatch(entry, out var selected)) return;
+            var updated = CurrentNames.Where(n => !(n.Row == selected.Row && n.Column == selected.Column) &&
+                !string.Equals(n.Name, entry.Target.Name, StringComparison.OrdinalIgnoreCase)).ToList();
+            updated.Add(new PlacedName { Row = selected.Row, Column = selected.Column, Name = entry.Target.Name });
+            ApplyNames(updated);
+            AlignmentStatus = $"Assigned {entry.Target.Name} to row {selected.Row + 1}, column {selected.Column + 1}. {CurrentNames.Count} of {Rows * Columns} slots assigned.";
         }
         private void ToggleHide()
         {
@@ -324,6 +393,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         private void CheckForRaidHOT(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
+            if (!Dispatcher.UIThread.CheckAccess())
+            {
+                Dispatcher.UIThread.Post(() => CheckForRaidHOT(obj, callback));
+                return;
+            }
             if (!obj.SourceTimer.IsHot || !CurrentNames.Any() || obj.TargetAddendem == null ||
                 obj.SourceTimer.IsSubTimer || obj.TimerValue <= 0)
             {
@@ -340,6 +414,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         private void CheckForDefensive(TimerInstanceViewModel obj, Action<TimerInstanceViewModel> callback)
         {
+            if (!Dispatcher.UIThread.CheckAccess())
+            {
+                Dispatcher.UIThread.Post(() => CheckForDefensive(obj, callback));
+                return;
+            }
             if (!obj.SourceTimer.IsBuiltInDefensive || !CurrentNames.Any() || obj.TargetAddendem == null ||
                 obj.SourceTimer.IsSubTimer || obj.TimerValue <= 0)
             {
@@ -368,58 +447,45 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
                 cell.Reset();
             }
         }
-        private RaidHotCell GetCellThatMatchesName(string playerName)
+        private RaidHotCell? GetCellThatMatchesName(string playerName)
         {
-            var normalName = GetNameWithoutSpecials(playerName);
-
-            var bestMatch = CurrentNames.Select(n => n.Name.ToLower()).MinBy(s => LevenshteinDistance.Compute(s, normalName));
-            if (!AreNamesCloseEnough(normalName, bestMatch, 4) && !_usingDecreasedAccuracy)
-                return null;
-            return RaidHotCells.MinBy(s => LevenshteinDistance.Compute(s.Name.ToLower(), bestMatch));
-        }
-
-        private bool AreNamesCloseEnough(string normalName, string bestMatch, int threshold)
-        {
-            return LevenshteinDistance.Compute(bestMatch, normalName) < threshold;
+            var match = RaidFrameNameMatcher.FindBestMatch(playerName, CurrentNames.Select(n => n.Name),
+                _usingDecreasedAccuracy ? int.MaxValue : 3);
+            if (match == null) return null;
+            var placements = CurrentNames.Where(n => string.Equals(n.Name, match, StringComparison.OrdinalIgnoreCase)).Take(2).ToList();
+            if (placements.Count != 1) return null;
+            var placement = placements[0];
+            return RaidHotCells.FirstOrDefault(c => c.Row == placement.Row && c.Column == placement.Column);
         }
 
         private void ResetCellPreviouslyTargeted()
         {
-            RaidHotCells.ForEach(c =>
+            foreach (var cell in RaidHotCells)
             {
-                c.TargetedBy = 0;
-                c.IsTargeted = false;
-            });
-        }
-        private string GetNameWithoutSpecials(string name)
-        {
-            return new string(name.Normalize(NormalizationForm.FormD)
-                .ToCharArray()
-                .Where(c => CharUnicodeInfo.GetUnicodeCategory(c) != UnicodeCategory.NonSpacingMark)
-                .ToArray()).Replace("\'", "").Replace("-", "");
-        }
-
-
-        public void UpdateNames(List<PlacedName> orderedNames)
-        {
-            CurrentNames = GuessAtPlayerNameFromLog(orderedNames);
-            
-            UpdateCells();
-        }
-
-        private List<PlacedName> GuessAtPlayerNameFromLog(List<PlacedName> orderedNames)
-        {
-            var playersInThePast10Minutes = CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo.Where(kvp => kvp.Value.Any(up => up.Key > DateTime.Now.AddMinutes(-10))).Select(kvp => kvp.Key.Name).Distinct();
-            foreach (var detectedName in orderedNames)
-            {
-                var closestNameInLogs = playersInThePast10Minutes.MinBy(s =>
-    LevenshteinDistance.Compute(s.ToLower(), detectedName.Name.ToLower()));
-                if (!string.IsNullOrEmpty(closestNameInLogs) && AreNamesCloseEnough(detectedName.Name, closestNameInLogs.ToLower(), closestNameInLogs.Count() / 2))
-                {
-                    detectedName.Name = closestNameInLogs;
-                }
+                cell.TargetedBy = 0;
+                cell.IsTargeted = false;
             }
-            return orderedNames;
+        }
+
+        public void UpdateNames(List<PlacedName> names)
+        {
+            var recentPlayers = CombatLogStateBuilder.CurrentState.PlayerClassChangeInfo
+                .Where(kvp => kvp.Value.Any(up => up.Key > DateTime.Now.AddMinutes(-10)))
+                .Select(kvp => kvp.Key.Name).Distinct().ToList();
+            foreach (var detected in names)
+            {
+                var match = RaidFrameNameMatcher.FindBestMatch(detected.Name, recentPlayers,
+                    Math.Min(3, Math.Max(0, RaidFrameNameMatcher.Normalize(detected.Name).Length / 2 - 1)));
+                if (match != null) detected.Name = match;
+            }
+            ApplyNames(names);
+        }
+
+        private void ApplyNames(List<PlacedName> names)
+        {
+            CurrentNames = names.Where(n => n.Row >= 0 && n.Row < Rows && n.Column >= 0 && n.Column < Columns &&
+                !string.IsNullOrWhiteSpace(n.Name)).GroupBy(n => (n.Row, n.Column)).Select(g => g.First()).ToList();
+            UpdateCells();
         }
 
         public void SetTextMatchAccuracy(bool useLowAccuracy)
@@ -428,8 +494,11 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         public int Rows
         {
-            get => rows; set
+            get => rows;
+            set
             {
+                if (!RaidFrameOverlayManager.IsValidGridDimension(value) || value == rows) return;
+                ResetLayout();
                 this.RaiseAndSetIfChanged(ref rows, value);
                 this.RaisePropertyChanged(nameof(RowHeight));
                 UpdateCells();
@@ -437,141 +506,68 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         }
         public int Columns
         {
-            get => columns; set
+            get => columns;
+            set
             {
+                if (!RaidFrameOverlayManager.IsValidGridDimension(value) || value == columns) return;
+                ResetLayout();
                 this.RaiseAndSetIfChanged(ref columns, value);
                 this.RaisePropertyChanged(nameof(ColumnWidth));
                 UpdateCells();
             }
         }
 
+        private void ResetLayout()
+        {
+            EndManualAlignment(false);
+            InvalidateDetection();
+            ClearPendingClick();
+            CurrentNames = new List<PlacedName>();
+            AlignmentStatus = "Grid changed. Detect names or assign players by clicking.";
+        }
+
         private void UpdateCells()
         {
             lock (_cellUpdateLock)
             {
-                if ((!CurrentNames.Any() || RaidHotCells.Count != (Rows * Columns)) && Rows != 0 && Columns != 0)
+                var remaining = RaidHotCells.ToList();
+                var updated = new ObservableCollection<RaidHotCell>();
+                for (var row = 0; row < Rows; row++)
+                for (var column = 0; column < Columns; column++)
                 {
-                    InitRaidCells();
-                    RaidHotCells = new ObservableCollection<RaidHotCell>(RaidHotCells.OrderBy(c => c.Row * Columns + c.Column));
+                    var name = CurrentNames.FirstOrDefault(n => n.Row == row && n.Column == column)?.Name ?? "";
+                    // Reuse each player's cell exactly once so timers follow swaps and longer move cycles.
+                    var cell = string.IsNullOrEmpty(name) ? null : remaining.FirstOrDefault(c =>
+                        string.Equals(c.Name, name, StringComparison.OrdinalIgnoreCase));
+                    if (cell == null) cell = new RaidHotCell(Columns);
+                    else remaining.Remove(cell);
+                    cell.Columns = Columns;
+                    cell.Row = row;
+                    cell.Column = column;
+                    cell.Name = name.ToUpperInvariant();
+                    updated.Add(cell);
                 }
-                else
+                foreach (var removed in remaining) removed.Reset();
+                RaidHotCells = updated;
+                this.RaisePropertyChanged(nameof(LeftColumnCells));
+                this.RaisePropertyChanged(nameof(RightColumnCells));
+
+                var timers = TimerController.GetActiveTimers().Values.ToList();
+                foreach (var timer in timers.Where(t => t.SourceTimer.IsHot && t.TargetAddendem != null && t.TimerValue > 0))
                 {
-                    var currentCells = RaidHotCells.ToList();
-                    for (var x = 0; x < Columns; x++)
-                    {
-                        for (var y = 0; y < Rows; y++)
-                        {
-                            var currentCell = currentCells.First(c => c.Column == x && c.Row == y);
-                            var detectedAtCell = CurrentNames.FirstOrDefault(n => n.Column == x && n.Row == y);
-
-                            if (detectedAtCell == null) // there is no text detected here
-                            {
-                                if (string.IsNullOrEmpty(currentCell
-                                        .Name)) //both cells are still empty can safely move on
-                                    continue;
-                                // the detected cell is empty, but there was a name here previously. Check to see if the name moved somewhere else.
-                                MoveCells(currentCell, currentCells);
-                            }
-                            else // there is text detected here
-                            {
-                                if (AreNamesCloseEnough(detectedAtCell.Name.ToLower(), currentCell.Name.ToLower(), 2)) // both cells still have the same name, safely move on
-                                    continue;
-
-                                //name doesn't match. Check for move
-                                var cellWithName = currentCells.MinBy(s =>
-                                    LevenshteinDistance.Compute(s.Name.ToLower(), detectedAtCell.Name.ToLower()));
-                                if (LevenshteinDistance.Compute(cellWithName.Name.ToLower(),
-                                        detectedAtCell.Name.ToLower()) <=
-                                    2)
-                                {
-                                    MoveCells(currentCell, currentCells);
-                                    MoveCells(cellWithName, currentCells);
-                                }
-                                else
-                                    currentCell.Name = detectedAtCell.Name.ToUpper();
-                            }
-                        }
-
-                    }
-
-                    for (var x = 0; x < Columns; x++)
-                    {
-                        for (var y = 0; y < Rows; y++)
-                        {
-                            var currentCell = currentCells.First(c => c.Column == x && c.Row == y);
-                            var detectedAtCell = CurrentNames.FirstOrDefault(n => n.Column == x && n.Row == y);
-                            if (detectedAtCell == null)
-                            {
-                                currentCell.Reset();
-                            }
-                        }
-                    }
-
-
-                    var playersWithHotTimer = TimerController.GetActiveTimers().Where(t => t.Value.SourceTimer.IsHot && t.Value.TargetAddendem != null).Select(t => t.Value.TargetAddendem);
-                    foreach (var player in playersWithHotTimer)
-                    {
-                        var playerCell = GetCellThatMatchesName(player);
-                        if (playerCell != null && !playerCell.HasHOT)
-                        {
-                            var timer = TimerController.GetActiveTimers().First(t => t.Value.TargetAddendem == player);
-                            if (timer.Value.TimerValue > 0)
-                                playerCell.AddHOT(timer.Value);
-                            else
-                                timer.Value.Complete(false);
-                        }
-                    }
-
-                    var activeHots = CombatLogStateBuilder.CurrentState.GetCurrentlyActiveRaidHOTS(DateTime.Now);
-                    var playersWihtActiveHot = activeHots.Select(h => h.Target.Name).Distinct().ToList();
-                    foreach (var player in playersWihtActiveHot)
-                    {
-                        var playerCell = GetCellThatMatchesName(player);
-                        var hotInQuestion = activeHots.First(h => h.Target.Name == player);
-                        if (playerCell != null && !playerCell.HasHOT && !playersWithHotTimer.Any(p => p == player) && hotInQuestion.Source == CombatLogStateBuilder.CurrentState.LocalPlayer)
-                        {
-                            TimerController.TryTriggerTimer(hotInQuestion);
-                        }
-                    }
-                    RaidHotCells = new ObservableCollection<RaidHotCell>(currentCells.OrderBy(c => c.Row * Columns + c.Column));
-                    this.RaisePropertyChanged(nameof(LeftColumnCells));
-                    this.RaisePropertyChanged(nameof(RightColumnCells));
+                    var cell = GetCellThatMatchesName(timer.TargetAddendem);
+                    if (cell != null && !cell.AlreadyHasTimer(timer.TimerName)) cell.AddHOT(timer);
                 }
-            }
-        }
-
-        private RaidHotCell MoveCells(RaidHotCell currentCell, List<RaidHotCell> currentCells)
-        {
-            var movedName = CurrentNames.MinBy(s =>
-                LevenshteinDistance.Compute(s.Name.ToLower(), currentCell.Name.ToLower()));
-            if (LevenshteinDistance.Compute(movedName.Name.ToLower(), currentCell.Name.ToLower()) <=
-                2) // if the closest name is close enough to be matching. Move it.
-            {
-                //need to take the cell in the grid that is going to receive the newly moved name and move it to this newly empty spot and clear the name.
-                var source = currentCells.First(c => c.Column == movedName.Column && c.Row == movedName.Row);
-                source.Column = currentCell.Column;
-                source.Row = currentCell.Row;
-
-                //move the cell with the name and data to the new location that has been cleared and moved to make room for it
-                currentCell.Column = movedName.Column;
-                currentCell.Row = movedName.Row;
-
-                return source;
-            }
-
-            return null;
-        }
-
-        private void InitRaidCells()
-        {
-            RaidHotCells.Clear();
-            for (var r = 0; r < Rows; r++)
-            {
-                for (var c = 0; c < Columns; c++)
+                // ActiveTimers contains only one representative for each timer definition.
+                // Recover long-lived effects on other players from the combat-log state too.
+                var state = CombatLogStateBuilder.CurrentState;
+                var activeHots = state.GetCurrentlyActiveRaidHOTS(DateTime.Now);
+                foreach (var hot in activeHots)
                 {
-
-                    RaidHotCells.Add(new RaidHotCell(Columns) { Column = c, Row = r, Name = "" });
-
+                    var cell = GetCellThatMatchesName(hot.Target.Name);
+                    if (cell != null && !cell.HasHOT && hot.Source == state.LocalPlayer &&
+                        !timers.Any(t => t.SourceTimer.IsHot && t.TargetAddendem == hot.Target.Name && t.TimerValue > 0))
+                        TimerController.TryTriggerTimer(hot);
                 }
             }
         }
@@ -586,6 +582,8 @@ namespace SWTORCombatParser.ViewModels.Overlays.RaidHots
         
         internal void FirePlayerChanged(string name)
         {
+            ResetLayout();
+            UpdateCells();
             SizeSet = false;
             SetRole(name);
         }

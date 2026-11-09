@@ -14,6 +14,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
     {
         private SolidColorBrush backgroundColor;
         private Bitmap _roleIcon;
+        private string _value;
         public bool DisplayIcon { get; set; }
         public string Header { get; set; }
         public Bitmap RoleIcon
@@ -43,6 +44,7 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             }
             if (name == "Totals")
             {
+                Header = "Name";
                 Value = name;
                 ValueAlignment = HorizontalAlignment.Center;
                 return;
@@ -56,7 +58,18 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             var coloredIcon = IconFactory.GetClassIcon(iconName);
             RoleIcon = coloredIcon;
         }
-        public string Value { get; set; }
+        public string Value
+        {
+            get => _value;
+            set
+            {
+                if (_value == value) return;
+                NumericValue = double.TryParse(value, out var number) ? number : 0;
+                this.RaiseAndSetIfChanged(ref _value, value);
+            }
+        }
+
+        public double NumericValue { get; private set; }
 
         public SolidColorBrush ForegroundColor { get; set; }
     }

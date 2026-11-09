@@ -193,7 +193,7 @@ public sealed class SessionReviewService : IDisposable
                             summary = SessionReviewBuilder.Summarize(source.Name, source.Start, source.End,
                                 source.Outcome, source.LoadLogs(), request.Token, source.IsBoss, source.Players);
                         }
-                        catch (Exception error) when (error is IOException or UnauthorizedAccessException or System.Text.Json.JsonException)
+                        catch (Exception error) when (error is IOException or InvalidDataException or UnauthorizedAccessException or System.Text.Json.JsonException)
                         {
                             summary = new SessionCombatSummary(source.Name, source.Start,
                                 source.End > source.Start ? source.End : source.Start, source.Outcome,

@@ -1,36 +1,31 @@
-﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
+using Avalonia.Interactivity;
 using SWTORCombatParser.ViewModels;
 using SWTORCombatParser.ViewModels.Overlays;
 
-namespace SWTORCombatParser.Views.Overlay
+namespace SWTORCombatParser.Views.Overlay;
+
+public partial class OverlayOptionView : UserControl
 {
-    /// <summary>
-    /// Interaction logic for OverlayOptionView.xaml
-    /// </summary>
-    public partial class OverlayOptionView : UserControl
+    public OverlayOptionView() => InitializeComponent();
+    private void Button_PreviewMouseRightButtonUp(object? sender, PointerReleasedEventArgs e)
     {
-        public OverlayOptionView()
-        {
-            InitializeComponent();
-        }
-
-        private void Button_PreviewMouseRightButtonUp(object sender, PointerReleasedEventArgs e)
-        {
-            var metricViewModel = (OverlayOptionViewModel)DataContext;
-            var viewModel = new MetricColorPickerViewModel(metricViewModel.Type);
-
-            var view = new MetricColorPickerWindow(viewModel);
-            viewModel.CloseRequested += () => {
-                view.Close();
-            };
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                view.WindowStartupLocation = WindowStartupLocation.CenterOwner;
-                view.ShowDialog(desktop.MainWindow);
-            }
-        }
+        if (e.InitialPressMouseButton != MouseButton.Right) return;
+        e.Handled = true;
+        OpenColorPicker();
+    }
+    private void ChangeColor(object? sender, RoutedEventArgs e)
+    {
+        e.Handled = true;
+        OpenColorPicker();
+    }
+    private async void OpenColorPicker()
+    {
+        if (DataContext is not OverlayOptionViewModel metric || TopLevel.GetTopLevel(this) is not Window owner) return;
+        var model = new MetricColorPickerViewModel(metric.Type);
+        var view = new MetricColorPickerWindow(model) { WindowStartupLocation = WindowStartupLocation.CenterOwner };
+        model.CloseRequested += view.Close;
+        await view.ShowDialog(owner);
     }
 }

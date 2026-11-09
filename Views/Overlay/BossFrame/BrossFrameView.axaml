@@ -1,35 +1,22 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.Overlay.BossFrame.BrossFrameView"
-        xmlns="https://github.com/avaloniaui"
-        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SWTORCombatParser.Views.Overlay.BossFrame" xmlns:overlay="clr-namespace:SWTORCombatParser.Views.Overlay"
-        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.BossFrame"
-        x:DataType="vm:BossFrameConfigViewModel"
-        mc:Ignorable="d"
-        Background="{x:Null}">
-    <Grid x:Name="MainArea" IsVisible="{Binding ShowFrame, Converter={StaticResource BooleanToHiddenVisibilityConverter}}" ToolTip.Tip="Boss Info Frame">
-        <Viewbox MaxHeight="25" HorizontalAlignment="Left" VerticalAlignment="Top" Margin="5,2,0,0">
-            <StackPanel IsVisible="{Binding CombatDurationVisible}"  Orientation="Horizontal">
-                <TextBlock Text="Duration: " Foreground="{StaticResource Gray10Brush}"></TextBlock>
-                <TextBlock Text="{Binding CombatDuration}" Foreground="{StaticResource Gray12Brush}"></TextBlock>
+<UserControl x:Class="SWTORCombatParser.Views.Overlay.BossFrame.BrossFrameView"
+             xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:overlay="clr-namespace:SWTORCombatParser.Views.Overlay"
+             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays.BossFrame" x:DataType="vm:BossFrameConfigViewModel">
+    <Grid x:Name="MainArea" RowDefinitions="Auto,Auto" IsVisible="{Binding ShowFrame}">
+        <Grid ColumnDefinitions="*,Auto" Margin="3,2,3,5" Background="{DynamicResource OverlaySurfaceBrush}">
+            <StackPanel IsVisible="{Binding CombatDurationVisible}" Orientation="Horizontal" Spacing="8" VerticalAlignment="Center">
+                <TextBlock Text="ENCOUNTER" Classes="OverlayLabel"/>
+                <TextBlock Text="{Binding CombatDuration}" FontSize="12" Foreground="#DCE7E0" FontFamily="{StaticResource MainFont}"/>
             </StackPanel>
-        </Viewbox>
-        <Viewbox IsVisible="{Binding OverlaysMoveable, Converter={StaticResource OverlayMoveableToVisibilityConverter}}" MaxHeight="25" HorizontalAlignment="Right" VerticalAlignment="Top" Margin="0,5,50,0">
-            <overlay:ScaleControl Opacity="0.6"/>
-        </Viewbox>
-        <ItemsControl Margin="0,30,0,0" ItemsSource="{Binding BossesDetected}">
+            <overlay:ScaleControl Grid.Column="1" IsVisible="{Binding OverlaysMoveable}" Opacity="0.7"/>
+        </Grid>
+        <ItemsControl Grid.Row="1" ItemsSource="{Binding BossesDetected}">
             <ItemsControl.ItemTemplate>
                 <DataTemplate>
-                    <Grid Margin="5,0,5,8">
-                        <Grid.RowDefinitions>
-                            <RowDefinition Height="2*"/>
-                            <RowDefinition Height="2*"/>
-                            <RowDefinition Height="1*"/>
-                        </Grid.RowDefinitions>
-                        <ContentPresenter Grid.Row="0" Content="{Binding DOTSContent}"></ContentPresenter>
-                        <ContentPresenter Grid.Row="1" Content="{Binding HPContent}"></ContentPresenter>
-                        <ContentPresenter Grid.Row="2" Content="{Binding MechanicsModule}"></ContentPresenter>
+                    <Grid Margin="0,0,0,7" RowDefinitions="Auto,Auto,Auto">
+                        <ContentPresenter Content="{Binding HPContent}"/>
+                        <ContentPresenter Grid.Row="1" Content="{Binding DOTSContent}" Margin="4,0"/>
+                        <ContentPresenter Classes="EncounterTimers" Grid.Row="2" Content="{Binding MechanicsModule}"/>
                     </Grid>
                 </DataTemplate>
             </ItemsControl.ItemTemplate>

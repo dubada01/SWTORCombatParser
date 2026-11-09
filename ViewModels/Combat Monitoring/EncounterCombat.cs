@@ -150,16 +150,17 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             return currentcombat;
         }
 
-        public void AddCombat(Combat combat, bool isReplacingOngoing)
+        public PastCombat AddCombat(Combat combat, bool isReplacingOngoing, bool keepLoaded = false, bool selectCompleted = true)
         {
+            PastCombat pastCombatDisplay;
             lock (combatAddLock)
             {
                 Combats.Add(CombatDiskCacheManager.CreateCombatShell(combat));
 
-                var pastCombatDisplay = new PastCombat
+                pastCombatDisplay = new PastCombat
                 {
                     ParentEncounter = this,
-                    IsSelected = isReplacingOngoing,
+                    IsSelected = isReplacingOngoing && selectCompleted,
                     IsVisible = combatsAreVisible,
                     CombatStartTime = combat.StartTime,
                     CombatDuration = TimeSpan.FromSeconds(combat.DurationSeconds).ToString(@"mm\:ss"),
@@ -169,11 +170,12 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                             ? GetPVPCombatText(combat)
                             : string.Join(',', combat.Targets.Values.Select(t => t.Name).Distinct())
                 };
-                pastCombatDisplay.CacheCombat(combat, keepLoaded: isReplacingOngoing);
+                pastCombatDisplay.CacheCombat(combat, keepLoaded: pastCombatDisplay.IsSelected || keepLoaded);
                 pastCombatDisplay.PastCombatSelected += SelectCombat;
                 pastCombatDisplay.PastCombatUnSelected += UnselectCombat;
                 pastCombatDisplay.UnselectAll += UnselectAllCombats;
 
+                using (LogLoadDiagnostics.Measure("Insert historical combat on UI thread"))
                 Dispatcher.UIThread.Invoke(() =>
                 {
                     EncounterCombats.Add(pastCombatDisplay);
@@ -188,6 +190,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             this.RaisePropertyChanged(nameof(PPHInfo));
             this.RaisePropertyChanged(nameof(NumberOfBossBattles));
             this.RaisePropertyChanged(nameof(NumberOfTrashBattles));
+            return pastCombatDisplay;
         }
 
         public void HideTrash()

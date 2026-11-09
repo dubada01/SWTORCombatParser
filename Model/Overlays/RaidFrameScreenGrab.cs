@@ -1,6 +1,5 @@
-﻿using System;
+using System;
 using System.IO;
-using System.Linq;
 using Avalonia;
 using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Threading;
@@ -10,122 +9,73 @@ namespace SWTORCombatParser.Model.Overlays
 {
     public static class RaidFrameScreenGrab
     {
-        public static double CurrentCompressionFactor;
-
-        private static IScreenCapture screenCapturer;
-
-        static RaidFrameScreenGrab()
+        private static IScreenCapture CreateScreenCapturer()
         {
 #if WINDOWS
-            screenCapturer = new WindowsScreenCapturer();
+            return new WindowsScreenCapturer();
 #elif MACOS
-            screenCapturer = new MacOSScreenCapturer();
+            return new MacOSScreenCapturer();
+#elif LINUX
+            return new LinuxScreenCapturer();
 #else
             throw new PlatformNotSupportedException("Screen capture is not supported on this platform.");
 #endif
         }
 
-        public static MemoryStream GetRaidFrameBitmapStream(Point topLeft, int width, int height, int rowsCount)
+        public static MemoryStream GetRaidFrameBitmapStream(Point topLeft, int width, int height, int rowsCount,
+            double? overlayScale = null, bool maskOverlayNames = true)
         {
-            CurrentCompressionFactor = Math.Min((300d / height), 1f);
-            return Dispatcher.UIThread.Invoke(() =>
+            if (width <= 0 || height <= 0 || rowsCount <= 0)
+                throw new ArgumentOutOfRangeException(nameof(width), "Capture dimensions and row count must be positive.");
+
+            var scale = overlayScale ?? Dispatcher.UIThread.Invoke(() =>
+                Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop
+                    ? desktop.MainWindow?.RenderScaling ?? 1d : 1d);
+            using var bitmap = CreateScreenCapturer().CaptureScreenArea((int)topLeft.X, (int)topLeft.Y, width, height);
+            if (bitmap == null || bitmap.Width == 0 || bitmap.Height == 0)
+                throw new InvalidOperationException("Failed to capture the raid frame.");
+            if (maskOverlayNames)
             {
-                SKBitmap bmp =  screenCapturer.CaptureScreenArea((int)topLeft.X, (int)topLeft.Y, width, height);
-                if (bmp == null || bmp.Width == 0 || bmp.Height == 0)
-                {
-                    throw new Exception("Failed to capture screen area or invalid bitmap dimensions.");
-                }
-                RemoveOverlayNames(bmp, rowsCount);
-                return CompressByReducingPixelsToStream(bmp);
-                
-            });
+                // Capture backends may return more pixels than requested (for example Retina).
+                RemoveOverlayNames(bitmap, rowsCount, scale * bitmap.Height / height);
+            }
+            return EncodeRaidFramePng(bitmap);
         }
 
-        public static void RemoveOverlayNames(SKBitmap bmp, int rowsCount)
+        public static void RemoveOverlayNames(SKBitmap bitmap, int rowsCount, double overlayScale = 1d)
         {
-            var scalingFactor = 1d;
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            if (rowsCount <= 0 || !double.IsFinite(overlayScale) || overlayScale <= 0)
+                throw new ArgumentOutOfRangeException(nameof(rowsCount));
+
+            var pixelsToMask = (int)Math.Ceiling(16.5d * overlayScale);
+            var pixels = bitmap.Pixels;
+            for (var row = 0; row < rowsCount; row++)
             {
-
-                scalingFactor = desktop.MainWindow.RenderScaling;
-
+                // Round each boundary independently; rounding the row height first accumulates drift.
+                var start = (int)Math.Floor(row * bitmap.Height / (double)rowsCount);
+                var end = Math.Min(bitmap.Height, start + pixelsToMask);
+                for (var y = start; y < end; y++)
+                    for (var x = 0; x < bitmap.Width; x++)
+                        pixels[y * bitmap.Width + x] = SKColors.Transparent;
             }
-            // Calculate the height of each row segment based on the total height and number of rows
-            var ratio = Math.Ceiling(bmp.Height / (double)rowsCount);
-            var breakPositions = Enumerable.Range(0, rowsCount).Select(r => (int)(r * ratio)).ToList();
-
-            var pixelsToMask = (int)Math.Ceiling(16.5d * scalingFactor); // Number of rows to make transparent
-
-            // Get the bitmap's pixels array
-            SKColor[] pixels = bmp.Pixels;
-
-            foreach (var y in breakPositions)
-            {
-                for (int i = 0; i < pixelsToMask; i++)
-                {
-                    int currentY = y + i;
-                    if (currentY >= bmp.Height || currentY < 0)
-                        continue;
-
-                    // Loop through the width of the bitmap for each target row
-                    for (int x = 0; x < bmp.Width; x++)
-                    {
-                        // Calculate the pixel's 1D index in the pixels array
-                        int index = currentY * bmp.Width + x;
-                    
-                        // Set the pixel to transparent
-                        pixels[index] = SKColors.Transparent;
-                    }
-                }
-            }
-
-            // Apply the modified pixel array back to the bitmap
-            bmp.Pixels = pixels;
+            bitmap.Pixels = pixels;
         }
 
-
-
-        private static MemoryStream CompressByReducingPixelsToStream(SKBitmap source)
+        public static MemoryStream EncodeRaidFramePng(SKBitmap source)
         {
-            // Calculate the new width and height based on compression factor
-            int newWidth = (int)(source.Width * CurrentCompressionFactor);
-            int newHeight = (int)(source.Height * CurrentCompressionFactor);
+            if (source.Width <= 0 || source.Height <= 0)
+                throw new ArgumentOutOfRangeException(nameof(source));
 
-            // Check if dimensions are valid
-            if (newWidth <= 0 || newHeight <= 0)
-            {
-                throw new ArgumentException("Invalid dimensions after resizing. Check compression factor.");
-            }
-
-            // Resize the image
-            SKImageInfo resizeInfo = new SKImageInfo(newWidth, newHeight);
-            using (SKBitmap resizedBitmap = new SKBitmap(resizeInfo))
-            {
-                bool scaled = source.ScalePixels(resizedBitmap, SKFilterQuality.High);
-                if (!scaled)
-                {
-                    throw new Exception("Failed to scale pixels in SKBitmap.");
-                }
-                // Encode the resized bitmap to a stream
-                using (var image = SKImage.FromBitmap(resizedBitmap))
-                {
-                    if (image == null)
-                    {
-                        throw new Exception("Failed to create SKImage from resized bitmap.");
-                    }
-                    var encodedData = image.Encode(SKEncodedImageFormat.Png, 100);
-                    if (encodedData == null)
-                    {
-                        throw new Exception("Failed to encode image.");
-                    }
-
-                    var ms = new MemoryStream();
-                    encodedData.SaveTo(ms);
-                    ms.Seek(0, SeekOrigin.Begin);
-                    return ms;
-                }
-            }
+            // PNG already compresses the crop without losing text detail. Shrinking every raid
+            // to 300 pixels high made small names unreadable in taller layouts.
+            using var image = SKImage.FromBitmap(source);
+            using var encoded = image.Encode(SKEncodedImageFormat.Png, 100);
+            if (encoded == null)
+                throw new InvalidOperationException("Failed to encode the raid frame image.");
+            var stream = new MemoryStream();
+            encoded.SaveTo(stream);
+            stream.Position = 0;
+            return stream;
         }
-
     }
 }

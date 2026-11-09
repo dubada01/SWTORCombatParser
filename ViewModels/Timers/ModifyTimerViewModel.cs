@@ -68,6 +68,17 @@ namespace SWTORCombatParser.ViewModels.Timers
         public event Action<Timer> OnCancelEdit = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
 
+        private string validationMessage = "";
+        public string ValidationMessage
+        {
+            get => validationMessage;
+            private set
+            {
+                validationMessage = value;
+                OnPropertyChanged();
+            }
+        }
+
         public bool TimerNameInError;
         public SolidColorBrush TimerNameHelpTextColor => TimerNameInError ? new SolidColorBrush(Colors.Red) : new SolidColorBrush(Colors.LightGray);
         public string TriggerValueHelpText { get; set; }
@@ -78,7 +89,7 @@ namespace SWTORCombatParser.ViewModels.Timers
         private string effect = "";
         private string customRefreshOption;
         private double _hPPercentageUpper;
-        private string hPTriggerText = "Lower Bound";
+        private string hPTriggerText = "Lower bound";
         private Color selectedColor = Colors.CornflowerBlue;
         private string selectedCancelTimer;
         private string hideUntilTime = "";
@@ -684,6 +695,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             }
         }
         public bool IsSubTrigger { get; set; }
+        public string EditorTitle => IsSubTrigger ? "Timer condition" : isEditing ? "Edit timer" : "New timer";
+        public string EditorScope => _currentSelectedPlayer.Replace("|", " / ");
         public ReactiveCommand<object,Unit> AddOrEditACommand => ReactiveCommand.Create<object>(AddOrEditA);
 
         private void AddOrEditA(object obj)
@@ -703,7 +716,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 vm.Edit(_clause1);
             }
             var window = new TimerModificationWindow(vm);
-            window.Show();
+            window.ShowDialog(EditorDialogOwner.For(this));
         }
         public ReactiveCommand<object,Unit> AddOrEditBCommand => ReactiveCommand.Create<object>(AddOrEditB);
 
@@ -724,7 +737,7 @@ namespace SWTORCombatParser.ViewModels.Timers
                 vm.Edit(_clause2);
             }
             var window = new TimerModificationWindow(vm);
-            window.Show();
+            window.ShowDialog(EditorDialogOwner.For(this));
         }
 
         private void NewClauseTimer(Timer t, int clause)
@@ -855,6 +868,7 @@ namespace SWTORCombatParser.ViewModels.Timers
 
             _editedTimer = timerToEdit;
             isEditing = true;
+            OnPropertyChanged(nameof(EditorTitle));
             Id = string.IsNullOrEmpty(timerToEdit.Id) ? Guid.NewGuid().ToString() : timerToEdit.Id;
             Name = timerToEdit.Name;
             SelectedTriggerType = timerToEdit.TriggerType;
@@ -1007,23 +1021,37 @@ namespace SWTORCombatParser.ViewModels.Timers
 
         public ReactiveCommand<object,Unit> SaveCommand => ReactiveCommand.Create<object>(Save);
 
+        internal void ReportInvalidInput() => ValidationMessage = "Correct the highlighted value before saving.";
+
+        private bool HasDuplicateName => AvailableTimersForCharacter.Any(timer => timer.Name == Name && (!isEditing || timer.Id != Id));
+
         private void Save(object obj)
         {
+            ValidationMessage = "";
             var isValid = Validate();
             if (!isValid || SelectedAudioType == "Custom")
+            {
+                ValidationMessage = string.IsNullOrWhiteSpace(Name) ? "Enter a timer name."
+                    : HasDuplicateName ? "A timer with this name already exists."
+                    : SelectedBoss != "All" && !string.IsNullOrEmpty(SelectedBoss) && !ActiveForStory && !ActiveForVeteran && !ActiveForMaster ? "Select at least one encounter difficulty."
+                    : IsModifyingVariables && string.IsNullOrEmpty(SelectedModifyVariable) ? "Select a variable to modify."
+                    : SelectedAudioType == "Custom" ? "Choose an audio file."
+                    : "Complete the required trigger settings.";
                 return;
+            }
             var newTimer = new Timer()
             {
                 Id = Id,
+                ShareId = isEditing ? _editedTimer.ShareId : null,
                 SelectedCancelTimerId = SelectedCancelTimerId,
                 ParentTimerId = ParentTimerId,
-                IsSubTimer = IsSubTrigger,
+                IsSubTimer = IsSubTrigger || (isEditing && _editedTimer.IsSubTimer),
                 TimerSource = _currentSelectedPlayer,
                 Name = Name,
                 ResetOnEffectLoss = ResetOnEffectLoss,
                 TrackOutsideOfCombat = TrackOutsideOfCombat,
                 CombatTimeElapsed = CombatDuration,
-                IsEnabled = true,
+                IsEnabled = isEditing ? _editedTimer.IsEnabled : true,
                 Source = SelectedSource,
                 Target = SelectedTarget,
                 HPPercentage = HPPercentage,
@@ -1084,9 +1112,8 @@ namespace SWTORCombatParser.ViewModels.Timers
             ValueInError = false;
             OnPropertyChanged("TimerNameHelpTextColor");
             OnPropertyChanged("TriggerValueHelpTextColor");
-            if (AvailableTimerNames.Contains(Name) && !isEditing)
+            if (string.IsNullOrWhiteSpace(Name) || HasDuplicateName)
             {
-                Name = "";
                 TimerNameInError = true;
                 OnPropertyChanged("TimerNameHelpTextColor");
                 return false;

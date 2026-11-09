@@ -39,6 +39,11 @@ public sealed class RunRaceService : IDisposable
     private string? _activeBoss;
     private double? _activeBossStart;
     private RunRaceTracker? _tracker;
+    private readonly Dictionary<(RunCohort Cohort, DateTime Entered), RunRaceTracker> _encounterRuns = new();
+    private RunRaceTracker? _selectedTracker;
+    private bool _hasHistoricalSelection;
+    private RunRaceTracker? DisplayTracker => _hasHistoricalSelection ? _selectedTracker : _tracker;
+    private bool DisplayIsHistorical => _hasHistoricalSelection || _historicalPreview;
     private IReadOnlyList<RunGhost> _ghosts = Array.Empty<RunGhost>();
     private RunGhost? _ghost;
     private Timer? _timer;
@@ -79,6 +84,8 @@ public sealed class RunRaceService : IDisposable
             CombatLogStateBuilder.AreaEntered += OnAreaEntered;
             CombatIdentifier.CombatFinished += OnCombatFinished;
             CombatSelectionMonitor.OnInProgressCombatSelected += OnLiveCombat;
+            CombatSelectionMonitor.SelectedCombatChanged += OnSelectedCombat;
+            CombatLogStreamer.CombatStarted += OnLiveCombatStarted;
             CombatLogStreamer.NewLineStreamed += OnLog;
             CombatLogStreamer.HistoricalLogsStarted += OnHistoryStarted;
             Settings.SettingsUpdated += OnSettingsChanged;
@@ -162,6 +169,51 @@ public sealed class RunRaceService : IDisposable
             definition?.RequireFirstBoss ?? encounter.EncounterType != EncounterType.Flashpoint, definition?.CompletionBoss);
     }
 
+    private void RememberRun(RunRaceTracker tracker)
+    {
+        if (tracker.Cohort != null) _encounterRuns[(tracker.Cohort, tracker.Entered)] = tracker;
+    }
+
+    private void OnSelectedCombat(Combat combat, bool isCurrentCombat)
+    {
+        lock (_gate)
+        {
+            if (_disposed) return;
+            var previous = DisplayTracker;
+            var wasHistorical = DisplayIsHistorical;
+            _hasHistoricalSelection = !isCurrentCombat;
+            _selectedTracker = null;
+            if (!isCurrentCombat && combat?.ParentEncounter != null && IsEligible(combat.ParentEncounter))
+            {
+                var visit = EncounterSessionGrouping.VisitStart(CombatLogStateBuilder.CurrentState.EncounterEnteredInfo, combat.StartTime);
+                _encounterRuns.TryGetValue((Cohort(combat.ParentEncounter), visit), out _selectedTracker);
+            }
+            if (isCurrentCombat) _historicalPreview = false;
+            if (ReferenceEquals(previous, DisplayTracker) && wasHistorical == DisplayIsHistorical) return;
+            _routeKey = "auto";
+            _automaticRoute = null;
+            ReloadReferencesLocked();
+            PublishLocked();
+        }
+    }
+
+    private void OnLiveCombatStarted()
+    {
+        // The combat list automatically selects the new ongoing row at combat start.
+        // Ordinary live updates and combat completion do not interrupt historical review.
+        lock (_gate)
+        {
+            if (_disposed || !_hasHistoricalSelection) return;
+            _hasHistoricalSelection = false;
+            _selectedTracker = null;
+            _historicalPreview = false;
+            _routeKey = "auto";
+            _automaticRoute = null;
+            ReloadReferencesLocked();
+            PublishLocked();
+        }
+    }
+
     private void OnAreaEntered(EncounterInfo encounter)
     {
         if (!CombatMonitorViewModel.IsLiveParseActive()) return;
@@ -174,22 +226,26 @@ public sealed class RunRaceService : IDisposable
             if (_tracker != null && _tracker.Entered == entered && _tracker.Cohort == Cohort(encounter)) return;
             _needsLiveReconcile = false;
             _tracker = null;
-            _ghost = null;
+            if (!_hasHistoricalSelection) _ghost = null;
             _historicalPreview = false;
             _isReplay = LogReplayContext.IsActive;
             _activeBoss = null;
             _activeBossStart = null;
-            _routeKey = "auto";
-            _automaticRoute = null;
+            if (!_hasHistoricalSelection)
+            {
+                _routeKey = "auto";
+                _automaticRoute = null;
+            }
             _player = CombatLogStateBuilder.CurrentState.LocalPlayer?.Name ?? "";
             if (IsEligible(encounter) && entered != default)
             {
                 _tracker = new RunRaceTracker();
                 Begin(_tracker, encounter, entered);
+                RememberRun(_tracker);
                 Anchor(entered);
                 SelectGhost();
             }
-            ReloadReferencesLocked();
+            if (!_hasHistoricalSelection) ReloadReferencesLocked();
             PublishLocked();
         }
     }
@@ -216,11 +272,11 @@ public sealed class RunRaceService : IDisposable
                 if (latest.Value == null || !IsEligible(latest.Value))
                 {
                     _tracker = null;
-                    _ghost = null;
+                    if (!_hasHistoricalSelection) _ghost = null;
                     _activeBoss = null;
                     _activeBossStart = null;
                     _historicalPreview = false;
-                    ReloadReferencesLocked();
+                    if (!_hasHistoricalSelection) ReloadReferencesLocked();
                     PublishLocked();
                     return;
                 }
@@ -228,13 +284,17 @@ public sealed class RunRaceService : IDisposable
                 {
                     _tracker = new RunRaceTracker();
                     Begin(_tracker, latest.Value, visit);
-                    _routeKey = "auto";
-                    _automaticRoute = null;
+                    RememberRun(_tracker);
+                    if (!_hasHistoricalSelection)
+                    {
+                        _routeKey = "auto";
+                        _automaticRoute = null;
+                    }
                     _player = CombatLogStateBuilder.CurrentState.LocalPlayer?.Name ?? "";
                     _activeBoss = null;
                     _activeBossStart = null;
                     SelectGhost();
-                    ReloadReferencesLocked();
+                    if (!_hasHistoricalSelection) ReloadReferencesLocked();
                 }
                 Anchor(log.TimeStamp);
             }
@@ -306,6 +366,9 @@ public sealed class RunRaceService : IDisposable
         {
             if (_disposed) return;
             _tracker = null;
+            _encounterRuns.Clear();
+            _hasHistoricalSelection = false;
+            _selectedTracker = null;
             _ghost = null;
             _activeBoss = null;
             _activeBossStart = null;
@@ -343,6 +406,10 @@ public sealed class RunRaceService : IDisposable
             if (_disposed) return;
             // The same final-boss policy applies to live and historical logs.
             _tracker = trackers.OrderBy(pair => pair.Key).Select(pair => pair.Value).LastOrDefault();
+            _encounterRuns.Clear();
+            foreach (var tracker in trackers.Values) RememberRun(tracker);
+            _hasHistoricalSelection = false;
+            _selectedTracker = null;
             _historicalPreview = _tracker != null;
             _isReplay = isReplay;
             _needsLiveReconcile = true;
@@ -368,9 +435,9 @@ public sealed class RunRaceService : IDisposable
             {
                 if (_disposed) return;
                 _ghosts = ghosts;
-                if (_tracker == null) _snapshot = RunRaceSnapshot.Empty with { Status = $"{ghosts.Count} local ghosts available. Enter a Story operation or flashpoint to race." };
+                if (DisplayTracker == null) _snapshot = RunRaceSnapshot.Empty with { Status = $"{ghosts.Count} local ghosts available. Enter a Story operation or flashpoint to race." };
                 // Keep the current race's reference stable after finishing/saving.
-                else if (!_tracker.IsComplete) SelectGhost();
+                else if (!DisplayTracker.IsComplete) SelectGhost();
                 PublishLocked();
             }
         }
@@ -384,15 +451,15 @@ public sealed class RunRaceService : IDisposable
 
     private void SelectGhost()
     {
-        if (_tracker == null) { _ghost = null; return; }
+        if (DisplayTracker == null) { _ghost = null; return; }
         var remote = _online?.Routes.SelectMany(r => new[] { r.PersonalBest, r.Latest }).OfType<RunGhost>() ?? Enumerable.Empty<RunGhost>();
-        var matches = _ghosts.Concat(remote).Where(_tracker.Accepts)
+        var matches = _ghosts.Concat(remote).Where(DisplayTracker.Accepts)
             .Where(run => string.Equals(run.Player, _player, StringComparison.OrdinalIgnoreCase)).ToArray();
-        var observed = _tracker.SavedRun(_player);
+        var observed = DisplayTracker.SavedRun(_player);
         bool Compatible(string[] bosses) => observed == null || bosses.Take(observed.Splits.Count).SequenceEqual(observed.Splits.Select(s => s.Boss)) &&
             (!observed.IsComplete || bosses.Length == observed.Splits.Count);
         var candidates = (_online?.Routes.Where(r => Compatible(r.Bosses)).Select(r => (r.Key, Count: r.SampleCount)) ?? Enumerable.Empty<(string Key, int Count)>())
-            .Concat(matches.Where(_tracker.Follows).Where(r => !_tracker.IsComplete || r.Splits.Count == observed?.Splits.Count).Select(r => (Key: r.RouteKey, Count: 1)))
+            .Concat(matches.Where(DisplayTracker.Follows).Where(r => !DisplayTracker.IsComplete || r.Splits.Count == observed?.Splits.Count).Select(r => (Key: r.RouteKey, Count: 1)))
             .GroupBy(r => r.Key).Select(g => (Key: g.Key, Count: g.Max(r => r.Count))).ToArray();
         if (observed?.IsComplete == true) _automaticRoute = observed.RouteKey;
         else if (_automaticRoute == null || !candidates.Any(r => r.Key == _automaticRoute))
@@ -412,13 +479,13 @@ public sealed class RunRaceService : IDisposable
         _runsLoading = false;
         _onlineStatus = _isOffline() ? "Offline · using saved local runs" : "";
         SelectGhost();
-        if (_isOffline() || _tracker?.Cohort == null || string.IsNullOrWhiteSpace(_player)) { SelectGhost(); return; }
+        if (_isOffline() || DisplayTracker?.Cohort == null || string.IsNullOrWhiteSpace(_player)) { SelectGhost(); return; }
         var request = new CancellationTokenSource();
         _runRequest = request;
         _runsLoading = true;
         var generation = _runGeneration;
-        var cohort = _tracker.Cohort;
-        var entered = _tracker.Entered;
+        var cohort = DisplayTracker.Cohort;
+        var entered = DisplayTracker.Entered;
         var player = _player;
         var cacheReferences = !_isReplay;
         _ = Task.Run(async () =>
@@ -455,13 +522,13 @@ public sealed class RunRaceService : IDisposable
         _benchmarkRequest?.Cancel();
         _benchmarks = new Dictionary<string, TimeTrialSummary>();
         _benchmarkLoading = false;
-        if (_ghostMode != LeaderboardMode || _tracker?.Cohort == null || _isOffline()) return;
+        if (_ghostMode != LeaderboardMode || DisplayTracker?.Cohort == null || _isOffline()) return;
         var request = new CancellationTokenSource();
         _benchmarkRequest = request;
         _benchmarkLoading = true;
         var generation = _benchmarkGeneration;
-        var cohort = _tracker.Cohort;
-        var bosses = _tracker.ExpectedBosses.ToArray();
+        var cohort = DisplayTracker.Cohort;
+        var bosses = DisplayTracker.ExpectedBosses.ToArray();
         // Fetch only when the reference or encounter changes, never from the live clock tick.
         _ = Task.Run(() => LoadBenchmarkAsync(cohort, bosses, generation, request));
     }
@@ -507,36 +574,40 @@ public sealed class RunRaceService : IDisposable
     private void PublishLocked(string status = "")
     {
         var leaderboard = _ghostMode == LeaderboardMode;
-        var paused = _monitoringStopped && !_historicalPreview && _tracker?.IsComplete == false;
+        var paused = _monitoringStopped && !DisplayIsHistorical && DisplayTracker?.IsComplete == false;
         if (status.Length == 0 && _isReplay)
-            status = _tracker?.IsComplete == true ? "Simulated run complete · no ghost saved or uploaded"
+            status = DisplayTracker?.IsComplete == true ? "Simulated run complete · no ghost saved or uploaded"
                 : "Debug replay · checkpoints are simulated and will not be saved or uploaded";
+        if (status.Length == 0 && _hasHistoricalSelection)
+            status = DisplayTracker == null ? "No Run Race results for the selected encounter."
+                : $"Recorded encounter · {DisplayTracker.Entered:MMM d, yyyy HH:mm} · " +
+                    (DisplayTracker.IsComplete ? "route complete" : "final boss not defeated in this visit");
         if (status.Length == 0 && paused)
             status = "Monitoring stopped · resume live parsing to continue.";
-        if (status.Length == 0 && leaderboard && _tracker != null)
+        if (status.Length == 0 && leaderboard && DisplayTracker != null)
             status = _benchmarkLoading ? "Loading leaderboard checkpoints… Your run keeps tracking."
                 : _benchmarks.Count == 0 ? "Leaderboard timings unavailable for this encounter. Your run keeps tracking."
-                : $"Fastest 10% boss benchmarks · {_benchmarks.Count}/{_tracker.ExpectedBosses.Count} checkpoints · independent leaderboard timings";
+                : $"Fastest 10% boss benchmarks · {_benchmarks.Count}/{DisplayTracker.ExpectedBosses.Count} checkpoints · independent leaderboard timings";
         if (status.Length == 0 && !leaderboard)
             status = _runsLoading ? "Loading personal runs… Boss checkpoints keep saving locally."
-                : _tracker?.IsComplete == true ? "Run complete · saved automatically. " + _onlineStatus
+                : DisplayTracker?.IsComplete == true ? "Run complete · saved automatically. " + _onlineStatus
                 : _onlineStatus;
-        if (status.Length == 0 && _historicalPreview && _tracker?.IsComplete == false)
+        if (status.Length == 0 && DisplayIsHistorical && DisplayTracker?.IsComplete == false)
             status = "Saved checkpoints · this session did not reach the encounter's final boss.";
-        _snapshot = (_tracker?.Snapshot(_ghost, _ghostMode, status) ?? RunRaceSnapshot.Empty with
+        _snapshot = (DisplayTracker?.Snapshot(_ghost, _ghostMode, status) ?? RunRaceSnapshot.Empty with
         {
             GhostMode = _ghostMode,
             Status = status.Length > 0 ? status : _ghosts.Count > 0 ? $"{_ghosts.Count} local ghosts available. Enter a Story operation or flashpoint to race." : RunRaceSnapshot.Empty.Status
         }) with
         {
-            RouteKey = _routeKey, Routes = Routes(), IsHistorical = _historicalPreview,
+            RouteKey = _routeKey, Routes = Routes(), IsHistorical = DisplayIsHistorical,
             ReferenceLabel = leaderboard ? "Leaderboard · fastest 10%" : _ghostMode,
             ReferenceDurationSeconds = leaderboard
                 ? _benchmarks.Values.Select(v => (double?)v.EndSeconds).DefaultIfEmpty(null).Max()
                 : _ghost?.DurationSeconds,
             IsLeaderboardReference = leaderboard, ReferenceLoading = leaderboard ? _benchmarkLoading : _runsLoading,
-            ActiveBossName = _tracker?.IsComplete == false ? _activeBoss : null,
-            ActiveBossStartSeconds = _tracker?.IsComplete == false ? _activeBossStart : null,
+            ActiveBossName = !DisplayIsHistorical && DisplayTracker?.IsComplete == false ? _activeBoss : null,
+            ActiveBossStartSeconds = !DisplayIsHistorical && DisplayTracker?.IsComplete == false ? _activeBossStart : null,
             IsPaused = paused, IsReplay = _isReplay
         };
         if (leaderboard)
@@ -553,7 +624,7 @@ public sealed class RunRaceService : IDisposable
         var resolvedRoute = _routeKey == "auto" ? _automaticRoute : _routeKey;
         var routeBosses = _online?.Routes.FirstOrDefault(r => r.Key == resolvedRoute)?.Bosses
             ?? _ghosts.FirstOrDefault(r => r.RouteKey == resolvedRoute)?.Splits.Select(s => s.Boss).ToArray()
-            ?? (_tracker?.CompletedRun(_player) is { } finished && finished.RouteKey == resolvedRoute ? finished.Splits.Select(s => s.Boss).ToArray() : null);
+            ?? (DisplayTracker?.CompletedRun(_player) is { } finished && finished.RouteKey == resolvedRoute ? finished.Splits.Select(s => s.Boss).ToArray() : null);
         if (routeBosses != null)
         {
             var included = routeBosses.Concat(_snapshot.Checkpoints.Where(c => c.Seconds.HasValue).Select(c => c.Boss)).Distinct().ToArray();
@@ -567,9 +638,9 @@ public sealed class RunRaceService : IDisposable
     private IReadOnlyList<RaceRouteOption> Routes()
     {
         var routes = (_online?.Routes.Select(r => (r.Key, r.Bosses)) ?? Enumerable.Empty<(string Key, string[] Bosses)>())
-            .Concat(_ghosts.Where(r => r.IsComplete && r.Cohort == _tracker?.Cohort && string.Equals(r.Player, _player, StringComparison.OrdinalIgnoreCase))
+            .Concat(_ghosts.Where(r => r.IsComplete && r.Cohort == DisplayTracker?.Cohort && string.Equals(r.Player, _player, StringComparison.OrdinalIgnoreCase))
                 .Select(r => (Key: r.RouteKey, Bosses: r.Splits.Select(s => s.Boss).ToArray())))
-            .Concat(_tracker?.CompletedRun(_player) is { } current ? new[] { (Key: current.RouteKey, Bosses: current.Splits.Select(s => s.Boss).ToArray()) } : Array.Empty<(string Key, string[] Bosses)>())
+            .Concat(DisplayTracker?.CompletedRun(_player) is { } current ? new[] { (Key: current.RouteKey, Bosses: current.Splits.Select(s => s.Boss).ToArray()) } : Array.Empty<(string Key, string[] Bosses)>())
             .DistinctBy(r => r.Key);
         return new[] { new RaceRouteOption("auto", "Automatic · follow your boss order") }
             .Concat(routes.Select(r => new RaceRouteOption(r.Key, $"{r.Bosses.Length} bosses · {string.Join(" → ", r.Bosses)}"))).ToArray();
@@ -584,6 +655,8 @@ public sealed class RunRaceService : IDisposable
             CombatLogStateBuilder.AreaEntered -= OnAreaEntered;
             CombatIdentifier.CombatFinished -= OnCombatFinished;
             CombatSelectionMonitor.OnInProgressCombatSelected -= OnLiveCombat;
+            CombatSelectionMonitor.SelectedCombatChanged -= OnSelectedCombat;
+            CombatLogStreamer.CombatStarted -= OnLiveCombatStarted;
             CombatLogStreamer.NewLineStreamed -= OnLog;
             CombatLogStreamer.HistoricalLogsStarted -= OnHistoryStarted;
             Settings.SettingsUpdated -= OnSettingsChanged;

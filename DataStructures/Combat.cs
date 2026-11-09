@@ -45,6 +45,9 @@ namespace SWTORCombatParser.DataStructures
     }
     public class Combat
     {
+        // Actual encounters are constructed after parsing, or when live combat starts.
+        // Keep that owner when a later background cache write overlaps a log change.
+        internal Guid CacheLogStateId { get; init; } = CombatLogStateBuilder.CurrentState.CacheIdentity;
         public Entity Initiator { get; set; }
     
         public Entity LocalPlayer => CharacterParticipants.FirstOrDefault(p => p.Value.IsLocalPlayer).Value;
@@ -62,7 +65,9 @@ namespace SWTORCombatParser.DataStructures
         public string LogFileName => AllLogs.Values.First(l => !string.IsNullOrEmpty(l.LogName)).LogName;
         public bool IsReplay { get; set; }
         public double DurationOverride { get; set; }
-        public double DurationMS => DurationOverride == 0 ? (PhaseManager.SelectedPhases.Any() ? PhaseManager.PhaseDuration : (EndTime - StartTime).TotalMilliseconds) : DurationOverride;
+        private bool _hasPhaseDurationOverride;
+        public double DurationMS => DurationOverride != 0 || _hasPhaseDurationOverride
+            ? DurationOverride : (EndTime - StartTime).TotalMilliseconds;
         public int DurationSeconds => (int)Math.Round(DurationMS / 1000f);
 
 
@@ -121,7 +126,8 @@ namespace SWTORCombatParser.DataStructures
 
         public ConcurrentQueue<ParsedLogEntry> GetLogsInvolvingEntity(Entity e)
         {
-            if (string.IsNullOrEmpty(e.Name) || !LogsInvolvingEntity.TryGetValue(e.LogId, out var entity))
+            // Some encounter actors have a valid ID but no display name.
+            if (!LogsInvolvingEntity.TryGetValue(e.LogId, out var entity))
             {
                 return new ConcurrentQueue<ParsedLogEntry>();
             }
@@ -690,11 +696,12 @@ namespace SWTORCombatParser.DataStructures
 
             if (!phaseLogs.Any())
                 return new Combat();
-            var duration = phases.Sum(p => ((p.Value.PhaseEnd == DateTime.MinValue ? CombatIdentifier.CurrentCombat.EndTime : p.Value.PhaseEnd) - p.Value.PhaseStart).TotalSeconds);
-            var phaseCombat = CombatIdentifier.GenerateCombatSnapshotFromLogs(phaseLogs,combatEndUpdate:true);
-            var tempDuration = duration * 1000;
-            if (tempDuration < phaseCombat.DurationMS)
-                phaseCombat.DurationOverride = tempDuration;
+            var duration = phases.Sum(p => ((p.Value.PhaseEnd == DateTime.MinValue ? EndTime : p.Value.PhaseEnd) - p.Value.PhaseStart).TotalMilliseconds);
+            // Scope duration belongs to this copy, including sparse/disjoint phase
+            // intervals and explicit zero-length selections. A UI phase selection
+            // must never change the duration or live rates of unrelated combats.
+            var phaseCombat = new Combat { DurationOverride = duration, _hasPhaseDurationOverride = true };
+            CombatIdentifier.GenerateCombatFromLogs(phaseLogs, combatShell: phaseCombat, combatEndUpdate: true);
             return phaseCombat;
         }
     }

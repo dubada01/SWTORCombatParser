@@ -1,4 +1,4 @@
-﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.DataStructures.ClassInfos;
 using SWTORCombatParser.Model.DataGrid;
 using SWTORCombatParser.Model.LogParsing;
@@ -11,11 +11,21 @@ using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
+using System.Reactive;
 using Avalonia.Threading;
 using ReactiveUI;
 
 namespace SWTORCombatParser.ViewModels.DataGrid
 {
+    public sealed class MetricColumnOption(DataGridViewModel owner, OverlayType type, string name) : ReactiveObject
+    {
+        public OverlayType Type { get; } = type;
+        public string Name { get; } = name;
+        public bool IsSelected { get => owner.HasMetric(Type); set => owner.SetMetric(Type, value); }
+        public bool IsEnabled => IsSelected || owner.MetricCount < 8;
+        internal void Refresh() { this.RaisePropertyChanged(nameof(IsSelected)); this.RaisePropertyChanged(nameof(IsEnabled)); }
+    }
+    public sealed record MetricColumnGroup(string Name, IReadOnlyList<MetricColumnOption> Metrics);
     public class CustomComparer : IComparer<MemberInfoViewModel>, IComparer
     {
         private readonly string _sortProperty;
@@ -44,11 +54,14 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             if (y.IsTotalsRow)
                 return -1;
 
-            // Extract the values to compare
-            if (!double.TryParse(x.StatsSlots.FirstOrDefault(s => s.Header == _sortProperty)?.Value, out double xValue))
-                xValue = 0; // or handle as needed
-            if (!double.TryParse(y.StatsSlots.FirstOrDefault(s => s.Header == _sortProperty)?.Value, out double yValue))
-                yValue = 0; // or handle as needed
+            if (_sortProperty == "Name")
+            {
+                var byName = StringComparer.CurrentCultureIgnoreCase.Compare(x.PlayerName, y.PlayerName);
+                return Direction == ListSortDirection.Ascending ? byName : -byName;
+            }
+
+            var xValue = x.StatsSlots.FirstOrDefault(s => s.Header == _sortProperty)?.NumericValue ?? 0;
+            var yValue = y.StatsSlots.FirstOrDefault(s => s.Header == _sortProperty)?.NumericValue ?? 0;
 
             // Compare the values
             int comparisonResult = Comparer<double>.Default.Compare(xValue, yValue);
@@ -73,15 +86,46 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             OverlayType.InterruptCount, OverlayType.APM};
 
         private Combat? _currentCombat;
-        private List<OverlayType> _selectedColumnTypes = _defaultColumns;
+        private List<OverlayType> _selectedColumnTypes = new(_defaultColumns);
+        private CustomComparer _sortComparer = new("Name", ListSortDirection.Ascending);
         private static List<OverlayType> _defaultColumns = new() { OverlayType.DPS, OverlayType.Damage, OverlayType.EHPS, OverlayType.EffectiveHealing, OverlayType.DamageTaken, OverlayType.APM };
         private ObservableCollection<MemberInfoViewModel> partyMembers = new();
         private ObservableCollection<DataGridHeaderViewModel> headerNames;
         private string _localPlayer = "";
         private string _selectedNewColumn;
+        public IReadOnlyList<MetricColumnOption> MetricOptions { get; }
+        public IReadOnlyList<MetricColumnGroup> MetricGroups { get; }
+        public int MetricCount => _selectedColumnTypes.Count;
+        public string MetricCountLabel => $"{MetricCount} / 8 metrics";
+        public bool HasCombat => PartyMembers.Count > 0;
+        public string CombatSummary => _currentCombat == null ? "" : $"{_currentCombat.CharacterParticipants.Count} players · {TimeSpan.FromMilliseconds(_currentCombat.DurationMS):mm\\:ss}";
+        public ReactiveCommand<Unit, Unit> ResetMetricsCommand { get; }
+        internal bool HasMetric(OverlayType type) => _selectedColumnTypes.Contains(type);
+        internal void SetMetric(OverlayType type, bool enabled)
+        {
+            if (HasMetric(type) == enabled) return;
+            if (enabled) AddHeader(GetNameFromType(type)); else RemoveHeader(type);
+        }
+        private void NotifyMetrics()
+        {
+            foreach (var option in MetricOptions) option.Refresh();
+            this.RaisePropertyChanged(nameof(MetricCountLabel));
+            this.RaisePropertyChanged(nameof(CanAddColumns));
+            this.RaisePropertyChanged(nameof(AvailableColumns));
+        }
 
         public DataGridViewModel()
         {
+            MetricOptions = _columnOrder.Select(type => new MetricColumnOption(this, type, GetNameFromType(type))).ToArray();
+            MetricGroups = new[] { new MetricColumnGroup("Damage", MetricOptions.Take(7).ToArray()),
+                new MetricColumnGroup("Healing", MetricOptions.Skip(7).Take(9).ToArray()),
+                new MetricColumnGroup("Defense", MetricOptions.Skip(16).Take(8).Where(m => m.Type != OverlayType.ThreatPerSecond).ToArray()),
+                new MetricColumnGroup("Utility", MetricOptions.Where(m => m.Type is OverlayType.ThreatPerSecond or OverlayType.InterruptCount or OverlayType.APM).ToArray()) };
+            ResetMetricsCommand = ReactiveCommand.Create(() =>
+            {
+                _selectedColumnTypes = new(_defaultColumns); DataGridDefaults.SetDefaults(_selectedColumnTypes, _localPlayer);
+                UpdateUI(); NotifyMetrics();
+            });
             IconFactory.Init();
             DataGridDefaults.Init();
             //CombatLogStateBuilder.PlayerDiciplineChanged += UpdateColumns;
@@ -97,7 +141,9 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             var discipline = CombatLogStateBuilder.CurrentState.GetLocalPlayerClassAtTime(combatEndTime);
             if (player == null || discipline == null)
                 return;
-            _localPlayer = discipline.Role.ToString();
+            var role = discipline.Role.ToString();
+            if (_localPlayer == role) return;
+            _localPlayer = role;
             RefreshColumns();
         }
 
@@ -109,6 +155,8 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             RefreshColumns();
         }
         public event Action ColumnsRefreshed = delegate { };
+        public event Action RowsReordering = delegate { };
+        public event Action RowsReordered = delegate { };
         public bool CanAddColumns => _selectedColumnTypes.Count < 8 && PartyMembers.Count > 0;
         public ObservableCollection<MemberInfoViewModel> PartyMembers
         {
@@ -128,6 +176,15 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             UpdateUI();
         }
 
+        internal void ReleaseCombat()
+        {
+            _currentCombat = null;
+            PartyMembers.Clear();
+            this.RaisePropertyChanged(nameof(CanAddColumns));
+            this.RaisePropertyChanged(nameof(HasCombat));
+            this.RaisePropertyChanged(nameof(CombatSummary));
+        }
+
         public List<string> GetCurrentColumnNames()
         {
             return _selectedColumnTypes.Select(GetNameFromType).ToList();
@@ -137,84 +194,79 @@ namespace SWTORCombatParser.ViewModels.DataGrid
             if (!string.IsNullOrEmpty(_localPlayer))
                 _selectedColumnTypes = DataGridDefaults.GetDefaults(_localPlayer);
             else
-                _selectedColumnTypes = _defaultColumns;
+                _selectedColumnTypes = new(_defaultColumns);
+            NotifyMetrics();
         }
 
         private void UpdateUI()
         {
-            if (_currentCombat is null)
-                return;
-
-            var orderedColumns = _columnOrder
-                .Where(_selectedColumnTypes.Contains)
-                .ToList();
-
-            // *** deterministic participant order (keeps DataGrid rows stable) ***
-            var participantsSnapshot = _currentCombat.CharacterParticipants.Values
-                .DistinctBy(p => p.LogId) // avoid duplicates
-                .OrderBy(p => p.Name) // …or .OrderByDescending(p => p.TotalDps)
-                .ToList();
-
             Dispatcher.UIThread.Invoke(() =>
             {
-                // --- 1. pull any totals row off the list -------------------------
-                var hadTotalsRow = PartyMembers.LastOrDefault()?.IsTotalsRow == true;
-                if (hadTotalsRow)
-                    PartyMembers.RemoveAt(PartyMembers.Count - 1);
+                var combat = _currentCombat;
+                if (combat == null) return;
+                var columns = _columnOrder.Where(_selectedColumnTypes.Contains).ToList();
+                var participants = combat.CharacterParticipants.Values.DistinctBy(p => p.LogId)
+                    .OrderBy(p => p.Name).ToList();
+                var participantIds = participants.Select(p => p.LogId).ToHashSet();
 
-                // --- 2. quick lookup of existing VMs by LogId --------------------
-                var vmById = PartyMembers
-                    .Where(vm => vm._entity != null)
-                    .ToDictionary(vm => vm._entity!.LogId);
-
-                // --- 3. create / refresh / reorder -------------------------------
-                var newList = new List<MemberInfoViewModel>();
-
-                for (int i = 0; i < participantsSnapshot.Count; i++)
+                // Keep surviving row objects (including totals) and publish only real
+                // membership changes. A live tick must never clear the table.
+                foreach (var row in PartyMembers.Where(row => !row.IsTotalsRow &&
+                             !participantIds.Contains(row._entity.LogId)).ToList())
+                    PartyMembers.Remove(row);
+                var rowsById = PartyMembers.Where(row => !row.IsTotalsRow)
+                    .ToDictionary(row => row._entity.LogId);
+                foreach (var participant in participants)
                 {
-                    var p = participantsSnapshot[i];
-
-                    if (vmById.TryGetValue(p.LogId, out var existing))
-                    {
-                        existing.Update(_currentCombat, orderedColumns);
-                        vmById.Remove(p.LogId); // mark as consumed
-                        newList.Add(existing);
-                    }
+                    if (rowsById.TryGetValue(participant.LogId, out var row))
+                        row.Update(combat, columns, participant);
                     else
-                    {
-                        newList.Add(new MemberInfoViewModel(i, p, _currentCombat, orderedColumns));
-                    }
+                        PartyMembers.Add(new MemberInfoViewModel(PartyMembers.Count, participant, combat, columns));
                 }
+                var totals = PartyMembers.FirstOrDefault(row => row.IsTotalsRow);
+                if (totals == null)
+                    PartyMembers.Add(new MemberInfoViewModel(PartyMembers.Count, null, combat, columns));
+                else
+                    totals.Update(combat, columns);
 
-                // --- 4. dispose VMs for players that disappeared -----------------
-                foreach (var orphan in vmById.Values)
-                    PartyMembers.Remove(orphan);
-
-                // --- 5. update list order in-place to avoid CollectionChanged churn
-                for (int i = 0; i < newList.Count; i++)
-                {
-                    if (i >= PartyMembers.Count)
-                        PartyMembers.Add(newList[i]);
-                    else if (!ReferenceEquals(PartyMembers[i], newList[i]))
-                        PartyMembers[i] = newList[i];
-                }
-
-                while (PartyMembers.Count > newList.Count)
-                    PartyMembers.RemoveAt(PartyMembers.Count - 1);
-
-                // --- 6. append (or rebuild) the totals row -----------------------
-                if (hadTotalsRow || PartyMembers.All(vm => vm._entity != null))
-                {
-                    PartyMembers.Add(new MemberInfoViewModel(
-                        PartyMembers.Count, null, _currentCombat, orderedColumns)
-                    {
-                        IsTotalsRow = true
-                    });
-                }
+                SortRows();
+                this.RaisePropertyChanged(nameof(CanAddColumns));
+                ColumnsRefreshed();
+                this.RaisePropertyChanged(nameof(HasCombat));
+                this.RaisePropertyChanged(nameof(CombatSummary));
             });
-            ColumnsRefreshed();
         }
 
+        public void Sort(string property, ListSortDirection direction)
+        {
+            Dispatcher.UIThread.Invoke(() =>
+            {
+                _sortComparer = new CustomComparer(property, direction);
+                SortRows();
+            });
+        }
+
+        private void SortRows()
+        {
+            // OrderBy is stable, so tied values keep their current positions.
+            var sorted = PartyMembers.OrderBy(row => row, _sortComparer).ToList();
+            if (sorted.SequenceEqual(PartyMembers)) return;
+            RowsReordering();
+            try
+            {
+                for (var i = 0; i < sorted.Count; i++)
+                {
+                    var oldIndex = PartyMembers.IndexOf(sorted[i]);
+                    if (oldIndex == i) continue;
+                    // This DataGrid's collection view doesn't reflect Move events.
+                    // Remove/insert only the displaced row using notifications it
+                    // supports; keep the same row object and ItemsSource.
+                    PartyMembers.RemoveAt(oldIndex);
+                    PartyMembers.Insert(i, sorted[i]);
+                }
+            }
+            finally { RowsReordered(); }
+        }
         public List<string> AvailableColumns => _columnOrder.Select(GetNameFromType).Where(c => _selectedColumnTypes.All(h => GetNameFromType(h) != c)).ToList();
         public string SelectedNewColumn
         {
@@ -231,21 +283,26 @@ namespace SWTORCombatParser.ViewModels.DataGrid
         
         public void AddHeader(string obj)
         {
-            _selectedColumnTypes.Add(_columnOrder.FirstOrDefault(c => GetNameFromType(c) == obj));
+            var option = MetricOptions.FirstOrDefault(c => c.Name == obj);
+            if (option == null || HasMetric(option.Type) || MetricCount >= 8) return;
+            _selectedColumnTypes.Add(option.Type);
             DataGridDefaults.SetDefaults(_selectedColumnTypes, _localPlayer);
             UpdateUI();
             this.RaisePropertyChanged(nameof(CanAddColumns));
             this.RaisePropertyChanged(nameof(AvailableColumns));
+            NotifyMetrics();
         }
 
         public void RemoveHeader(OverlayType obj)
         {
+            if (!HasMetric(obj)) return;
             var removedHeader = _selectedColumnTypes.FirstOrDefault(c => c == obj);
             _selectedColumnTypes.Remove(removedHeader);
             DataGridDefaults.SetDefaults(_selectedColumnTypes, _localPlayer);
             UpdateUI();
             this.RaisePropertyChanged(nameof(CanAddColumns));
             this.RaisePropertyChanged(nameof(AvailableColumns));
+            NotifyMetrics();
         }
         private string GetNameFromType(OverlayType type)
         {

@@ -1,9 +1,8 @@
 ﻿using Avalonia;
 using Avalonia.Controls;
-using Avalonia.Controls.ApplicationLifetimes;
 using Avalonia.Input;
-using SWTORCombatParser.ViewModels;
 using SWTORCombatParser.ViewModels.Combat_Monitoring;
+using System.Windows.Input;
 
 namespace SWTORCombatParser.Views.Home_Views.PastCombatViews
 {
@@ -28,15 +27,11 @@ namespace SWTORCombatParser.Views.Home_Views.PastCombatViews
         }
         private void DeathReviewBorder_PreviewMouseLeftButtonDown(object sender, PointerPressedEventArgs e)
         {
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            var point = e.GetCurrentPoint(sender as Control);
+            if (point.Properties.IsLeftButtonPressed && DataContext is PastCombat viewModel)
             {
-                var point = e.GetCurrentPoint(sender as Control);
-                if (point.Properties.IsLeftButtonPressed)
-                {
-                    var viewModel = DataContext as PastCombat;
-                    var mainViewModel = desktop.MainWindow.DataContext as MainWindowViewModel;
-                    mainViewModel.ShowDeathReviewForCombat(viewModel.Combat);
-                }
+                e.Handled = true;
+                ((ICommand)viewModel.DisplayWipeReviewCommand).Execute(null);
             }
         }
     }

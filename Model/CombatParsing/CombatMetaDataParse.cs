@@ -22,11 +22,28 @@ namespace SWTORCombatParser.Model.CombatParsing
             var combat = combatToPopulate;
 
             var cleanseLogs = combat.AllLogs.Values.Where(l =>
-l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && l.Target.IsCharacter);
+                l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && l.Target.IsCharacter)
+                .OrderBy(l => l.LogLineNumber).ToArray();
+            // A cleanse only matches a removal in the following four log lines.
+            // Index those lines once instead of scanning the entire fight for every
+            // cast (and repeating that scan for Count, Any and Average).
+            var cleanseRemovals = new Dictionary<long, ParsedLogEntry>();
+            foreach (var removal in cleanseLogs)
+                for (var offset = 1; offset <= 4; offset++)
+                    cleanseRemovals.TryAdd(removal.LogLineNumber - offset, removal);
             combat.Initiator = combat.AllLogs.OrderBy(kvp=>kvp.Key).FirstOrDefault(l =>
                 l.Value.Effect.EffectType == EffectType.TargetChanged && !l.Value.Source.IsCharacter).Value?.Target;
 
-            foreach (var entity in combatToPopulate.AllEntities.Values)
+            // UI targets keep one representative per NPC type (LogId), while
+            // metrics belong to the individual instances in the log. Seed every
+            // instance now so later live batches cannot start its counters at zero.
+            var entities = new HashSet<Entity>(combat.AllEntities.Values, ReferenceEqualityComparer.Instance);
+            foreach (var log in combat.AllLogs.Values)
+            {
+                entities.Add(log.Source);
+                entities.Add(log.Target);
+            }
+            foreach (var entity in entities)
             {
                 var logsInScope = combat.GetLogsInvolvingEntity(entity);
 
@@ -133,9 +150,10 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
                     l.value.Effect.EffectId == _7_0LogParsing.InterruptCombatId &&
                     abilityIdsThatCanInterrupt.Contains(logEntriesForEntity.ElementAt(l.index - 1).AbilityId));
 
-                var mycleanseLogs = logEntriesForEntity.Where(l => _cleanseAbilityIds.Contains(l.AbilityId)).Where(l => cleanseLogs.Any(t => t.LogLineNumber - l.LogLineNumber <= 4 && t.LogLineNumber - l.LogLineNumber > 0));
-                var myCleanseSpeeds = mycleanseLogs.Select(cl => GetSpeedFromLog(cl, cleanseLogs));
-                var averageCleansespeed = myCleanseSpeeds.Any() ? myCleanseSpeeds.Average() : 0;
+                var mycleanseLogs = logEntriesForEntity.Where(l => _cleanseAbilityIds.Contains(l.AbilityId) &&
+                    cleanseRemovals.ContainsKey(l.LogLineNumber)).ToArray();
+                var averageCleansespeed = mycleanseLogs.Length == 0 ? 0 :
+                    mycleanseLogs.Average(cl => GetSpeedForRemoval(cl, cleanseRemovals[cl.LogLineNumber]));
 
                 var totalHealingReceived = combat.IncomingHealingLogs[entity].Sum(l => l.Value.DblValue);
                 var totalEffectiveHealingReceived =
@@ -549,6 +567,11 @@ l.Effect.EffectType == EffectType.Remove && l.Target.LogId != l.Source.LogId && 
         private static double GetSpeedFromLog(ParsedLogEntry cl, IEnumerable<ParsedLogEntry> effectRemoveLogs)
         {
             var removedEffectLog = effectRemoveLogs.OrderBy(l=>l.LogLineNumber).FirstOrDefault(l => l.LogLineNumber > cl.LogLineNumber);
+            return GetSpeedForRemoval(cl, removedEffectLog);
+        }
+
+        private static double GetSpeedForRemoval(ParsedLogEntry cl, ParsedLogEntry removedEffectLog)
+        {
             if (removedEffectLog == null)
                 return 0;
             var cleanseTime = removedEffectLog.TimeStamp;

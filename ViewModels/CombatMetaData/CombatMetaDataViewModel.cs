@@ -109,6 +109,7 @@ namespace SWTORCombatParser.ViewModels.CombatMetaData
             get => selectedEffect; set
             {
                 selectedEffect = value;
+                OnPropertyChanged();
                 if (selectedEffect == null)
                     return;
                 foreach (var effect in CombatEffects)

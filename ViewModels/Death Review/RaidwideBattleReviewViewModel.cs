@@ -1,125 +1,59 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+using System;
 using Avalonia.Controls;
 using ReactiveUI;
 using SWTORCombatParser.DataStructures;
-using SWTORCombatParser.DataStructures.EncounterInfo;
-using SWTORCombatParser.Model.LogParsing;
 using SWTORCombatParser.Views;
 using SWTORCombatParser.Views.Death_Review;
 
 namespace SWTORCombatParser.ViewModels.Death_Review;
 
-public class RaidwideBattleReviewViewModel : ReactiveObject
+public sealed class RaidwideBattleReviewViewModel : ReactiveObject, IDisposable
 {
-    private UserControl _currentReviewContent;
-    private TenSecondRecapView _recapView;
-    private TenSecondRecapViewModel _recapViewModel;
-    private DamageTakenView _damageTakenView;
-    private DamageTakenViewModel _damageTakenViewModel;
+    private readonly Combat _combat;
+    private readonly UserControl?[] _tabs = new UserControl?[3];
     private int _selectedTabIndex;
-    private readonly DeathReviewViewModel _legacyDeathReviewVM;
-    private readonly DeathReviewPage _legacyDeathReviewView;
+    private TenSecondRecapViewModel? _recap;
+    private DeathReviewViewModel? _deaths;
 
-    public RaidwideBattleReviewViewModel()
-    {
-        _recapViewModel = new TenSecondRecapViewModel();
-        _recapView = new TenSecondRecapView(_recapViewModel);
-        
-        _damageTakenViewModel = new DamageTakenViewModel();
-        _damageTakenView = new DamageTakenView(_damageTakenViewModel);
-
-        _legacyDeathReviewVM = new DeathReviewViewModel();
-        _legacyDeathReviewView = new DeathReviewPage(_legacyDeathReviewVM);
-        
-        CurrentReviewContent = _damageTakenView;
-    }
+    public RaidwideBattleReviewViewModel(Combat combat) => _combat = combat;
 
     public int SelectedTabIndex
     {
         get => _selectedTabIndex;
         set
         {
-            _selectedTabIndex = value;
-            if (_selectedTabIndex == 2)
-                CurrentReviewContent = _legacyDeathReviewView;
-            if(_selectedTabIndex == 1)
-                CurrentReviewContent = _recapView;
-            if(_selectedTabIndex == 0)
-                CurrentReviewContent = _damageTakenView;
+            if (value < 0 || value >= _tabs.Length || value == _selectedTabIndex) return;
+            this.RaiseAndSetIfChanged(ref _selectedTabIndex, value);
+            this.RaisePropertyChanged(nameof(CurrentReviewContent));
         }
     }
 
-    public UserControl CurrentReviewContent
+    public UserControl CurrentReviewContent => _tabs[SelectedTabIndex] ??= CreateTab(SelectedTabIndex);
+    public string EncounterName => _combat.EncounterBossDifficultyParts.Item1;
+    public string CompletionText => $"{(_combat.WasBossKilled ? "Kill" : "No clear")}  ·  {TimeSpan.FromSeconds(_combat.DurationSeconds):mm\\:ss}";
+
+    private UserControl CreateTab(int index)
     {
-        get => _currentReviewContent;
-        set => this.RaiseAndSetIfChanged(ref _currentReviewContent, value);
-    }
-
-    public string EncounterName => CombatInstance?.BossInfo?.EncounterName;
-    public string CompletionText => CombatInstance != null && CombatInstance.AllLogs.Count > 0 ? CombatInstance.WasBossKilled ? 
-        "Cleared in " + TimeSpan.FromSeconds(CombatInstance.DurationSeconds).ToString(@"mm\:ss") + " started by " + CombatInstance.Initiator?.Name : 
-        "Wipe at "+ PercentComplete.ToString("N2") + "% at " + TimeSpan.FromSeconds(CombatInstance.DurationSeconds).ToString(@"mm\:ss") + " started by " + CombatInstance.Initiator?.Name : "";
-    public double PercentComplete => GetEncounterPercentComplete();
-    public Combat CombatInstance { get; set; }
-
-    public void SetCombat(Combat combat)
-    {
-        CombatInstance = combat;
-        _recapViewModel.SetCombat(combat);
-        _damageTakenViewModel.SetCombat(combat);
-        _legacyDeathReviewVM.AddCombat(combat);
-        this.RaisePropertyChanged(nameof(CompletionText));
-        this.RaisePropertyChanged(nameof(EncounterName));
-    }
-
-    public void Reset()
-    {
-        CombatInstance = new Combat();
-        this.RaisePropertyChanged(nameof(CompletionText));
-        this.RaisePropertyChanged(nameof(EncounterName));
-    }
-    
-    private double GetEncounterPercentComplete()
-    {
-        if(CombatInstance == null)
-            return 0;
-        var bossNames = CombatInstance.ParentEncounter.BossNames;
-        var totalBossHP = 0d;
-        var currentBossHP = 0d;
-
-        // Group logs for relevant bosses by boss name
-        var logsByBoss = CombatInstance.AllLogs.Values
-            .Where(log => bossNames.Contains(log.Source.Name) || bossNames.Contains(log.Target.Name))
-            .GroupBy(log => bossNames.FirstOrDefault(boss => boss == log.Source.Name || boss == log.Target.Name));
-
-        // Process each boss
-        foreach (var boss in bossNames)
+        switch (index)
         {
-            // Find logs specific to this boss
-            var logsForBoss = logsByBoss.FirstOrDefault(group => group.Key == boss);
-
-            // If no logs for this boss, skip
-            if (logsForBoss == null)
-                continue;
-
-            // Find the last log for this boss
-            var lastLogForBoss = logsForBoss.OrderByDescending(log => log.TimeStamp).FirstOrDefault();
-
-            if (lastLogForBoss == null)
-                continue;
-
-            // Get EntityInfo for the boss
-            var infoForBoss = lastLogForBoss.Source.Name == boss
-                ? lastLogForBoss.SourceInfo
-                : lastLogForBoss.TargetInfo;
-
-            // Accumulate HP values
-            totalBossHP += infoForBoss.MaxHP;
-            currentBossHP += infoForBoss.CurrentHP;
+            case 0:
+                var damage = new DamageTakenViewModel();
+                damage.SetCombat(_combat);
+                return new DamageTakenView(damage);
+            case 1:
+                _recap = new TenSecondRecapViewModel();
+                _recap.SetCombat(_combat);
+                return new TenSecondRecapView(_recap);
+            default:
+                _deaths = new DeathReviewViewModel();
+                _deaths.AddCombat(_combat);
+                return new DeathReviewPage(_deaths);
         }
+    }
 
-        return totalBossHP > 0 ? (currentBossHP / totalBossHP) * 100 : 0;
+    public void Dispose()
+    {
+        _recap?.Dispose();
+        _deaths?.Dispose();
     }
 }

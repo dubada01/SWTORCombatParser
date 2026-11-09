@@ -1,5 +1,6 @@
 ﻿#if WINDOWS
 using System;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Runtime.InteropServices;
 using Avalonia;
@@ -15,13 +16,22 @@ public class MouseHookHandler
     public event Action<Point> MouseClicked = delegate { };
     public void SubscribeToClicks()
     {
+        if (_hookID != IntPtr.Zero)
+            return;
+
         _proc = HookCallback;
         _hookID = SetHook(_proc);
+        if (_hookID == IntPtr.Zero)
+            throw new Win32Exception(Marshal.GetLastWin32Error(), "Could not listen for raid frame clicks.");
     }
 
     public void UnsubscribeFromClicks()
     {
+        if (_hookID == IntPtr.Zero)
+            return;
+
         UnhookWindowsHookEx(_hookID);
+        _hookID = IntPtr.Zero;
     }
 
     public static Point GetCursorPosition()
@@ -64,21 +74,30 @@ public class MouseHookHandler
     [StructLayout(LayoutKind.Sequential)]
     private struct MSLLHOOKSTRUCT
     {
-        public Point pt;
+        public POINT pt;
         public uint mouseData;
         public uint flags;
         public uint time;
         public IntPtr dwExtraInfo;
     }
+
+    // Win32 POINT is two 32-bit integers. Avalonia.Point uses doubles and
+    // changes both the coordinates and the layout of the following fields.
+    [StructLayout(LayoutKind.Sequential)]
+    private struct POINT
+    {
+        public int X;
+        public int Y;
+    }
     private const int WH_MOUSE_LL = 14;
 
-    [DllImport("user32.dll")]
+    [DllImport("user32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern IntPtr SetWindowsHookEx(int idHook, LowLevelMouseProc lpfn, IntPtr hMod, uint dwThreadId);
     [DllImport("user32.dll")]
     private static extern bool UnhookWindowsHookEx(IntPtr hhk);
     [DllImport("user32.dll")]
     private static extern IntPtr CallNextHookEx(IntPtr hhk, int nCode, IntPtr wParam, IntPtr lParam);
-    [DllImport("kernel32.dll")]
+    [DllImport("kernel32.dll", CharSet = CharSet.Unicode, SetLastError = true)]
     private static extern IntPtr GetModuleHandle(string lpModuleName);
 }
 #endif

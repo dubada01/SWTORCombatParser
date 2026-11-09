@@ -17,6 +17,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
 {
     public class BossFrameConfigViewModel : BaseOverlayViewModel
     {
+        public override bool SupportsPresentation => true;
         private bool bossFrameEnabled;
         private string combatDuration;
         private System.Timers.Timer _timer;
@@ -53,7 +54,7 @@ namespace SWTORCombatParser.ViewModels.Overlays.BossFrame
         {
             get => currentScale; set
             {
-                this.RaiseAndSetIfChanged(ref currentScale, Math.Round(value, 1));
+                this.RaiseAndSetIfChanged(ref currentScale, Math.Max(0.1, Math.Round(double.IsFinite(value) ? value : 1, 1)));
                 DefaultBossFrameManager.SetScale(currentScale);
                 UpdateBossFrameScale();
             }

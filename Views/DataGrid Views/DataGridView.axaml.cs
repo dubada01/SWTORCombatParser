@@ -1,12 +1,13 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Reactive;
 using Avalonia;
-using Avalonia.Collections;
+using Avalonia.Data;
 using Avalonia.Controls;
+using Avalonia.Controls.Primitives;
 using Avalonia.Controls.Shapes;
 using Avalonia.Controls.Templates;
 using Avalonia.Interactivity;
@@ -69,11 +70,11 @@ namespace SWTORCombatParser.Views.DataGrid_Views
     {
         public ReactiveCommand<StatsSlotViewModel, Unit> RemoveColumnCommand { get; }
         // Determine the new sort direction
-        private object _sortLock = new object();
         private ListSortDirection _sortDirection = ListSortDirection.Ascending;
         private readonly DataGridViewModel _viewModel;
         private string _sortProperty = "Name";
-        private DataGridTemplateColumn columnToAddSortIconTo;
+        private object? _selectionBeforeSort;
+        private double? _scrollBeforeSort;
 
         public DataGridView(DataGridViewModel vm)
         {
@@ -81,204 +82,147 @@ namespace SWTORCombatParser.Views.DataGrid_Views
             _viewModel = vm;
             InitializeComponent();
             _viewModel.ColumnsRefreshed += RefreshColumns;
+            _viewModel.RowsReordering += RememberSelection;
+            _viewModel.RowsReordered += RestoreSelection;
             RemoveColumnCommand = ReactiveCommand.Create<StatsSlotViewModel>(RemoveColumn);
             Loaded += SetDefaultSorting;
         }
 
+        private ScrollBar? VerticalScrollBar => DynamicDataGrid.GetVisualDescendants().OfType<ScrollBar>()
+            .FirstOrDefault(bar => bar.Orientation == Orientation.Vertical);
+
+        private void RememberSelection()
+        {
+            _selectionBeforeSort = DynamicDataGrid.SelectedItem;
+            _scrollBeforeSort = VerticalScrollBar?.Value;
+        }
+
+        private void RestoreSelection()
+        {
+            if (_selectionBeforeSort is MemberInfoViewModel selected && _viewModel.PartyMembers.Contains(selected) &&
+                !ReferenceEquals(DynamicDataGrid.SelectedItem, selected))
+                DynamicDataGrid.SelectedItem = selected;
+            if (_scrollBeforeSort is { } offset && VerticalScrollBar is { } bar)
+                bar.Value = Math.Clamp(offset, bar.Minimum, bar.Maximum);
+            _selectionBeforeSort = null;
+            _scrollBeforeSort = null;
+        }
+
         private void SetDefaultSorting(object? sender, RoutedEventArgs e)
         {
-            var sortingInfo = Settings.ReadSettingOfType<string>("grid_sort");
-            
-            if (string.IsNullOrWhiteSpace(sortingInfo) || sortingInfo.Length < 2)
-                throw new InvalidOperationException("Invalid sort settings format.");
-            
-            string sortProperty = sortingInfo.Split("_+_")[0];
-            if (!int.TryParse(sortingInfo.Split("_+_")[1], out int direction))
+            var parts = Settings.ReadSettingOfType<string>("grid_sort")?.Split("_+_");
+            if (parts is { Length: 2 } && int.TryParse(parts[1], out var direction) &&
+                Enum.IsDefined(typeof(ListSortDirection), direction))
             {
-                Logging.LogError("Invalid sort settings format.");
-                return;
+                _sortProperty = parts[0];
+                _sortDirection = (ListSortDirection)direction;
             }
-            _sortProperty = sortProperty;
-            _sortDirection = (ListSortDirection)direction;
             RefreshColumns();
+            ForceSort();
+            UpdateSortIndicator();
         }
 
-        private void RemoveColumn(StatsSlotViewModel columnVm)
-        {
-            _viewModel.RemoveHeader(columnVm.OverlayType);
-        }
+        private void RemoveColumn(StatsSlotViewModel columnVm) => _viewModel.RemoveHeader(columnVm.OverlayType);
+        private static string HeaderText(DataGridColumn column) => column.Header is TextBlock text ? text.Text : column.Header?.ToString();
+
         private void RefreshColumns()
         {
-            // Clear any existing columns
+            var slots = _viewModel.PartyMembers.FirstOrDefault()?.StatsSlots
+                .Where(slot => slot.Header != "None").ToList() ?? new List<StatsSlotViewModel>();
+            // Cell bindings handle value updates. Rebuild templates only when the
+            // selected metrics actually change, preserving widths and scroll state.
+            if (DynamicDataGrid.Columns.Select(HeaderText).SequenceEqual(slots.Select(slot => slot.Header))) return;
+            var widths = DynamicDataGrid.Columns.ToDictionary(HeaderText, column => column.Width);
             DynamicDataGrid.Columns.Clear();
-            DynamicDataGrid.ItemsSource = _viewModel.PartyMembers;
-            // Assuming MemberInfoList is a collection of MemberInfoViewModel
-            if (_viewModel.PartyMembers != null && _viewModel.PartyMembers.Any())
+            foreach (var slot in slots)
             {
-                // Retrieve the number of StatSlotViewModel items from the first row (assuming all rows have the same number)
-                var firstRow = _viewModel.PartyMembers.First();
-                int statCount = firstRow.StatsSlots.Count;
-
-                // Dynamically create columns based on the StatSlotViewModel list
-                for (int i = 0; i < statCount; i++)
+                DataGridTemplateColumn column;
+                if (slot.Header == "Name")
                 {
-                    var statSlot = firstRow.StatsSlots[i];
-                    if(statSlot.Header == "None")
+                    column = new DataGridTemplateColumn
                     {
-                        continue;
-                    }
-                    var customComparer = new CustomComparer(statSlot.Header, _sortDirection);
-                    if (statSlot.Header == "Name")
-                    {
-                        // Create "Name" column with custom cell style to show an icon along with text
-                        var nameColumn = new DataGridTemplateColumn
+                        Header = new TextBlock { Text = "Name" }, CanUserSort = true, MinWidth = 150,
+                        CellTemplate = new FuncDataTemplate<MemberInfoViewModel>((member, _) =>
                         {
-                            Header = "Name",
-                            CellTemplate = new FuncDataTemplate<MemberInfoViewModel>((member, ns) =>
+                            if (member == null) return null;
+                            var panel = new StackPanel { Orientation = Orientation.Horizontal, Spacing = 7, Margin = new Thickness(5,0) };
+                            if (!member.IsTotalsRow)
                             {
-                                if (member == null)
-                                    return null;
-                                var stackPanel = new StackPanel
-                                {
-                                    Orientation = Orientation.Horizontal
-                                };
-
-                                var icon = new Image
-                                {
-                                    Width = 16,
-                                    Height = 16,
-                                    Source = member.ClassIcon,
-                                    VerticalAlignment = VerticalAlignment.Center
-                                };
-                                if (!member.IsTotalsRow)
-                                    stackPanel.Children.Add(icon);
-
-                                var textBlock = new TextBlock
-                                {
-                                    Text = member.IsTotalsRow ? "Total" : member.PlayerName,
-                                    FontWeight = member.IsTotalsRow ? FontWeight.Bold : FontWeight.Normal,
-                                    FontSize = 12,
-                                    Foreground = member.IsLocalPlayer ? Brushes.Goldenrod : Brushes.WhiteSmoke,
-                                    HorizontalAlignment = HorizontalAlignment.Right,
-                                    VerticalAlignment = VerticalAlignment.Center
-                                };
-                                stackPanel.Children.Add(textBlock);
-                                // Create the ToolTip
-                                ToolTip.SetTip(stackPanel,
-                                    new TextBlock { Text = $"Player: {member.PlayerName}\nClass: {member.ClassName}" });
-                                return stackPanel;
-                            }),
-                            Width = new DataGridLength(1, DataGridLengthUnitType.Star)
-                        };
-                        DynamicDataGrid.Columns.Add(nameColumn);
-                    }
-                    else
-                    {
-                        var column = new DataGridTemplateColumn
-                        {
-                            Header = new TextBlock
+                                var icon = new Image { Width = 16, Height = 16, VerticalAlignment = VerticalAlignment.Center };
+                                icon.Bind(Image.SourceProperty, new Binding(nameof(MemberInfoViewModel.ClassIcon)) { Source = member });
+                                panel.Children.Add(icon);
+                            }
+                            var name = new TextBlock
                             {
-                                ContextMenu = new ContextMenu
-                                {
-                                    Items =
-                                    {
-                                        new MenuItem { Header = "Remove Column", Command = RemoveColumnCommand, CommandParameter = statSlot},
-                                    }
-                                },
-                                Text = statSlot.Header,
-                                TextTrimming = TextTrimming.CharacterEllipsis,
-                                Tag = statSlot,
-                                // Optionally, you can set other TextBlock properties here
-                                // such as FontWeight, FontSize, etc.
-                            },
-                            CellStyleClasses = { "rightAlign","static" },
-                            CellTemplate = new FuncDataTemplate<MemberInfoViewModel>((member, ns) =>
-                            {
-                                var statToDisplay = member.StatsSlots.FirstOrDefault(s => s.Header == statSlot.Header);
-                                if (statToDisplay == null)
-                                    return new TextBlock();
-                                var textBox = new TextBlock
-                                {
-                                    Text = statToDisplay.Value,
-                                    TextTrimming = TextTrimming.CharacterEllipsis,
-                                    Foreground = statToDisplay.ForegroundColor,
-                                    HorizontalAlignment = HorizontalAlignment.Right,
-                                    VerticalAlignment = VerticalAlignment.Center,
-                                    FontWeight = member.IsTotalsRow ? FontWeight.Bold : FontWeight.Normal,
-                                    FontSize = member.IsTotalsRow ? 11 : 10,
-                                    Margin = new Thickness(0,0,5,0)
-                                };
-                                return textBox;
-                            }),
-                            CustomSortComparer = customComparer,
-                            CanUserSort = true,
-                            SortMemberPath = "Value",
-                            Width = new DataGridLength(1, DataGridLengthUnitType.Star),
-                        };
-                        DynamicDataGrid.Columns.Add(column);
-                        if (statSlot.Header == _sortProperty)
-                            columnToAddSortIconTo = column;
-                    }
+                                FontWeight = member.IsTotalsRow ? FontWeight.Bold : FontWeight.Normal, FontSize = 12,
+                                HorizontalAlignment = HorizontalAlignment.Left, VerticalAlignment = VerticalAlignment.Center,
+                                TextTrimming = TextTrimming.CharacterEllipsis
+                            };
+                            name.Bind(TextBlock.TextProperty, new Binding(nameof(MemberInfoViewModel.PlayerName)) { Source = member });
+                            name.Bind(TextBlock.ForegroundProperty, new Binding(nameof(MemberInfoViewModel.NameForeground)) { Source = member });
+                            panel.Children.Add(name);
+                            panel.Bind(ToolTip.TipProperty, new Binding(nameof(MemberInfoViewModel.PlayerSummary)) { Source = member });
+                            return panel;
+                        })
+                    };
                 }
+                else
+                {
+                    column = new DataGridTemplateColumn
+                    {
+                        MinWidth = 78,
+                        Header = new TextBlock
+                        {
+                            Text = slot.Header, TextTrimming = TextTrimming.CharacterEllipsis, Tag = slot,
+                            ContextMenu = new ContextMenu { Items = { new MenuItem { Header = "Remove Column", Command = RemoveColumnCommand, CommandParameter = slot } } }
+                        },
+                        CellStyleClasses = { "rightAlign", "static" }, CanUserSort = true,
+                        CellTemplate = new FuncDataTemplate<MemberInfoViewModel>((member, _) =>
+                        {
+                            var value = member?.StatsSlots.FirstOrDefault(s => s.OverlayType == slot.OverlayType);
+                            if (value == null) return new TextBlock();
+                            var text = new TextBlock
+                            {
+                                TextTrimming = TextTrimming.CharacterEllipsis, Foreground = value.ForegroundColor,
+                                HorizontalAlignment = HorizontalAlignment.Right, VerticalAlignment = VerticalAlignment.Center,
+                                FontWeight = member.IsTotalsRow ? FontWeight.Bold : FontWeight.Normal,
+                                FontSize = 12, Margin = new Thickness(0, 0, 7, 0)
+                            };
+                            text.Bind(TextBlock.TextProperty, new Binding(nameof(StatsSlotViewModel.Value)) { Source = value });
+                            return text;
+                        })
+                    };
+                }
+                DynamicDataGrid.Columns.Add(column);
             }
-
-
+            // Assign star widths after the complete set has been added; assigning
+            // them one at a time lets the first column consume the viewport.
             foreach (var column in DynamicDataGrid.Columns)
-            {
-                column.Width = new DataGridLength(1, DataGridLengthUnitType.Star);
-            }
-
+                column.Width = widths.TryGetValue(HeaderText(column), out var width)
+                    ? new DataGridLength(width.Value, width.UnitType)
+                    : new DataGridLength(HeaderText(column) == "Name" ? 1.65 : 1, DataGridLengthUnitType.Star);
+            if (!slots.Any(slot => slot.Header == _sortProperty))
+                _sortProperty = slots.FirstOrDefault(slot => slot.Header != "Name")?.Header ?? "Name";
             ForceSort();
-            if (columnToAddSortIconTo != null)
-            {
-                UpdateColumnForSort(columnToAddSortIconTo);
-                Dispatcher.UIThread.InvokeAsync(() => SetSortIcon(columnToAddSortIconTo));
-            }
+            UpdateSortIndicator();
         }
 
         private void DynamicDataGrid_OnSorting(object? sender, DataGridColumnEventArgs e)
         {
-            e.Handled = true; // Prevent the default sort behavior
-            Dispatcher.UIThread.InvokeAsync(() =>
-            {
-                if (e.Column is DataGridTemplateColumn textColumn)
-                {
-                    if ((textColumn.Header as TextBlock).Text == "Name")
-                    {
-                        return;
-                    }
-                    UpdateColumnForSort(textColumn);
-                    ForceSort();
-                    SetSortIcon(textColumn);
-                    Settings.WriteSetting("grid_sort",GetSortInfo());
-                }
-            });
+            e.Handled = true;
+            if (e.Column is not DataGridTemplateColumn column || column.Header is not TextBlock header) return;
+            _sortDirection = header.Text == _sortProperty && _sortDirection == ListSortDirection.Ascending
+                ? ListSortDirection.Descending : ListSortDirection.Ascending;
+            _sortProperty = header.Text;
+            ForceSort();
+            SetSortIcon(column);
+            Settings.WriteSetting("grid_sort", _sortProperty + "_+_" + (int)_sortDirection);
         }
 
-        private string GetSortInfo()
+        private void UpdateSortIndicator()
         {
-            var direction = ((int)_sortDirection).ToString();
-            var property = _sortProperty;
-            return property +"_+_"+ direction;
-        }
-
-        private void UpdateColumnForSort(DataGridTemplateColumn textColumn)
-        {
-            if (textColumn.Header is TextBlock headerControl)
-            {
-                if (textColumn.Tag is ListSortDirection existingDirection)
-                {
-                    _sortDirection = existingDirection == ListSortDirection.Ascending
-                        ? ListSortDirection.Descending
-                        : ListSortDirection.Ascending;
-                }
-
-                // Update the Tag to store the current sort direction
-                textColumn.Tag = _sortDirection;
-                // Retrieve the sort property based on the binding
-// Retrieve the sort property based on the binding
-                _sortProperty = ((textColumn.Header as TextBlock)?.Tag as StatsSlotViewModel).Header;
-            }
+            var column = DynamicDataGrid.Columns.OfType<DataGridTemplateColumn>().FirstOrDefault(c => HeaderText(c) == _sortProperty);
+            if (column != null) Dispatcher.UIThread.Post(() => SetSortIcon(column), DispatcherPriority.Loaded);
         }
         private void SetSortIcon(DataGridTemplateColumn textColumn)
         {
@@ -315,18 +259,6 @@ namespace SWTORCombatParser.Views.DataGrid_Views
                 }
             }
         }
-        private void ForceSort()
-        {
-            // Instantiate the CustomComparer with the new direction
-            CustomComparer comparer = new CustomComparer(_sortProperty, _sortDirection);
-            // Sort the items
-            var items = DynamicDataGrid.ItemsSource as IEnumerable<MemberInfoViewModel>;
-            if (items != null)
-            {
-                var sortedItems = new List<MemberInfoViewModel>(items);
-                sortedItems.Sort(comparer);
-                DynamicDataGrid.ItemsSource = new AvaloniaList<MemberInfoViewModel>(sortedItems);
-            }
-        }
+        private void ForceSort() => _viewModel.Sort(_sortProperty, _sortDirection);
     }
 }

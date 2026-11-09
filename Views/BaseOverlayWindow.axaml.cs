@@ -1,17 +1,14 @@
-﻿using System;
-using System.Diagnostics;
-using System.Linq;
+using System;
 using System.Runtime.InteropServices;
-using System.Threading;
-using System.Threading.Tasks;
 using Avalonia;
 using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.Interactivity;
 using Avalonia.Platform;
 using Avalonia.Threading;
-using Avalonia.VisualTree;
 using SWTORCombatParser.Model.Overlays;
+using SWTORCombatParser.Utilities;
+using SWTORCombatParser.Utilities.Native;
 using SWTORCombatParser.ViewModels;
 using SWTORCombatParser.ViewModels.Overlays;
 
@@ -28,14 +25,13 @@ public partial class BaseOverlayWindow : Window
 {
     private bool _isDragging;
     private Point _startPoint;
-    
+
     // Windows-specific constants for P/Invoke
     const int GWL_EXSTYLE = -20;
     const int WS_EX_LAYERED = 0x00080000;
     const int WS_EX_TRANSPARENT = 0x00000020;
     const int WS_EX_TOOLWINDOW = 0x00000080;
-    const int WS_EX_APPWINDOW = 0x00040000;
-    
+
 
     [DllImport("user32.dll", SetLastError = true)]
     static extern int GetWindowLong(IntPtr hWnd, int nIndex);
@@ -43,122 +39,82 @@ public partial class BaseOverlayWindow : Window
     [DllImport("user32.dll", SetLastError = true)]
     static extern int SetWindowLong(IntPtr hWnd, int nIndex, int dwNewLong);
 
-    
-    
-    
-    
-// X11
-    [DllImport("libX11.so.6")]
-    private static extern IntPtr XOpenDisplay(IntPtr display);
-
-    [DllImport("libX11.so.6")]
-    private static extern int XCloseDisplay(IntPtr display);
-
-    [DllImport("libX11.so.6")]
-    private static extern int XFlush(IntPtr display);
-
-// XFixes
-    [DllImport("libXfixes.so.3")]
-    private static extern IntPtr XFixesCreateRegion(IntPtr dpy, IntPtr rectangles, int nrectangles);
-
-    [DllImport("libXfixes.so.3")]
-    private static extern void XFixesDestroyRegion(IntPtr dpy, IntPtr region);
-
-    [DllImport("libXfixes.so.3")]
-    private static extern void XFixesSetWindowShapeRegion(
-        IntPtr dpy, IntPtr win, int shapeKind, int xOff, int yOff, IntPtr region);
-
-// shapeKind values (from X11 Shape extension)
-    private const int ShapeInput = 2;
-
-    private const int PropModeReplace = 0;
-    
-   
-
-    // P/Invoke to interact with Objective-C runtime and Cocoa APIs
-    [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "sel_registerName")]
-    public static extern IntPtr sel_registerName(string name);
-
-    [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "objc_getClass")]
-    public static extern IntPtr objc_getClass(string name);
-
-    [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "objc_msgSend")]
-    public static extern void objc_msgSend(IntPtr receiver, IntPtr selector, bool arg1);
-
-    [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "objc_msgSend")]
-    public static extern IntPtr objc_msgSend(IntPtr receiver, IntPtr selector);
-
-    [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "objc_msgSend")]
-    public static extern void objc_msgSend_float(IntPtr receiver, IntPtr selector, float value);
-
     private PixelPoint _tempLocation;
     private Point _tempSize;
     private readonly BaseOverlayViewModel _viewModel;
     public bool _canClickThrough = false;
+    private bool _appearanceSubscribed;
+    private OverlayAppearance _appearance;
+    private bool _showInObs;
+    private bool _closed;
+    private bool _nativeApplyQueued;
+    private readonly DispatcherTimer _inputRepairTimer = new() { Interval = TimeSpan.FromMilliseconds(250) };
+    private int _inputRepairAttempts;
 
     public BaseOverlayWindow(BaseOverlayViewModel viewModel)
     {
         ShowActivated = false;
         DataContext = viewModel;
         _viewModel = viewModel;
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            RemoveShadowAndBorderMac();
 
-        
         InitializeComponent();
+        if (OperatingSystem.IsWindows())
+            _showInObs = Settings.ReadSettingOfType<bool>(Settings.ShowOverlaysInObsSetting);
+        _appearance = OverlayAppearanceSettings.ReadAppearance();
+        OverlayAppearanceSettings.AppearanceChanged += AppearanceSettingsChanged;
+        _appearanceSubscribed = true;
+        ApplyAppearance();
+        Settings.SettingsUpdated += OverlaySettingsChanged;
+        ApplyPresentation();
+        Closed += (_, _) =>
+        {
+            OverlayAppearanceSettings.AppearanceChanged -= AppearanceSettingsChanged;
+            Settings.SettingsUpdated -= OverlaySettingsChanged;
+            _appearanceSubscribed = false;
+            _closed = true;
+            _inputRepairTimer.Stop();
+            viewModel.OnLocking -= ToggleClickThrough;
+            viewModel.CloseRequested -= Hide;
+            viewModel.OnNewPositionAndSize -= SetSizeAndLocation;
+            OverlayPlatformStatus.Remove(Title);
+        };
         Loaded += InitOverlay;
         viewModel.OnLocking += ToggleClickThrough;
         viewModel.CloseRequested += Hide;
         viewModel.OnNewPositionAndSize += SetSizeAndLocation;
         Opened += SetWindowParams;
-        
-        this.AddHandler(InputElement.PointerPressedEvent, (_, e) =>
+        _inputRepairTimer.Tick += (_, _) =>
         {
-            var p = e.GetPosition(this);
-            var hit = this.InputHitTest(p);
+            if (!IsVisible || --_inputRepairAttempts <= 0) _inputRepairTimer.Stop();
+            if (IsVisible) ApplyNativeInput();
+        };
+        SizeChanged += (_, _) => QueueNativeInput();
+        PositionChanged += (_, _) => QueueNativeInput();
+        PropertyChanged += (_, e) =>
+        {
+            if (e.Property == ActualTransparencyLevelProperty) QueueNativeInput();
+        };
 
-            Debug.WriteLine($"HitTest @ {p}: {hit?.GetType().Name}");
-
-            // Walk up the visual tree
-            if (hit is Visual v)
-            {
-                var depth = 0;
-                while (v != null)
-                {
-                    var indent = new string(' ', depth * 2);
-
-                    var name = (v as StyledElement)?.Name;
-                    var isHitTestVisible = (v as InputElement)?.IsHitTestVisible;
-
-                    Debug.WriteLine(
-                        $"{indent}-> {v.GetType().Name}" +
-                        (string.IsNullOrWhiteSpace(name) ? "" : $"  Name=\"{name}\"") +
-                        (isHitTestVisible is null ? "" : $"  IsHitTestVisible={isHitTestVisible}")
-                    );
-
-                    v = v.GetVisualParent();
-                    depth++;
-                }
-            }
-        }, RoutingStrategies.Tunnel);
     }
+
+    private void SetOverlayTitle() => Title = $"Orbs · {_viewModel.OverlayDisplayName}";
 
     private void SetWindowParams(object? sender, EventArgs e)
     {
-        string? obsTitle = _viewModel is OverlayInstanceViewModel overlay
-            ? overlay.Type == OverlayType.None
-                ? null
-                : $"{overlay.Type}"
-            : _viewModel.ToString()!.Split('.').Last().Replace("ViewModel", "");
-        if (obsTitle is not null) base.Title = obsTitle;
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            RemoveFromAltTab();
+        SetOverlayTitle();
+        if (OperatingSystem.IsWindows())
+            ApplyObsCaptureStyle();
         Dispatcher.UIThread.Invoke(() =>
         {
             Position = _tempLocation;
             Width = _tempSize.X;
             Height = _tempSize.Y;
         });
+        // Avalonia reapplies native window styles when a hidden window is shown.
+        // Restore input transparency after that work, even when our cached lock
+        // state has not changed since the previous showing.
+        ToggleClickThrough(!_viewModel.OverlaysMoveable);
+        QueueNativeInput();
     }
 
     private void InitOverlay(object? sender, RoutedEventArgs e)
@@ -180,23 +136,13 @@ public partial class BaseOverlayWindow : Window
     private void SetSizeAndLocation(Point position, Point size)
     {
         CacheTempPositions(position, size);
-        var shouldSetClickthrough = _canClickThrough;
-        if (_canClickThrough)
-        {
-            ToggleClickThrough(false);
-        }
         Dispatcher.UIThread.Invoke(() =>
         {
             Position = new PixelPoint((int)position.X, (int)position.Y);
             Width = size.X;
             Height = size.Y;
+            QueueNativeInput();
         });
-
-        if (shouldSetClickthrough)
-        {
-            _canClickThrough = false;
-            ToggleClickThrough(true);
-        }
     }
 
     private void CacheTempPositions(Point position, Point size)
@@ -204,46 +150,134 @@ public partial class BaseOverlayWindow : Window
         _tempLocation = new PixelPoint((int)position.X, (int)position.Y);
         _tempSize = size;
     }
-    
-
 
     private void ToggleClickThrough(bool canClickThrough)
     {
-        if(_canClickThrough == canClickThrough)
-            return;
-        Dispatcher.UIThread.InvokeAsync(() =>
-        {
-            ToggleClickThroughCrossPlatform(canClickThrough);
-            BackgroundArea.Opacity = canClickThrough ? _viewModel.BackgroundLockedOpacity : _viewModel.BackgroundUnLockedOpacity;
-            OverlayIdText.IsVisible = !canClickThrough;
-            CloseButton.IsVisible = !canClickThrough;
-        });
-        _canClickThrough = canClickThrough;
-    }
-
-    private void RemoveFromAltTab()
-    {
         Dispatcher.UIThread.Invoke(() =>
         {
-            var visualRoot = this.GetVisualRoot() as TopLevel;
-            if (visualRoot != null && visualRoot.TryGetPlatformHandle() is { } platformHandle)
-            {
-                var hwnd = platformHandle.Handle;
-                SetWindowLong(hwnd, GWL_EXSTYLE,
-                    GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
-            }
+            if (_closed) return;
+            _canClickThrough = canClickThrough;
+            ApplyAppearance(canClickThrough);
+            OverlayIdText.IsVisible = !canClickThrough;
+            CloseButton.IsVisible = !canClickThrough;
+            ApplyNativeInput();
+            QueueNativeInput();
         });
     }
-    
-    public void ToggleClickThroughCrossPlatform(bool canClickThrough)
+
+    private void QueueNativeInput()
     {
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.OSX))
-            MakeWindowClickThroughMac(canClickThrough);
-        if (RuntimeInformation.IsOSPlatform(OSPlatform.Windows))
-            MakeWindowClickThroughWindows(canClickThrough);
-        if(RuntimeInformation.IsOSPlatform(OSPlatform.Linux))
-            MakeWindowClickThroughUbuntu(canClickThrough);
+        if (_closed || !IsVisible || _nativeApplyQueued) return;
+        _nativeApplyQueued = true;
+        Dispatcher.UIThread.Post(() =>
+        {
+            _nativeApplyQueued = false;
+            if (_closed || !IsVisible) return;
+            ApplyNativeInput();
+            // Mapping and GPU child-window creation may finish after Opened/Loaded.
+            if (!OperatingSystem.IsWindows() && IsVisible)
+            {
+                _inputRepairAttempts = 4;
+                _inputRepairTimer.Start();
+            }
+        }, DispatcherPriority.Loaded);
     }
+
+    private void ApplyNativeInput()
+    {
+        if (_closed || !IsVisible) return;
+        try
+        {
+            var handle = TryGetPlatformHandle();
+            if (handle == null || handle.Handle == IntPtr.Zero)
+                throw new InvalidOperationException("The native overlay window is not available.");
+            string status;
+            if (OperatingSystem.IsLinux())
+                status = LinuxOverlayInput.Apply(handle.Handle, handle.HandleDescriptor, _canClickThrough);
+            else if (OperatingSystem.IsMacOS())
+                status = MacOverlayInput.Apply(handle.Handle, handle.HandleDescriptor, _canClickThrough);
+            else if (OperatingSystem.IsWindows())
+            {
+                MakeWindowClickThroughWindows(_canClickThrough);
+                return;
+            }
+            else throw new PlatformNotSupportedException("Desktop overlays are unavailable on this platform.");
+            if (ActualTransparencyLevel == WindowTransparencyLevel.None)
+                status += " Transparent background unavailable; enable desktop compositing.";
+            OverlayPlatformStatus.Report(Title, status);
+        }
+        catch (Exception error)
+        {
+            // Keep enabled settings, but never leave a failed overlay intercepting input.
+            _inputRepairTimer.Stop();
+            _viewModel.HideOverlayAfterInputFailure();
+            OverlayPlatformStatus.Report(Title, $"Hidden: {error.Message} Unlock/relock overlays to retry. See Settings → Overlay details.");
+        }
+    }
+
+    private void AppearanceSettingsChanged(OverlayAppearance appearance)
+    {
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (!_appearanceSubscribed) return;
+            _appearance = appearance;
+            ApplyAppearance();
+        });
+    }
+
+    private void ApplyAppearance(bool? locked = null)
+    {
+        // Keep the move/close controls legible while editing. Applying this to the
+        // content also leaves Window.Opacity available for the raid OCR capture.
+        ContentObject.Opacity = _appearance.ContentOpacity;
+        BackgroundArea.Opacity = _appearance.ResolveBackgroundOpacity(locked ?? _canClickThrough,
+            _viewModel.BackgroundLockedOpacity, _viewModel.BackgroundUnLockedOpacity);
+        Resources["OverlaySurfaceBrush"] = new Avalonia.Media.SolidColorBrush(Avalonia.Media.Color.Parse("#101917"),
+            (locked ?? _canClickThrough) ? _appearance.BackgroundOpacity ?? 0.82 : 0.82);
+    }
+
+    private void OverlaySettingsChanged(string key)
+    {
+        if (key == Settings.ShowOverlaysInObsSetting && OperatingSystem.IsWindows())
+        {
+            Dispatcher.UIThread.Post(() =>
+            {
+                if (!_appearanceSubscribed) return;
+                _showInObs = Settings.ReadSettingOfType<bool>(Settings.ShowOverlaysInObsSetting);
+                ApplyObsCaptureStyle();
+            });
+            return;
+        }
+        if (key != OverlayPresentationSettings.Prefix + _viewModel._overlayName) return;
+        Dispatcher.UIThread.Post(() =>
+        {
+            if (!_appearanceSubscribed) return;
+            _viewModel.RefreshPresentation();
+            ApplyPresentation();
+        });
+    }
+
+    private void ApplyPresentation()
+    {
+        var detailed = _viewModel.SupportsPresentation && _viewModel.PresentationIndex == 1;
+        Classes.Set("OverlayDetailed", detailed);
+        Classes.Set("OverlayCompact", _viewModel.SupportsPresentation && !detailed);
+        PresentationLayout.LayoutTransform = new Avalonia.Media.ScaleTransform(detailed ? 1.15 : 1, detailed ? 1.15 : 1);
+    }
+
+    private void ApplyObsCaptureStyle()
+    {
+        if (TryGetPlatformHandle() is not { } platformHandle) return;
+
+        var hwnd = platformHandle.Handle;
+        var style = GetWindowLong(hwnd, GWL_EXSTYLE);
+        // OBS skips tool windows. Keep Avalonia's taskbar setting and the other native styles.
+        var captureStyle = _showInObs ? style & ~WS_EX_TOOLWINDOW : style | WS_EX_TOOLWINDOW;
+        if (captureStyle != style)
+            SetWindowLong(hwnd, GWL_EXSTYLE, captureStyle);
+    }
+
+    public void ToggleClickThroughCrossPlatform(bool canClickThrough) => ToggleClickThrough(canClickThrough);
 
     // Platform-specific method for Windows
     private void MakeWindowClickThroughWindows(bool isClickThrough)
@@ -275,85 +309,6 @@ public partial class BaseOverlayWindow : Window
         });
 
     }
-
-    private void MakeWindowClickThroughMac(bool isClickThrough)
-    {
-        Dispatcher.UIThread.Invoke(() =>
-        {
-            // Get the native NSWindow handle using Avalonia's GetPlatformHandle method
-            var platformHandle = this.TryGetPlatformHandle();
-            if (platformHandle == null)
-            {
-                return;
-            }
-
-            IntPtr nsWindowHandle = platformHandle.Handle;
-
-            // Get the selector for 'setIgnoresMouseEvents:'
-            var setIgnoresMouseEventsSelector = sel_registerName("setIgnoresMouseEvents:");
-
-            // Call the 'setIgnoresMouseEvents' method with the boolean argument
-            objc_msgSend(nsWindowHandle, setIgnoresMouseEventsSelector, isClickThrough);
-        });
-
-    }
-    private void MakeWindowClickThroughUbuntu(bool isClickThrough)
-    {
-        Dispatcher.UIThread.Invoke(() =>
-        {
-            var ph = TryGetPlatformHandle();
-            if (ph is null) return;
-
-            // You already confirmed this is XID on your system, but keep the guard.
-            if (!string.Equals(ph.HandleDescriptor, "XID", StringComparison.OrdinalIgnoreCase))
-            {
-                Debug.WriteLine($"Not X11/XWayland: {ph.HandleDescriptor}");
-                return;
-            }
-
-            IntPtr win = ph.Handle;
-
-            IntPtr dpy = XOpenDisplay(IntPtr.Zero);
-            if (dpy == IntPtr.Zero)
-                throw new Exception("Unable to open X11 display (DISPLAY not set / no XWayland).");
-
-            try
-            {
-                if (isClickThrough)
-                {
-                    // Empty region => no input => clicks pass through to whatever is behind
-                    IntPtr empty = XFixesCreateRegion(dpy, IntPtr.Zero, 0);
-                    XFixesSetWindowShapeRegion(dpy, win, ShapeInput, 0, 0, empty);
-                    XFixesDestroyRegion(dpy, empty);
-                }
-                else
-                {
-                    // Reset to default input region (normal clickable)
-                    XFixesSetWindowShapeRegion(dpy, win, ShapeInput, 0, 0, IntPtr.Zero);
-                }
-
-                XFlush(dpy);
-            }
-            finally
-            {
-                XCloseDisplay(dpy);
-            }
-        });
-    }
-
-    private void RemoveShadowAndBorderMac()
-    {
-        Dispatcher.UIThread.Invoke(() =>
-        {
-            var platformHandle = this.TryGetPlatformHandle();
-            if (platformHandle == null) return;
-
-            IntPtr nsWindowHandle = platformHandle.Handle;
-            var setHasShadowSelector = sel_registerName("setHasShadow:");
-            objc_msgSend(nsWindowHandle, setHasShadowSelector, false);
-        });
-    }
-
 
     private void UpdateState()
     {
@@ -396,7 +351,7 @@ public partial class BaseOverlayWindow : Window
             var scalingFactor = this.VisualRoot.RenderScaling;
 
             var currentPosition = e.GetPosition(this);
-            var delta = (currentPosition - _startPoint) / scalingFactor; // Adjust for DPI scaling
+            var delta = (currentPosition - _startPoint) * scalingFactor; // Adjust for DPI scaling
 
             // Move the window (or element) by the delta
             var currentPositionInScreen = this.Position;

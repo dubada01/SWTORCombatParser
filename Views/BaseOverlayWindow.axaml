@@ -15,29 +15,36 @@
         Height="100"
         Topmost="True" Background="{x:Null}" BorderThickness="0" ShowInTaskbar="False">
     <Grid>
-        <Border x:Name="BackgroundArea" Background="Black" Opacity="0.75" Grid.Row="0" CornerRadius="5"/>
+        <Border x:Name="BackgroundArea" Background="#101717" Opacity="0.75" Grid.Row="0" CornerRadius="4"/>
         <Grid>
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
-            <Rectangle Fill="Transparent" Height="25" IsHitTestVisible="False"></Rectangle>
+            <Rectangle Fill="Transparent" Height="25" IsVisible="{Binding !SupportsPresentation}" IsHitTestVisible="False"/>
             <Grid IsVisible="{Binding OverlaysMoveable}" Height="25">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="30"/>
                 </Grid.ColumnDefinitions>
-                <Border Grid.ColumnSpan="2" PointerPressed="DragWindow" PointerMoved="Border_MouseMoved" PointerReleased="StopDragWindow" Cursor="DragMove" Background="DimGray" Opacity="0.5" CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"></Border>
+                <Border Grid.ColumnSpan="3" PointerPressed="DragWindow" PointerMoved="Border_MouseMoved" PointerReleased="StopDragWindow" Cursor="DragMove" Background="#354640" Opacity="0.8" CornerRadius="2" HorizontalAlignment="Stretch" VerticalAlignment="Stretch"/>
                 <Viewbox Name="OverlayIdText" IsHitTestVisible="False" Margin="2,2,2,2" MaxHeight="25" HorizontalAlignment="Center" VerticalAlignment="Center">
                     <TextBlock IsHitTestVisible="False" Name="IdentifierText" FontFamily="{StaticResource MainFont}" Foreground="WhiteSmoke"></TextBlock> 
                 </Viewbox>
-                <Viewbox Grid.Column="1" MaxHeight="25" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,2,5,2">
+                <ComboBox x:Name="PresentationSelector" Grid.Column="1" IsVisible="{Binding SupportsPresentation}"
+                          ItemsSource="{Binding PresentationStyles}" SelectedIndex="{Binding PresentationIndex}"
+                          FontSize="11" Width="108" MinHeight="0" Height="23" Padding="6,0"
+                          ToolTip.Tip="Compact for the game; Detailed for a second monitor. Resize to fit the larger layout. Saved for this overlay."/>
+                <Viewbox Grid.Column="2" MaxHeight="25" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,2,5,2">
                     <Button HorizontalAlignment="Center" VerticalAlignment="Center" x:Name="CloseButton" FontFamily="{StaticResource MainFont}" Classes="RoundedCorner" Background="#c96161" IsVisible="{Binding OverlaysMoveable}" FontWeight="Bold" Content="X"  FontSize="7"
                             Width="15" Height="15" Padding="0" Click="Button_Click"/>
                 </Viewbox>
             </Grid>
             <Grid Grid.Row="1" Margin="5,2" Name="ContentGrid" >
-                <ContentPresenter x:Name="ContentObject" Content="{Binding MainContent}"/>
+                <LayoutTransformControl x:Name="PresentationLayout">
+                    <ContentPresenter x:Name="ContentObject" Content="{Binding MainContent}"/>
+                </LayoutTransformControl>
             </Grid>
             <Canvas Grid.Row="1" Grid.Column="0" HorizontalAlignment="Right" VerticalAlignment="Bottom" Height="20" Width="20">
                 <Polygon Fill="{StaticResource Gray3}" Points="0,20 20,20 20,0" IsVisible="{Binding OverlaysMoveable}" HorizontalAlignment="Right" VerticalAlignment="Bottom" 

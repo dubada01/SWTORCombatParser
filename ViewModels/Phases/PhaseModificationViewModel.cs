@@ -30,6 +30,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         private bool endhasValue;
         private string _endvalue;
         private string multiValueOption;
+        private string endMultiValueOption;
         private bool hasMultiValue;
         private bool endhasMultiValue;
         private bool hasMultiTarget;
@@ -41,6 +42,13 @@ namespace SWTORCombatParser.ViewModels.Phases
         public event Action<Phase> OnCancelEdit = delegate { };
 
         public event Action<Phase> OnNewPhase = delegate { };
+        private string _validationMessage = string.Empty;
+        public string ValidationMessage
+        {
+            get => _validationMessage;
+            private set => this.RaiseAndSetIfChanged(ref _validationMessage, value);
+        }
+        public string EditorTitle => _editingPhase == null ? "New phase" : "Edit phase";
         public string SelectedBoss { get; set; }
         public string SelectedEncounter { get; set; }
         public PhaseModificationViewModel(string source)
@@ -49,6 +57,7 @@ namespace SWTORCombatParser.ViewModels.Phases
             this.selectedSource = source;
             SelectedEncounter = source.Split('|')[0];
             SelectedBoss = source.Split('|')[1];
+            SelectedPhaseStart = PhaseTrigger.CombatStart;
         }
         public PhaseTrigger SelectedPhaseStart
         {
@@ -110,7 +119,7 @@ namespace SWTORCombatParser.ViewModels.Phases
 
         public string EndMultiValueOption
         {
-            get => multiValueOption; set => this.RaiseAndSetIfChanged(ref multiValueOption, value);
+            get => endMultiValueOption; set => this.RaiseAndSetIfChanged(ref endMultiValueOption, value);
         }
         public ReactiveCommand<Unit,Unit> EndSaveRefreshOptionCommand => ReactiveCommand.Create(EndSaveRefreshCommand);
 
@@ -138,7 +147,7 @@ namespace SWTORCombatParser.ViewModels.Phases
         }
         public string ValuePrompt
         {
-            get => endvaluePrompt; set => this.RaiseAndSetIfChanged(ref endvaluePrompt, value);
+            get => valuePrompt; set => this.RaiseAndSetIfChanged(ref valuePrompt, value);
         }
         public bool EndHasValue
         {
@@ -245,22 +254,13 @@ namespace SWTORCombatParser.ViewModels.Phases
         public ReactiveCommand<Unit,Unit> SaveCommand => ReactiveCommand.Create(Save);
         private void Save()
         {
-            var args = new PhaseArgs
+            ValidationMessage = string.Empty;
+            if (!TryBuildArguments(false, out var args) || !TryBuildArguments(true, out var endArgs)) return;
+            if (string.IsNullOrWhiteSpace(Name))
             {
-                EntityIds = MultiTargetOptions.Any() ? MultiTargetOptions.Select(o => long.Parse(o.Name)).ToList() : (!string.IsNullOrEmpty(SelectedTarget) ? new List<long> { long.Parse(SelectedTarget) } : new List<long>()),
-                AbilityIds = MultiValueOptions.Select(t => t.Name).ToList(),
-                EffectIds = MultiValueOptions.Select(t => t.Name).ToList(),
-                HPPercentage = !string.IsNullOrEmpty(Value) ? double.Parse(Value,CultureInfo.InvariantCulture) : 0,
-                CombatDuration = !string.IsNullOrEmpty(Value) ? double.Parse(Value,CultureInfo.InvariantCulture) : 0
-            };
-            var endArgs = new PhaseArgs
-            {
-                EntityIds = EndMultiTargetOptions.Any() ? EndMultiTargetOptions.Select(o => long.Parse(o.Name)).ToList() : (!string.IsNullOrEmpty(EndSelectedTarget) ? new List<long> { long.Parse(EndSelectedTarget) } : new List<long>()),
-                AbilityIds = EndMultiValueOptions.Select(t => t.Name).ToList(),
-                EffectIds = EndMultiValueOptions.Select(t => t.Name).ToList(),
-                HPPercentage = !string.IsNullOrEmpty(EndValue) ? double.Parse(EndValue,CultureInfo.InvariantCulture) : 0,
-                CombatDuration = !string.IsNullOrEmpty(EndValue) ? double.Parse(EndValue,CultureInfo.InvariantCulture) : 0
-            };
+                ValidationMessage = "Enter a phase name.";
+                return;
+            }
             OnNewPhase(new Phase()
             {
                 StartTrigger = seletedPhaseStart,
@@ -272,9 +272,52 @@ namespace SWTORCombatParser.ViewModels.Phases
                 PhaseSource = selectedSource
             });
         }
+
+        private bool TryBuildArguments(bool end, out PhaseArgs args)
+        {
+            args = new PhaseArgs();
+            var condition = end ? "end" : "start";
+            var targets = end ? EndMultiTargetOptions : MultiTargetOptions;
+            var singleTarget = end ? EndSelectedTarget : SelectedTarget;
+            var targetTexts = (end ? EndHasMultiTarget : HasMultiTarget)
+                ? targets.Select(target => target.Name)
+                : (end ? EndHasTarget : HasTarget) && !string.IsNullOrEmpty(singleTarget)
+                    ? new[] { singleTarget }
+                    : Enumerable.Empty<string>();
+            foreach (var target in targetTexts)
+            {
+                if (!long.TryParse(target, NumberStyles.Integer, CultureInfo.InvariantCulture, out var entityId))
+                {
+                    ValidationMessage = $"Enter valid entity IDs for the {condition} condition.";
+                    return false;
+                }
+                args.EntityIds.Add(entityId);
+            }
+            if (end ? EndHasMultiValue : HasMultiValue)
+            {
+                var values = (end ? EndMultiValueOptions : MultiValueOptions).Select(value => value.Name).ToList();
+                args.AbilityIds = values;
+                args.EffectIds = values;
+            }
+            if (end ? EndHasValue : HasValue)
+            {
+                var text = end ? EndValue : Value;
+                var number = 0d;
+                if (!string.IsNullOrEmpty(text) &&
+                    (!double.TryParse(text, NumberStyles.Float | NumberStyles.AllowThousands, CultureInfo.InvariantCulture, out number) || !double.IsFinite(number)))
+                {
+                    ValidationMessage = $"Enter a valid number for the {condition} condition.";
+                    return false;
+                }
+                args.HPPercentage = number;
+                args.CombatDuration = number;
+            }
+            return true;
+        }
         internal void Edit(Phase phaseEdited)
         {
             _editingPhase = phaseEdited;
+            this.RaisePropertyChanged(nameof(EditorTitle));
             Id = Guid.Empty != phaseEdited.Id ? phaseEdited.Id : Id;
             Name = phaseEdited.Name;
             SelectedPhaseStart = phaseEdited.StartTrigger;
@@ -283,16 +326,13 @@ namespace SWTORCombatParser.ViewModels.Phases
             {
                 case PhaseTrigger.EntitySpawn:
                 case PhaseTrigger.EntityDeath:
+                case PhaseTrigger.EntityHP:
                     {
                         MultiTargetOptions = new ObservableCollection<RefreshOptionViewModel>(phaseEdited.StartArgs.EntityIds.Select(e => new RefreshOptionViewModel { Name = e.ToString() }));
                         MultiTargetOptions.ToList().ForEach(t => t.RemoveRequested += RemoveCustomTarget);
                         this.RaisePropertyChanged("MultiTargetOptions");
-                        break;
-                    }
-                case PhaseTrigger.EntityHP:
-                    {
-                        SelectedTarget = phaseEdited.StartArgs.EntityIds.Any() ? phaseEdited.StartArgs.EntityIds.First().ToString() : "";
-                        Value = phaseEdited.StartArgs.HPPercentage.ToString();
+                        if (phaseEdited.StartTrigger == PhaseTrigger.EntityHP)
+                            Value = phaseEdited.StartArgs.HPPercentage.ToString(CultureInfo.InvariantCulture);
                         break;
                     }
                 case PhaseTrigger.EffectGain:
@@ -300,7 +340,7 @@ namespace SWTORCombatParser.ViewModels.Phases
                     {
                         SelectedTarget = phaseEdited.StartArgs.EntityIds.Any() ? phaseEdited.StartArgs.EntityIds.First().ToString() : "";
                         MultiValueOptions = new ObservableCollection<RefreshOptionViewModel>(phaseEdited.StartArgs.EffectIds.Select(e => new RefreshOptionViewModel { Name = e }));
-                        MultiValueOptions.ToList().ForEach(t => t.RemoveRequested += EndRemoveRefreshOption);
+                        MultiValueOptions.ToList().ForEach(t => t.RemoveRequested += RemoveRefreshOption);
                         this.RaisePropertyChanged("MultiValueOptions");
                         break;
                     }
@@ -309,7 +349,7 @@ namespace SWTORCombatParser.ViewModels.Phases
                     {
                         SelectedTarget = phaseEdited.StartArgs.EntityIds.Any() ? phaseEdited.StartArgs.EntityIds.First().ToString() : "";
                         MultiValueOptions = new ObservableCollection<RefreshOptionViewModel>(phaseEdited.StartArgs.AbilityIds.Select(e => new RefreshOptionViewModel { Name = e }));
-                        MultiValueOptions.ToList().ForEach(t => t.RemoveRequested += EndRemoveRefreshOption);
+                        MultiValueOptions.ToList().ForEach(t => t.RemoveRequested += RemoveRefreshOption);
                         this.RaisePropertyChanged("MultiValueOptions");
                         break;
                     }
@@ -327,16 +367,13 @@ namespace SWTORCombatParser.ViewModels.Phases
             {
                 case PhaseTrigger.EntitySpawn:
                 case PhaseTrigger.EntityDeath:
+                case PhaseTrigger.EntityHP:
                     {
                         EndMultiTargetOptions = new ObservableCollection<RefreshOptionViewModel>(phaseEdited.EndArgs.EntityIds.Select(e => new RefreshOptionViewModel { Name = e.ToString() }));
                         EndMultiTargetOptions.ToList().ForEach(t => t.RemoveRequested += EndRemoveCustomTarget);
                         this.RaisePropertyChanged("EndMultiTargetOptions");
-                        break;
-                    }
-                case PhaseTrigger.EntityHP:
-                    {
-                        EndSelectedTarget = phaseEdited.EndArgs.EntityIds.Any() ? phaseEdited.EndArgs.EntityIds.First().ToString() : "";
-                        EndValue = phaseEdited.EndArgs.HPPercentage.ToString();
+                        if (phaseEdited.EndTrigger == PhaseTrigger.EntityHP)
+                            EndValue = phaseEdited.EndArgs.HPPercentage.ToString(CultureInfo.InvariantCulture);
                         break;
                     }
                 case PhaseTrigger.EffectGain:
@@ -372,7 +409,6 @@ namespace SWTORCombatParser.ViewModels.Phases
         {
             EndHasTarget = false;
             EndHasValue = false;
-            EndValue = string.Empty;
             EndValuePrompt = string.Empty;
             EndHasMultiValue = false;
             EndHasMultiTarget = false;
@@ -393,39 +429,39 @@ namespace SWTORCombatParser.ViewModels.Phases
                 case PhaseTrigger.EntityDeath:
                     {
                         HasMultiTarget = true;
-                        TargetText = "Entity Ids";
+                        TargetText = "Entity IDs";
                         break;
                     }
                 case PhaseTrigger.EntityHP:
                     {
                         HasValue = true;
-                        ValuePrompt = "At HP %: ";
+                        ValuePrompt = "Health (%)";
                         HasMultiTarget = true;
-                        TargetText = "Entity Ids: ";
+                        TargetText = "Entity IDs";
                         break;
                     }
                 case PhaseTrigger.EffectGain:
                 case PhaseTrigger.EffectLoss:
                     {
                         HasMultiValue = true;
-                        ValuePrompt = "Effect Ids";
+                        ValuePrompt = "Effects (names or IDs)";
                         HasTarget = true;
-                        TargetText = "Entity Id: ";
+                        TargetText = "Affected entity ID (optional)";
                         break;
                     }
                 case PhaseTrigger.AbilityUsage:
                 case PhaseTrigger.AbilityCancel:
                     {
                         HasMultiValue = true;
-                        ValuePrompt = "Ability Is";
+                        ValuePrompt = "Abilities (names or IDs)";
                         HasTarget = true;
-                        TargetText = "Entity Id: ";
+                        TargetText = "Caster entity ID (optional)";
                         break;
                     }
                 case PhaseTrigger.CombatDuration:
                     {
                         HasValue = true;
-                        ValuePrompt = "Combat Duration: ";
+                        ValuePrompt = "Seconds into combat";
                         break;
                     }
                 default:
@@ -439,39 +475,39 @@ namespace SWTORCombatParser.ViewModels.Phases
                 case PhaseTrigger.EntityDeath:
                     {
                         EndHasMultiTarget = true;
-                        EndTargetText = "Entity Ids";
+                        EndTargetText = "Entity IDs";
                         break;
                     }
                 case PhaseTrigger.EntityHP:
                     {
                         EndHasValue = true;
-                        EndValuePrompt = "At HP %: ";
+                        EndValuePrompt = "Health (%)";
                         EndHasMultiTarget = true;
-                        EndTargetText = "Entity Ids: ";
+                        EndTargetText = "Entity IDs";
                         break;
                     }
                 case PhaseTrigger.EffectGain:
                 case PhaseTrigger.EffectLoss:
                     {
                         EndHasMultiValue = true;
-                        EndValuePrompt = "Effect Ids";
+                        EndValuePrompt = "Effects (names or IDs)";
                         EndHasTarget = true;
-                        EndTargetText = "Entity Id: ";
+                        EndTargetText = "Affected entity ID (optional)";
                         break;
                     }
                 case PhaseTrigger.AbilityUsage:
                 case PhaseTrigger.AbilityCancel:
                     {
                         EndHasMultiValue = true;
-                        EndValuePrompt = "Ability Ids";
+                        EndValuePrompt = "Abilities (names or IDs)";
                         EndHasTarget = true;
-                        EndTargetText = "Entity Id: ";
+                        EndTargetText = "Caster entity ID (optional)";
                         break;
                     }
                 case PhaseTrigger.CombatDuration:
                     {
                         EndHasValue = true;
-                        EndValuePrompt = "Combat Duration: ";
+                        EndValuePrompt = "Seconds into phase";
                         break;
                     }
                 default:

@@ -10,7 +10,7 @@ namespace SWTORCombatParser.ViewModels.Overviews
 {
     public abstract class OverviewViewModel : ReactiveObject
     {
-        private Combat _currentCombat;
+        protected Combat _currentCombat;
         private ObservableCollection<Entity> _availableParticipants = new ObservableCollection<Entity>();
         private Entity selectedEntity;
 
@@ -54,29 +54,35 @@ namespace SWTORCombatParser.ViewModels.Overviews
             {
                 if(value == null)
                     return;
-                if(AvailableParticipants.All(e => e.LogId != value.LogId))
-                    return;
-                this.RaiseAndSetIfChanged(ref selectedEntity, value);
+                var participant = AvailableParticipants.FirstOrDefault(e => e.LogId == value.LogId);
+                if (participant == null) return;
+                this.RaiseAndSetIfChanged(ref selectedEntity, participant);
                 if (selectedEntity == null)
                     return;
                 ParticipantSelectionHandler.UpdateSelection(SelectedEntity);
-                DamageVM.UpdateEntity(selectedEntity);
-                HealingVM.UpdateEntity(selectedEntity);
-                DamageTakenVM.UpdateEntity(selectedEntity);
-                HealingReceivedVM.UpdateEntity(selectedEntity);
-                ThreatVM.UpdateEntity(selectedEntity);
+                RefreshData();
             }
         }
 
+        protected virtual void RefreshData()
+        {
+            if (_currentCombat == null || selectedEntity == null) return;
+            DamageVM.UpdateEntity(selectedEntity);
+            HealingVM.UpdateEntity(selectedEntity);
+            DamageTakenVM.UpdateEntity(selectedEntity);
+            HealingReceivedVM.UpdateEntity(selectedEntity);
+            ThreatVM.UpdateEntity(selectedEntity);
+            DamageVM.UpdateData(_currentCombat);
+            DamageTakenVM.UpdateData(_currentCombat);
+            ThreatVM.UpdateData(_currentCombat);
+            HealingVM.UpdateData(_currentCombat);
+            HealingReceivedVM.UpdateData(_currentCombat);
+        }
         public void AddCombat(Combat combat)
         {
+            if (combat == null || combat.AllEntities.Count == 0) { Reset(); return; }
             _currentCombat = combat;
             UpdateParticipants();
-            DamageVM.UpdateData(combat);
-            DamageTakenVM.UpdateData(combat);
-            ThreatVM.UpdateData(combat);
-            HealingVM.UpdateData(combat);
-            HealingReceivedVM.UpdateData(combat);
         }
         private void UpdateParticipants()
         {
@@ -86,20 +92,20 @@ namespace SWTORCombatParser.ViewModels.Overviews
             }
             else
             {
-                AvailableParticipants = new ObservableCollection<Entity>(_currentCombat.AllEntities.Values);
-                if (!AvailableParticipants.Any(p => p.IsLocalPlayer))
+                var participants = _currentCombat.AllEntities.Values.OrderByDescending(e => e.IsCharacter).ThenBy(e => e.Name).ToArray();
+                if (!AvailableParticipants.SequenceEqual(participants, System.Collections.Generic.ReferenceEqualityComparer.Instance))
+                    AvailableParticipants = new ObservableCollection<Entity>(participants);
+                if (SelectedEntity != null && AvailableParticipants.Any(p => p.LogId == SelectedEntity.LogId))
+                {
+                    SelectedEntity = AvailableParticipants.First(p => p.LogId == SelectedEntity.LogId);
+                }
+                else if (!AvailableParticipants.Any(p => p.IsLocalPlayer))
                 {
                     SelectedEntity = AvailableParticipants.FirstOrDefault();
                 }
                 else
                 {
-                    if (SelectedEntity != null && AvailableParticipants.Any(p => p.LogId == SelectedEntity.LogId))
-                    {
-                        SelectedEntity = AvailableParticipants.First(p => p.LogId == SelectedEntity.LogId);
-                        this.RaisePropertyChanged(nameof(SelectedEntity));
-                    }
-                    else
-                        SelectedEntity = AvailableParticipants.First(p => p.IsLocalPlayer);
+                    SelectedEntity = AvailableParticipants.First(p => p.IsLocalPlayer);
                 }
             }
 

@@ -1,117 +1,86 @@
-﻿<Window x:Class="SWTORCombatParser.Views.SettingsView.SettingsWindow"
+<Window x:Class="SWTORCombatParser.Views.SettingsView.SettingsWindow"
         xmlns="https://github.com/avaloniaui"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:SWTORCombatParser.Views.SettingsView"
-        mc:Ignorable="d"
-        Title="Settings Window" Height="500" Width="450"  Background="Transparent"         
-        TransparencyLevelHint="Transparent"
-        ExtendClientAreaToDecorationsHint="True"
-        ExtendClientAreaTitleBarHeightHint="0"
-        ExtendClientAreaChromeHints="NoChrome" WindowStartupLocation="Manual">
-    <Border BorderBrush="{StaticResource GreenColorBrush}" BorderThickness="7,3,7,7"  Background="{StaticResource Gray3Brush}" CornerRadius="15,15,20,20">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="30"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="*"/>
-            </Grid.ColumnDefinitions>
-            <Border Grid.ColumnSpan="2" Background="{StaticResource Gray9Brush}" PointerPressed="StartDrag" PointerMoved="DragWindow" PointerReleased="StopDrag" CornerRadius="10,10,0,0">
-                <StackPanel VerticalAlignment="Center" Orientation="Vertical">
-                    <Rectangle Margin="40,0,40,0" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
-                    <Rectangle Margin="35,3,35,3" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
-                    <Rectangle Margin="40,0,40,0" Opacity="0.35" Height="1" Fill="{StaticResource GrayGreenColorBrush}"></Rectangle>
-                </StackPanel>
-            </Border>
-            <Button Width="22" Padding="0"  Height="22" HorizontalAlignment="Right"  VerticalAlignment="Top" Grid.Column="1" Margin="0,5,10,0" Classes="RoundedCorner" Click="Cancel" Background="{StaticResource RedColorBrush}" Content="X" FontWeight="Bold"></Button>
-            <TabControl Grid.Row="1">
-                <TabItem Header="App Settings">
-                    <Grid>
-                        <StackPanel Margin="10,0,0,0" Grid.Row="1" Grid.Column="0" Orientation="Vertical">
-                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Operate offline. No leaderboard or raid HOT autodetection available" Margin="0,5,0,5">
-                                <CheckBox Name="OfflineMode" Margin="5,0,0,0" VerticalAlignment="Center"></CheckBox>
-                                <TextBlock Text="Offline Mode" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                                
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
-                                <CheckBox Name="ForceLogUpdates" Margin="5,0,0,0" VerticalAlignment="Center"></CheckBox>
-                                <TextBlock VerticalAlignment="Center" Text="Force Log Updates" ToolTip.Tip="Orbs no longer waits until the OS has alerted it of a file change. May impact performance" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                                
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" Margin="0,5,0,5">
-                                <TextBlock VerticalAlignment="Center" Text="Combat Log Path: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                                <TextBox IsReadOnly="True" Name="LogPath" Height="30" Width="250" FontSize="10" FontWeight="Normal"/>
-                                <Button FontSize="{StaticResource NormalFontSize}" Margin="2,0,2,0" Content="Update" Name="SetCombatLogsPath"></Button>
-                            </StackPanel>
-                            <StackPanel Orientation="Vertical" Margin="0,5,0,5">
-                                <TextBlock Text="Hotkeys" Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                                <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
-                                    <CheckBox VerticalAlignment="Center" Margin="3,0,0,0" x:Name="LockEnabled"></CheckBox>
-                                    <TextBlock VerticalAlignment="Center" Text="Overlay Lock Toggle: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                                    <TextBox Margin="11,0,0,0" x:Name="LockHotkey" HorizontalContentAlignment="Center" Tag="Lock" Height="30" Width="115" FontSize="12" FontWeight="Normal" KeyDown="TextBox_PreviewKeyDown"/>
-                                    
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
-                                    <CheckBox VerticalAlignment="Center" Margin="3,0,0,0" x:Name="RefreshEnabled"></CheckBox>
-                                    <TextBlock VerticalAlignment="Center" Text="Auto Raid HOT Detect: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                                    <TextBox x:Name="RefreshHotkey" HorizontalContentAlignment="Center" Tag="Refresh" Height="30" Width="115" FontSize="12" FontWeight="Normal" KeyDown="TextBox_PreviewKeyDown"/>
-                                    
-                                </StackPanel>
-                                <StackPanel Orientation="Horizontal" Margin="15,0,0,0">
-                                    <CheckBox VerticalAlignment="Center" Margin="3,0,0,0" x:Name="HideEnabled"></CheckBox>
-                                    <TextBlock VerticalAlignment="Center" Text="Hide Overlays: " Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                                    <TextBox Margin="43,0,0,0" x:Name="HideHotkey" HorizontalContentAlignment="Center" Tag="Hide" Height="30" Width="115" FontSize="12" FontWeight="Normal" KeyDown="TextBox_PreviewKeyDown"/>
-                                    
-                                </StackPanel>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Orbs minimizes to the system tray and shows when SWTOR launches" Margin="0,20,0,5">
-                                <CheckBox Name="RunInBackground" Margin="5,0,0,0" VerticalAlignment="Center"></CheckBox>
-                                <TextBlock Text="Run in background" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                                
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Orbs minimizes to the system tray and shows when SWTOR launches" Margin="0,5,0,5">
-                                <CheckBox Name="BackgroundWarning" Margin="5,0,0,0" VerticalAlignment="Center"></CheckBox>
-                                <TextBlock Text="Show background warning" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                                
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" ToolTip.Tip="View all startup messages even if you've cleared them" Margin="0,5,0,5">
-                                <TextBlock VerticalAlignment="Center" Text="Show Startup Messages"  Foreground="WhiteSmoke" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                                <Button Name="ResetMessagesButton" Padding="5,3,5,3" Background="{StaticResource GreenColorBrush}" Foreground="PapayaWhip" FontSize="11" Classes="RoundedCorner" Margin="5,0,0,0">View</Button>
-                            </StackPanel>
-
+        Classes="OrbsDialog" Title="Settings" Width="580" Height="620"
+        MinWidth="500" MinHeight="420" WindowStartupLocation="CenterOwner">
+    <Grid RowDefinitions="*,Auto">
+        <TabControl Margin="16,12,16,0">
+            <TabItem Header="General">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,14,8,16" Spacing="8">
+                        <TextBlock Classes="SectionHeading" Text="Combat logs"/>
+                        <TextBlock Classes="FieldLabel" Text="Log folder"/>
+                        <Grid ColumnDefinitions="*,Auto">
+                            <TextBox Name="LogPath" IsReadOnly="True" ToolTip.Tip="The folder where SWTOR writes its combat logs."/>
+                            <Button Grid.Column="1" Name="SetCombatLogsPath" Content="Browse…" Classes="DialogAction" Margin="8,0,0,0"/>
+                        </Grid>
+                        <CheckBox Name="ForceLogUpdates" Content="Poll for log changes"
+                                  ToolTip.Tip="Check for new log data without waiting for operating-system notifications. May increase CPU use."/>
+                        <Border Classes="SectionDivider"/>
+                        <TextBlock Classes="SectionHeading" Text="Hotkeys"/>
+                        <Grid ColumnDefinitions="Auto,*,170" RowDefinitions="Auto,Auto,Auto">
+                            <CheckBox Grid.Row="0" Name="LockEnabled" Margin="0,0,12,8" ToolTip.Tip="Enable the overlay lock hotkey."/>
+                            <TextBlock Grid.Row="0" Grid.Column="1" Classes="FieldLabel" Text="Lock / unlock overlays" Margin="0,0,12,8"/>
+                            <TextBox Grid.Row="0" Grid.Column="2" Name="LockHotkey" Tag="Lock" Margin="0,0,0,8" IsReadOnly="True"
+                                     HorizontalContentAlignment="Center" KeyDown="TextBox_PreviewKeyDown" ToolTip.Tip="Focus this field and press a key combination."/>
+                            <CheckBox Grid.Row="1" Name="RefreshEnabled" Margin="0,0,12,8" ToolTip.Tip="Enable the raid-name detection hotkey."/>
+                            <TextBlock Grid.Row="1" Grid.Column="1" Classes="FieldLabel" Text="Detect raid names" Margin="0,0,12,8"/>
+                            <TextBox Grid.Row="1" Grid.Column="2" Name="RefreshHotkey" Tag="Refresh" Margin="0,0,0,8" IsReadOnly="True"
+                                     HorizontalContentAlignment="Center" KeyDown="TextBox_PreviewKeyDown" ToolTip.Tip="Focus this field and press a key combination."/>
+                            <CheckBox Grid.Row="2" Name="HideEnabled" Margin="0,0,12,0" ToolTip.Tip="Enable the hide-overlays hotkey."/>
+                            <TextBlock Grid.Row="2" Grid.Column="1" Classes="FieldLabel" Text="Hide overlays" Margin="0,0,12,0"/>
+                            <TextBox Grid.Row="2" Grid.Column="2" Name="HideHotkey" Tag="Hide" IsReadOnly="True"
+                                     HorizontalContentAlignment="Center" KeyDown="TextBox_PreviewKeyDown" ToolTip.Tip="Focus this field and press a key combination."/>
+                        </Grid>
+                        <Border Classes="SectionDivider"/>
+                        <TextBlock Classes="SectionHeading" Text="Application"/>
+                        <CheckBox Name="OfflineMode" Content="Offline mode"
+                                  ToolTip.Tip="Disable online services such as leaderboards and automatic name detection."/>
+                        <CheckBox Name="RunInBackground" Content="Run in background"
+                                  ToolTip.Tip="Keep Orbs in the system tray and show it when SWTOR launches."/>
+                        <CheckBox Name="BackgroundWarning" Content="Show background reminder"
+                                  ToolTip.Tip="Show a reminder when Orbs continues running in the background."/>
+                        <Grid ColumnDefinitions="*,Auto" Margin="0,6,0,0">
+                            <TextBlock Classes="FieldLabel" Text="Startup messages"/>
+                            <Button Grid.Column="1" Name="ResetMessagesButton" Content="View messages" Classes="DialogAction"
+                                    ToolTip.Tip="View startup messages, including ones you have already dismissed."/>
+                        </Grid>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+            <TabItem Header="Overlay details">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled" VerticalScrollBarVisibility="Auto">
+                    <StackPanel Margin="0,14,8,16" Spacing="8">
+                        <TextBlock Classes="SectionHeading" Text="Desktop compatibility"/>
+                        <TextBlock Name="OverlayPlatformGuidance" TextWrapping="Wrap"/>
+                        <TextBlock Name="OverlayPlatformReport" TextWrapping="Wrap"/>
+                        <TextBlock Text="After changing desktop settings, unlock and relock overlays to retry. The main window's overlay controls remain available if global hotkeys are blocked." TextWrapping="Wrap"/>
+                        <Border Classes="SectionDivider"/>
+                        <StackPanel Name="ObsCaptureSettings" IsVisible="False" Spacing="8">
+                            <TextBlock Classes="SectionHeading" Text="OBS capture"/>
+                            <CheckBox Name="ShowOverlaysInObs" Content="Show overlays in OBS"
+                                      ToolTip.Tip="Add each visible overlay as a Window Capture source in OBS using Windows Graphics Capture."/>
+                            <Border Classes="SectionDivider"/>
                         </StackPanel>
-                    </Grid>
-                </TabItem>
-                 <TabItem Header="Overlay Settings">
-                    <Grid>
-                        <StackPanel Margin="10,0,0,0" Grid.Row="1" Grid.Column="0" Orientation="Vertical">
-                            <TextBlock Margin="0,0,0,10" FontFamily="{StaticResource MainFont}" FontSize="{StaticResource FontSizeLarge}" Text="Raid Frame Settings"></TextBlock>
-                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Enable/Disable a blue box highlighting the character in the raid frame that the boss is targeting." Margin="0,5,0,5">
-                                <CheckBox Name="ShowTargeted" Margin="5,3,0,3" VerticalAlignment="Center"></CheckBox>
-                                <TextBlock Text="Indicate Boss Target on Raid Frame" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                            </StackPanel>
-                            <TextBlock Margin="0,0,0,10" FontFamily="{StaticResource MainFont}" FontSize="{StaticResource FontSizeLarge}" Text="Boss Frame Settings"></TextBlock>
-                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Enable/Disable viewing your personal DOTs over the name of the boss they're applied to." Margin="0,5,0,5">
-                                <CheckBox Name="BossFrameDot" Margin="5,3,0,3" VerticalAlignment="Center"></CheckBox>
-                                <TextBlock Text="Display Personal DOTs on Boss Frame" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Enable/Disable text that indicates each boss' current target." Margin="0,5,0,5">
-                                <CheckBox Name="BossFrameCurrentTarget" Margin="5,3,0,3" VerticalAlignment="Center"></CheckBox>
-                                <TextBlock Text="Indicate Boss Target on Boss Frame" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                            </StackPanel>
-                            <StackPanel Orientation="Horizontal" ToolTip.Tip="Enable/Disable a timer displaying the current combat duration." Margin="0,5,0,5">
-                                <CheckBox Name="ShowCombatDuration" Margin="5,3,0,3" VerticalAlignment="Center"></CheckBox>
-                                <TextBlock Text="Display Combat Duration on Boss Frame" Foreground="WhiteSmoke" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" FontSize="12"/>
-                            </StackPanel>
-                        </StackPanel>
-                    </Grid>
-                </TabItem>
-            </TabControl>
-            
-            <Button Grid.Row="1" Name="EmergencyUIReset" VerticalAlignment="Bottom" HorizontalAlignment="Right" Padding="5,3,5,3" Background="{StaticResource RedColorBrush}" Foreground="PapayaWhip" FontSize="11" Classes="RoundedCorner" Margin="0,0,10,10">Emergency UI Reset</Button>
-        </Grid>
-    </Border>
+                        <TextBlock Classes="SectionHeading" Text="Raid frames"/>
+                        <CheckBox Name="ShowTargeted" Content="Highlight the boss's target"
+                                  ToolTip.Tip="Draw a blue outline around the raid frame of the player targeted by the boss."/>
+                        <Border Classes="SectionDivider"/>
+                        <TextBlock Classes="SectionHeading" Text="Boss frames"/>
+                        <CheckBox Name="BossFrameDot" Content="Show personal damage-over-time effects"
+                                  ToolTip.Tip="Display your active DOTs on the boss frame."/>
+                        <CheckBox Name="BossFrameCurrentTarget" Content="Show the boss's current target"/>
+                        <CheckBox Name="ShowCombatDuration" Content="Show combat duration"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+        <Border Grid.Row="1" BorderBrush="{StaticResource Gray4Brush}" BorderThickness="0,1,0,0" Padding="16,12">
+            <Grid ColumnDefinitions="*,Auto">
+                <Button Name="EmergencyUIReset" Content="Reset overlay positions…" Classes="DangerAction" HorizontalAlignment="Left"
+                        ToolTip.Tip="Bring saved overlays back onto this display for all roles. Sizes, timers, colors, and other settings are kept."/>
+                <Button Grid.Column="1" Content="Done" Click="Cancel" Classes="PrimaryAction" MinWidth="82" IsDefault="True"/>
+            </Grid>
+        </Border>
+    </Grid>
 </Window>

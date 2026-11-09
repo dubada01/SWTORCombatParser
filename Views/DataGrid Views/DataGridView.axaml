@@ -1,41 +1,39 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.DataGrid_Views.DataGridView"
-             xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SWTORCombatParser.Views.DataGrid_Views"
-                xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.DataGrid"
-                x:DataType="vm:DataGridViewModel"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition Height="Auto"/>
-            <RowDefinition Height="*"/>
-        </Grid.RowDefinitions>
-        <StackPanel ToolTip.Tip = "Configure up to 8 metrics.&#x0a;Right click on metric name in header to remove" VerticalAlignment="Center" HorizontalAlignment="Right" IsVisible="{Binding CanAddColumns}"  Margin="0,0,15,0" Orientation="Horizontal">
-            <TextBlock HorizontalAlignment="Center" FontSize="11" Margin="0,2,5,2" VerticalAlignment="Center" Text="Add Column"></TextBlock>
-            <ComboBox MaxWidth="60" FontSize="11" ItemsSource="{Binding AvailableColumns}" SelectedItem="{Binding SelectedNewColumn}"></ComboBox>
-        </StackPanel>
-        <DataGrid Grid.Row="1" Sorting="DynamicDataGrid_OnSorting" VerticalScrollBarVisibility="Auto" x:Name="DynamicDataGrid" IsReadOnly="True" ItemsSource="{Binding PartyMembers}" Margin="0,0,2,0" >
-            <DataGrid.Styles>
-                <Style Selector="DataGridRow:nth-child(odd)">
-                    <Setter Property="Background" Value="Transparent" />
-                </Style>
-                <Style Selector="DataGridRow:nth-child(even)">
-                    <Setter Property="Background" Value="{StaticResource Gray1}" />
-                </Style>
-                <Style Selector="DataGridCell.rightAlign">
-                    <Setter Property="HorizontalContentAlignment" Value="Right"></Setter>
-                </Style>
-                <Style Selector="DataGridCell.static">
-                    <Setter Property="IsHitTestVisible" Value="False"></Setter>
-                </Style>
-                <Style Selector="DataGridColumnHeader">
-                    <Setter Property="FontSize" Value="10"></Setter>
-                </Style>
-            </DataGrid.Styles>
-        </DataGrid>
-
-    </Grid>
+<UserControl x:Class="SWTORCombatParser.Views.DataGrid_Views.DataGridView" Classes="AnalysisPage"
+ xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.DataGrid" x:DataType="vm:DataGridViewModel">
+ <UserControl.Styles><StyleInclude Source="avares://Orbs/Utilities/UIStyles/Analysis.axaml"/></UserControl.Styles>
+ <Grid RowDefinitions="Auto,*" RowSpacing="10" Margin="12,10">
+  <Grid ColumnDefinitions="*,Auto" ColumnSpacing="8">
+   <TextBlock Classes="AnalysisLabel" Text="{Binding CombatSummary}"/>
+   <Button x:Name="MetricsButton" Grid.Column="1" Classes="AnalysisAction" Content="Metrics" IsEnabled="{Binding HasCombat}" ToolTip.Tip="Choose the metrics shown in this table.">
+    <Button.Flyout><Flyout Placement="BottomEdgeAlignedRight">
+     <StackPanel Width="390" Spacing="10">
+      <Grid ColumnDefinitions="*,Auto"><TextBlock Text="Table metrics" FontWeight="SemiBold" FontSize="14"/><TextBlock Grid.Column="1" Text="{Binding MetricCountLabel}" FontSize="11" VerticalAlignment="Center"/></Grid>
+      <ScrollViewer MaxHeight="410" HorizontalScrollBarVisibility="Disabled">
+       <ItemsControl ItemsSource="{Binding MetricGroups}">
+        <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:MetricColumnGroup">
+         <StackPanel Spacing="4" Margin="0,0,0,10">
+          <TextBlock Text="{Binding Name}" Foreground="{StaticResource Gray12Brush}" FontSize="11"/>
+          <ItemsControl ItemsSource="{Binding Metrics}">
+           <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="2"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+           <ItemsControl.ItemTemplate><DataTemplate x:DataType="vm:MetricColumnOption">
+            <CheckBox Classes="AnalysisMetric" IsChecked="{Binding IsSelected, Mode=TwoWay}" IsEnabled="{Binding IsEnabled}" FontSize="12" MinHeight="28">
+             <TextBlock Text="{Binding Name}" Foreground="{StaticResource Gray12Brush}" FontSize="12" TextTrimming="CharacterEllipsis" ToolTip.Tip="{Binding Name}"/>
+            </CheckBox>
+           </DataTemplate></ItemsControl.ItemTemplate>
+          </ItemsControl>
+         </StackPanel>
+        </DataTemplate></ItemsControl.ItemTemplate>
+       </ItemsControl>
+      </ScrollViewer>
+      <Button Classes="AnalysisAction" Content="Restore defaults" Command="{Binding ResetMetricsCommand}" HorizontalAlignment="Left"/>
+     </StackPanel>
+    </Flyout></Button.Flyout>
+   </Button>
+  </Grid>
+  <Grid Grid.Row="1">
+   <DataGrid Classes="AnalysisTable" Sorting="DynamicDataGrid_OnSorting" x:Name="DynamicDataGrid" IsReadOnly="True" AutoGenerateColumns="False" ItemsSource="{Binding PartyMembers}"/>
+   <TextBlock Text="Select a combat to review" IsVisible="{Binding !HasCombat}" HorizontalAlignment="Center" VerticalAlignment="Center" Foreground="{StaticResource Gray12Brush}" IsHitTestVisible="False"/>
+  </Grid>
+ </Grid>
 </UserControl>

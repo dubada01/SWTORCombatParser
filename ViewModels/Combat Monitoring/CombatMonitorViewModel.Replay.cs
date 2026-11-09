@@ -4,7 +4,9 @@ using System.Reactive;
 using System.Threading;
 using System.Threading.Tasks;
 using ReactiveUI;
+using Avalonia.Threading;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Timers;
 using SWTORCombatParser.Utilities;
 
 namespace SWTORCombatParser.ViewModels.Combat_Monitoring;
@@ -45,7 +47,7 @@ public partial class CombatMonitorViewModel
         CombatLogReplay? replay = null;
         LogReplayContext? context = null;
         bool monitoring = false;
-        var result = "Replay complete · 1×";
+        var result = $"Replay complete · {request.SpeedMultiplier:0.##}×";
         try
         {
             await _combatLogStreamer.StopMonitoring();
@@ -55,7 +57,7 @@ public partial class CombatMonitorViewModel
             replay = await CombatLogReplay.PrepareAsync(request, token);
             token.ThrowIfCancellationRequested();
             var anchor = TimeUtility.CorrectedTime;
-            context = LogReplayContext.Begin(anchor);
+            context = LogReplayContext.Begin(anchor, request.SpeedMultiplier);
             await replay.WritePreludeAsync(anchor, token);
             token.ThrowIfCancellationRequested();
             Reset();
@@ -71,7 +73,7 @@ public partial class CombatMonitorViewModel
             var progress = new Progress<LogReplayProgress>(update =>
             {
                 if (token.IsCancellationRequested || !IsReplaying) return;
-                ReplayStatus = $"DEBUG · 1× · {FormatReplayTime(update.Elapsed)} / {FormatReplayTime(update.Duration)} · {Path.GetFileName(request.FilePath)}";
+                ReplayStatus = $"DEBUG · {request.SpeedMultiplier:0.##}× · {FormatReplayTime(update.Elapsed)} / {FormatReplayTime(update.Duration)} · {Path.GetFileName(request.FilePath)}";
             });
             await Task.Run(() => replay.PlayAsync(anchor, progress, token), token);
         }
@@ -86,6 +88,17 @@ public partial class CombatMonitorViewModel
             // Keep replay identity and the simulation clock active until final events have been consumed.
             try { if (monitoring) await _combatLogStreamer.StopMonitoring(readFinalFrame: true); }
             catch (Exception error) { result = "Replay stopped: " + error.Message; }
+            if (context != null)
+            {
+                // Cooldowns that survive combat belong to the simulated clock.
+                // Finish them before restoring real time, which can be hours
+                // behind the end of an accelerated replay.
+                try
+                {
+                    await Dispatcher.UIThread.InvokeAsync(TimerController.CompleteActiveTimersAsync);
+                }
+                catch (Exception error) { result = "Replay stopped: " + error.Message; }
+            }
             if (monitoring)
             {
                 LiveParseActive = false;

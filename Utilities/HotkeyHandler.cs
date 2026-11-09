@@ -1,6 +1,11 @@
-﻿using System;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Threading.Tasks;
+using System.Reactive.Disposables;
+using System.Reactive.Linq;
+using Avalonia;
+using Avalonia.Threading;
 using SharpHook;
 using SharpHook.Reactive;
 using SWTORCombatParser.DataStructures.Hotkeys;
@@ -14,6 +19,10 @@ namespace SWTORCombatParser.Utilities
         private bool _isInitialized = false;
 
         public static bool IgnoreHotkeys = false;
+        internal static volatile bool GlobalInputAvailable;
+        internal static event Action<Point>? GlobalMousePressed;
+        private readonly CompositeDisposable _subscriptions = new();
+        private bool _disposed;
 
         // Track the current state of modifier keys
         private readonly HashSet<SharpHook.Native.KeyCode> _activeModifiers = new HashSet<SharpHook.Native.KeyCode>();
@@ -32,7 +41,7 @@ namespace SWTORCombatParser.Utilities
         public HotkeyHandler()
         {
             // Initialize the global hook
-            _hook = new SimpleReactiveGlobalHook(GlobalHookType.Keyboard);
+            _hook = new SimpleReactiveGlobalHook(OperatingSystem.IsWindows() ? GlobalHookType.Keyboard : GlobalHookType.All);
         }
 
         public void Init()
@@ -41,18 +50,43 @@ namespace SWTORCombatParser.Utilities
                 return;
 
             // Subscribe to key pressed and released events
-            _hook.KeyPressed.Subscribe(OnKeyPressed);
-            _hook.KeyReleased.Subscribe(OnKeyReleased);
+            _subscriptions.Add(_hook.KeyPressed.Subscribe(OnKeyPressed));
+            _subscriptions.Add(_hook.KeyReleased.Subscribe(OnKeyReleased));
+            _subscriptions.Add(_hook.HookEnabled.Subscribe(_ =>
+            {
+                GlobalInputAvailable = true;
+                OverlayPlatformStatus.Report("Global input", "Available" + (OverlayPlatformStatus.IsWaylandSession ? " for XWayland applications; native Wayland input is restricted." : "."));
+            }));
+            _subscriptions.Add(_hook.HookDisabled.Subscribe(_ => GlobalInputAvailable = false));
+            _subscriptions.Add(_hook.MousePressed.Subscribe(args =>
+            {
+                if (args.Data.Button == SharpHook.Native.MouseButton.Button1)
+                    GlobalMousePressed?.InvokeSafely(new Point(args.Data.X, args.Data.Y));
+            }));
 
             // Start the hook
-            _hook.RunAsync();
+            _ = ObserveHookAsync();
 
             _isInitialized = true;
             UpdateKeys();
         }
 
+        private async Task ObserveHookAsync()
+        {
+            try { await _hook.RunAsync(); }
+            catch (Exception error)
+            {
+                GlobalInputAvailable = false;
+                if (!_disposed)
+                    OverlayPlatformStatus.Report("Global input", "Unavailable: " + error.Message +
+                        (OperatingSystem.IsMacOS() ? " Allow Orbs in Privacy & Security → Accessibility and restart." :
+                         " Use the main window controls. On Wayland, global input may require an X11 session."));
+            }
+        }
+
         public void UpdateKeys()
         {
+            _registeredHotkeys.Clear();
             var hotkeySettings = Settings.ReadSettingOfType<HotkeySettings>("Hotkeys");
 
             if (hotkeySettings.UILockEnabled)
@@ -108,6 +142,12 @@ namespace SWTORCombatParser.Utilities
         // Handle key pressed events
         private void OnKeyPressed(KeyboardHookEventArgs args)
         {
+            if (!Dispatcher.UIThread.CheckAccess())
+            {
+                Dispatcher.UIThread.Post(() => OnKeyPressed(args));
+                return;
+            }
+            if (_disposed) return;
             if (IgnoreHotkeys)
                 return;
 
@@ -133,6 +173,12 @@ namespace SWTORCombatParser.Utilities
         // Handle key released events
         private void OnKeyReleased(KeyboardHookEventArgs args)
         {
+            if (!Dispatcher.UIThread.CheckAccess())
+            {
+                Dispatcher.UIThread.Post(() => OnKeyReleased(args));
+                return;
+            }
+            if (_disposed) return;
             var key = args.Data.KeyCode;
 
             // If the released key is a modifier, remove it from the active modifiers
@@ -244,6 +290,9 @@ namespace SWTORCombatParser.Utilities
         // Dispose pattern to clean up the hook
         public void Dispose()
         {
+            _disposed = true;
+            GlobalInputAvailable = false;
+            _subscriptions.Dispose();
             if (_isInitialized)
             {
                 _hook.Dispose();

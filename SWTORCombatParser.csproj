@@ -1,65 +1,49 @@
-﻿<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.4.0.0</VersionPrefix>
+    <VersionPrefix>2.4.1.0</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
     <BuiltInComInteropSupport>true</BuiltInComInteropSupport>
     <AssemblyName>Orbs</AssemblyName>
     <Nullable>enable</Nullable>
-    <AllowUnsafeBlocks>false</AllowUnsafeBlocks>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <AvaloniaUseCompiledBindingsByDefault>true</AvaloniaUseCompiledBindingsByDefault>
   </PropertyGroup>
 
-  <!-- macOS -->
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
-    <DefineConstants>MACOS;$(DefineConstants)</DefineConstants>
-    <!-- Only set this if you truly always want arm64 when building on macOS -->
-    <RuntimeIdentifier>osx-arm64</RuntimeIdentifier>
+  <ItemGroup>
+    <InternalsVisibleTo Include="SWTORCombatParser_Test" />
+  </ItemGroup>
+
+  <!-- Select platform code from the publish target, not the build machine. -->
+  <PropertyGroup>
+    <OrbsTargetPlatform Condition="'$(RuntimeIdentifier)' != '' and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('linux-'))">Linux</OrbsTargetPlatform>
+    <OrbsTargetPlatform Condition="'$(RuntimeIdentifier)' != '' and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('osx-'))">macOS</OrbsTargetPlatform>
+    <OrbsTargetPlatform Condition="'$(RuntimeIdentifier)' != '' and $([System.String]::Copy('$(RuntimeIdentifier)').StartsWith('win-'))">Windows</OrbsTargetPlatform>
+    <OrbsTargetPlatform Condition="'$(OrbsTargetPlatform)' == '' and $([MSBuild]::IsOSPlatform('Linux'))">Linux</OrbsTargetPlatform>
+    <OrbsTargetPlatform Condition="'$(OrbsTargetPlatform)' == '' and $([MSBuild]::IsOSPlatform('OSX'))">macOS</OrbsTargetPlatform>
+    <OrbsTargetPlatform Condition="'$(OrbsTargetPlatform)' == '' and $([MSBuild]::IsOSPlatform('Windows'))">Windows</OrbsTargetPlatform>
+    <DefineConstants Condition="'$(OrbsTargetPlatform)' == 'Linux'">$(DefineConstants);LINUX</DefineConstants>
+    <DefineConstants Condition="'$(OrbsTargetPlatform)' == 'macOS'">$(DefineConstants);MACOS</DefineConstants>
+    <DefineConstants Condition="'$(OrbsTargetPlatform)' == 'Windows'">$(DefineConstants);WINDOWS</DefineConstants>
   </PropertyGroup>
 
-  <!-- Linux -->
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-    <DefineConstants>LINUX;$(DefineConstants)</DefineConstants>
-    <!-- Don't hardcode if you sometimes publish linux-arm64; otherwise this is fine -->
-    <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
-  </PropertyGroup>
-
-  <Target Name="ForceSkiaNative119" AfterTargets="Build"
-          Condition="$([MSBuild]::IsOSPlatform('Linux'))">
-
-    <!-- NuGetPackageRoot is usually ~/.nuget/packages/ -->
-    <PropertyGroup>
-      <_SkiaWanted>$(NuGetPackageRoot)skiasharp.nativeassets.linux.nodependencies/3.119.1/runtimes/linux-x64/native/libSkiaSharp.so</_SkiaWanted>
-    </PropertyGroup>
-
-    <Message Importance="High" Text="Forcing Skia native: $(_SkiaWanted)" />
-    <Copy SourceFiles="$(_SkiaWanted)"
-          DestinationFiles="$(OutputPath)libSkiaSharp.so"
-          SkipUnchangedFiles="false"
-          Condition="Exists('$(_SkiaWanted)')" />
-  </Target>
-
-
-  <!-- Windows -->
-  <PropertyGroup Condition="$([MSBuild]::IsOSPlatform('Windows'))">
-    <DefineConstants>WINDOWS;$(DefineConstants)</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup Condition="'$(OS)' == 'Windows_NT'">
+  <ItemGroup Condition="'$(OrbsTargetPlatform)' == 'Windows'">
     <PackageReference Include="System.Drawing.Common" Version="9.0.3" />
     <PackageReference Include="SkiaSharp.Views.Desktop.Common" Version="3.116.1" />
     <PackageReference Include="VideoLAN.LibVLC.Windows" Version="3.0.21" />
   </ItemGroup>
-
-  <!-- macOS -->
-  <ItemGroup Condition="$([MSBuild]::IsOSPlatform('OSX'))">
-    <None Include="runtimes/osx/native/libbass.dylib" CopyToOutputDirectory="PreserveNewest" />
+  <ItemGroup Condition="'$(OrbsTargetPlatform)' == 'macOS'">
+    <None Include="runtimes/osx/native/libbass.dylib" TargetPath="libbass.dylib" CopyToOutputDirectory="PreserveNewest" CopyToPublishDirectory="PreserveNewest" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(OrbsTargetPlatform)' == 'Linux'">
+    <!-- Avalonia and ScottPlot bring different native package IDs with the same
+         libSkiaSharp.so filename. Select one provider, including when publishing. -->
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux" Version="3.119.1" ExcludeAssets="all" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Linux.NoDependencies" Version="3.119.1" />
   </ItemGroup>
 
-  <!-- Linux -->
-  
   <ItemGroup>
     <Compile Remove="DataStructures\Timers\Boss Timers\Raids\DP\**" />
     <Compile Remove="DataStructures\Timers\Boss Timers\Raids\Duxn\**" />
@@ -437,14 +421,7 @@
     </Page>
   </ItemGroup>
 
-  <ItemGroup>
-    <Reference Include="Avalonia.Controls.DataGrid">
-      <HintPath>..\..\..\..\.nuget\packages\avalonia.controls.datagrid\11.1.0\lib\net8.0\Avalonia.Controls.DataGrid.dll</HintPath>
-    </Reference>
-    <Reference Include="ReactiveUI">
-      <HintPath>..\bin\Avalonia\net8.0\net8.0\ReactiveUI.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+
 
   <ItemGroup>
     <AvaloniaXaml Remove="Views\Leaderboard View\**" />
@@ -457,6 +434,7 @@
     <AvaloniaXaml Remove="MacOSBuilds\**" />
     <AvaloniaXaml Remove="Orbs.dmgcanvas\**" />
     <AvaloniaXaml Remove="TestCombatLogs\**" />
+    <AvaloniaXaml Remove="SWTORCombatParser_Test\**" />
     <AvaloniaXaml Remove="VLC\**" />
     <AvaloniaXaml Remove="libvlc\**" />
   </ItemGroup>
@@ -467,6 +445,7 @@
     <AdditionalFiles Remove="MacOSBuilds\**" />
     <AdditionalFiles Remove="Orbs.dmgcanvas\**" />
     <AdditionalFiles Remove="TestCombatLogs\**" />
+    <AdditionalFiles Remove="SWTORCombatParser_Test\**" />
     <AdditionalFiles Remove="VLC\**" />
     <AdditionalFiles Remove="libvlc\**" />
   </ItemGroup>
@@ -474,6 +453,7 @@
   <ItemGroup>
     <AvaloniaResource Remove="Views\Leaderboard View\**" />
     <AvaloniaResource Remove="ViewModels\Leaderboard\**" />
+    <AvaloniaResource Remove="SWTORCombatParser_Test\**" />
   </ItemGroup>
 
   <ItemGroup>

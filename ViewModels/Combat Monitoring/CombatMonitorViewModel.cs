@@ -1,7 +1,9 @@
-﻿using SWTORCombatParser.DataStructures;
+using SWTORCombatParser.DataStructures;
 using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Model.CombatCaching;
 using SWTORCombatParser.Model.CombatParsing;
 using SWTORCombatParser.Model.LogParsing;
+using SWTORCombatParser.Model.Phases;
 using SWTORCombatParser.Utilities;
 using SWTORCombatParser.ViewModels.HistoricalLogs;
 using System;
@@ -41,19 +43,38 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private HistoricalRangeSelectionViewModel _historicalRangeVM;
         private double currentLogOffsetMs;
         private double currentTotalOffsetMs;
-        private PastCombat _loadedHistoricalCombat;
+        private PastCombat? _loadedHistoricalCombat;
+        private HistoricalCombatSelection? _historicalSelection;
+        private HistoricalCombatSelection? _displayedHistoricalSelection;
         private DateTime _currentEncounterVisit;
         private int _monitorRequestGeneration;
+        private int _combatSelectionGeneration;
 
         public event Action<bool> OnMonitoringStateChanged = delegate { };
         public event Action<List<Combat>> OnHistoricalCombatsParsed = delegate { };
         public event Action<Combat> OnLiveCombatUpdate = delegate { };
+        internal event Action<Combat> HistoricalCombatDataReady = delegate { };
+        internal event Action<PastCombat> CompletedLivePull = delegate { };
         public event Action<double> OnNewLogTimeOffsetMs = delegate { };
         public event Action<double> OnNewTotalTimeOffsetMs = delegate { };
         public event Action<string> OnNewLog = delegate { };
         public event Action<Entity> LocalPlayerId = delegate { };
         public event PropertyChangedEventHandler PropertyChanged;
         public string CurrentlySelectedLogName { get; set; }
+        public HistoricalCombatSelection? HistoricalSelection
+        {
+            get => _historicalSelection;
+            private set
+            {
+                _historicalSelection = value;
+                OnPropertyChanged();
+                OnPropertyChanged(nameof(HasHistoricalSelection));
+                OnPropertyChanged(nameof(CanShowCombatPhases));
+            }
+        }
+        public bool HasHistoricalSelection => HistoricalSelection != null;
+        public bool CanShowCombatPhases => HistoricalSelection is null or { Stage: HistoricalCombatSelectionStage.Ready, HasError: false };
+        internal bool IsReviewingHistoricalCombat => HistoricalSelection?.Row.IsSelected == true;
         public bool ShowTrash
         {
             get => showTrash; set
@@ -120,6 +141,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             _combatLogStreamer.NewTotalTimeOffsetMs += UpdateTotalOffset;
             _combatLogStreamer.LocalPlayerIdentified += LocalPlayerFound;
             _combatLogStreamer.ErrorParsingLogs += LiveParseError;
+            _combatLogStreamer.LogFileRotated += Reset;
             CombatLogStreamer.HistoricalLogsFinished += HistoricalLogsFinished;
             Observable.FromEvent<CombatStatusUpdate>(
                 manager => CombatLogStreamer.CombatUpdated += manager,
@@ -149,6 +171,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             Dispatcher.UIThread.Invoke(() =>
             {
                 UnSelectAll();
+                ClearHistoricalCombatDisplay();
+                CombatDiskCacheManager.ClearRecentCombats();
                 _usingHistoricalData = true;
                 PastEncounters.Clear();
                 CurrentEncounter = null;
@@ -364,12 +388,19 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 }
                 //if (combatInfo.IsCombatWithBoss)
                 //    Leaderboards.StartGetPlayerLeaderboardStandings(combatInfo);
-                CombatSelectionMonitor.SelectCompleteCombat(combatInfo);
+                // Completing the live pull must not replace a selected historical review.
+                var selectCompleted = Dispatcher.UIThread.Invoke(() =>
+                {
+                    if (IsReviewingHistoricalCombat) return false;
+                    ClearHistoricalCombatDisplay();
+                    CombatSelectionMonitor.SelectCompleteCombat(combatInfo);
+                    return true;
+                });
                 if (_totalLogsDuringCombat.ContainsKey(combatStartTime))
                 {
                     _totalLogsDuringCombat.TryRemove(combatStartTime, out var t);
                 }
-                AddCombatToEncounter(combatInfo, true);
+                AddCombatToEncounter(combatInfo, true, selectCompleted: selectCompleted);
                 if (combatInfo.IsCombatWithBoss)
                 {
                     Leaderboards.TryAddLeaderboardEntry(combatInfo);
@@ -385,34 +416,44 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private void GenerateHistoricalCombats()
         {
             ConcurrentDictionary<DateTime, Combat> processedCombats = new ConcurrentDictionary<DateTime, Combat>();
-            Parallel.ForEach(_totalLogsDuringCombat.Keys, combatStartTime =>
+            using (LogLoadDiagnostics.Measure("Build all historical combats"))
             {
-
-                List<ParsedLogEntry> combatLogs = new List<ParsedLogEntry>();
-                _totalLogsDuringCombat.TryGetValue(combatStartTime, out combatLogs);
-                if (combatLogs.Count == 0)
-                    return;
-                Logging.LogInfo("Processing combat with start time " + combatStartTime + " and " +
-                                combatLogs.Count + " log entries");
-                var combatInfo =
-                    CombatIdentifier.GenerateCombatSnapshotFromLogs(combatLogs, combatEndUpdate: true);
-                //only process combats if they were property created
-                if (combatInfo.StartTime == DateTime.MinValue)
+                Parallel.ForEach(_totalLogsDuringCombat.Keys, combatStartTime =>
                 {
-                    return;
-                }
 
-                processedCombats[combatStartTime] = combatInfo;
-                Logging.LogInfo("Combat processed!");
-            });
-            foreach (var startTime in processedCombats.Keys.OrderBy(t => t))
-            {
-                var addedNewEncounter = TryAddEncounter(startTime);
-                Logging.LogInfo(addedNewEncounter ? "Added new encounter!" : "Adding to existing encounter");
-                AddCombatToEncounter(processedCombats[startTime], false);
-                Logging.LogInfo("Combat added to encounter");
+                    List<ParsedLogEntry> combatLogs = new List<ParsedLogEntry>();
+                    _totalLogsDuringCombat.TryGetValue(combatStartTime, out combatLogs);
+                    if (combatLogs.Count == 0)
+                        return;
+                    Logging.LogInfo("Processing combat with start time " + combatStartTime + " and " +
+                                    combatLogs.Count + " log entries");
+                    var combatInfo =
+                        CombatIdentifier.GenerateCombatSnapshotFromLogs(combatLogs, combatEndUpdate: true);
+                    //only process combats if they were property created
+                    if (combatInfo.StartTime == DateTime.MinValue)
+                    {
+                        return;
+                    }
+
+                    processedCombats[combatStartTime] = combatInfo;
+                    Logging.LogInfo("Combat processed!");
+                });
             }
-            OnHistoricalCombatsParsed.InvokeSafely(processedCombats.Values.OrderBy(c => c.StartTime).ToList());
+            using (LogLoadDiagnostics.Measure("Cache combats and populate encounters"))
+            {
+                var orderedStartTimes = processedCombats.Keys.OrderBy(t => t).ToArray();
+                foreach (var startTime in orderedStartTimes)
+                {
+                    var addedNewEncounter = TryAddEncounter(startTime);
+                    Logging.LogInfo(addedNewEncounter ? "Added new encounter!" : "Adding to existing encounter");
+                    // This combat is selected immediately after loading. Keep just it
+                    // resident to avoid a disk read and a second metadata build.
+                    AddCombatToEncounter(processedCombats[startTime], false, keepLoaded: startTime == orderedStartTimes[^1]);
+                    Logging.LogInfo("Combat added to encounter");
+                }
+            }
+            using (LogLoadDiagnostics.Measure("Historical combat subscribers"))
+                OnHistoricalCombatsParsed.InvokeSafely(processedCombats.Values.OrderBy(c => c.StartTime).ToList());
             processedCombats.Clear();
             _totalLogsDuringCombat.Clear();
         }
@@ -425,7 +466,8 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             LoadingWindowFactory.HideLoading();
             _numberOfSelectedCombats = 0;
             _usingHistoricalData = false;
-            UpdateVisibleEncounters();
+            using (LogLoadDiagnostics.Measure("Publish visible encounters"))
+                UpdateVisibleEncounters();
             if (_allEncounters.Any())
             {
                 _allEncounters.Last().EncounterCombats.First().AdditiveSelectionToggle();
@@ -455,11 +497,12 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             }
             return false;
         }
-        private void AddCombatToEncounter(Combat combat, bool isRealtime)
+        private void AddCombatToEncounter(Combat combat, bool isRealtime, bool keepLoaded = false, bool selectCompleted = true)
         {
             if (CurrentEncounter == null)
                 return;
-            CurrentEncounter.AddCombat(combat, isRealtime);
+            var pull = CurrentEncounter.AddCombat(combat, isRealtime, keepLoaded, selectCompleted);
+            if (isRealtime && pull.IsBossCombat && !pull.IsReplay) CompletedLivePull.InvokeSafely(pull);
         }
         private void AddOngoingCombat(string location)
         {
@@ -478,6 +521,12 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         }
         private void UnSelectAll()
         {
+            if (!Dispatcher.UIThread.CheckAccess())
+            {
+                Dispatcher.UIThread.Invoke(UnSelectAll);
+                return;
+            }
+            Interlocked.Increment(ref _combatSelectionGeneration);
             foreach (var combat in PastEncounters.SelectMany(e => e.EncounterCombats).Where(c => c.IsSelected))
             {
                 combat.IsSelected = false;
@@ -487,41 +536,168 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         {
             _numberOfSelectedCombats--;
             _numberOfSelectedCombats = Math.Max(_numberOfSelectedCombats, 0);
+            if (HistoricalSelection?.Row == unslectedCombat && HistoricalSelection.Stage != HistoricalCombatSelectionStage.Ready)
+            {
+                Interlocked.Increment(ref _combatSelectionGeneration);
+                if (_displayedHistoricalSelection is { Stage: HistoricalCombatSelectionStage.LoadingPhases } displayed)
+                    _displayedHistoricalSelection = displayed with
+                    {
+                        Stage = HistoricalCombatSelectionStage.Ready,
+                        ShowProgress = false,
+                        Error = "Reselect this combat to load its phases."
+                    };
+                HistoricalSelection = _displayedHistoricalSelection;
+            }
             var combat = unslectedCombat.Combat;
             if (combat == null)
                 return;
             OnNewLog("Removing combat: " + unslectedCombat.CombatLabel + " from plot.");
             CombatSelectionMonitor.DeselectCombat(combat);
             if (!unslectedCombat.IsCurrentCombat)
-            {
                 unslectedCombat.UnloadCombat();
-                if (_loadedHistoricalCombat == unslectedCombat)
-                    _loadedHistoricalCombat = null;
+        }
+        private async void SelectCombat(PastCombat selectedCombat)
+        {
+            if (!Dispatcher.UIThread.CheckAccess())
+            {
+                Dispatcher.UIThread.Invoke(() => SelectCombat(selectedCombat));
+                return;
+            }
+            var selectionGeneration = Interlocked.Increment(ref _combatSelectionGeneration);
+            OnNewLog("Displaying new combat: " + selectedCombat.CombatLabel);
+            bool IsLatest() => selectionGeneration == Volatile.Read(ref _combatSelectionGeneration);
+            bool CanPublish() => IsLatest() && selectedCombat.IsSelected;
+            var isHistorical = !selectedCombat.IsCurrentCombat;
+            if (isHistorical)
+            {
+                HistoricalSelection = new(selectedCombat, HistoricalCombatSelectionStage.Opening,
+                    ShowsPreviousResults: _loadedHistoricalCombat != null || LiveParseActive);
+                DispatcherTimer.RunOnce(() =>
+                {
+                    if (CanPublish() && HistoricalSelection is { IsBusy: true } pending)
+                        HistoricalSelection = pending with { ShowProgress = true };
+                }, TimeSpan.FromMilliseconds(150));
+            }
+            else
+                ClearHistoricalCombatDisplay();
+
+            try
+            {
+                var (combat, prepared) = await Task.Run(() =>
+                {
+                    if (!IsLatest()) return ((Combat?)null, (PhaseManager.PreparedSelection?)null);
+                    Combat loaded;
+                    using (LogLoadDiagnostics.Measure("Load selected combat")) loaded = selectedCombat.GetCombat();
+                    return (loaded, isHistorical && loaded.StartTime != DateTime.MinValue
+                        ? PhaseManager.GetPreparedSelectionIfReady(loaded) : null);
+                }).ConfigureAwait(false);
+                if (combat == null) return;
+
+                var needsPhases = await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    if (!CanPublish()) return false;
+                    if (combat.StartTime == DateTime.MinValue)
+                    {
+                        ReportCombatSelectionError(selectedCombat, selectedCombat.CombatLoadError);
+                        return false;
+                    }
+
+                    if (_loadedHistoricalCombat != null && _loadedHistoricalCombat != selectedCombat)
+                        _loadedHistoricalCombat.UnloadCombat();
+                    if (isHistorical) _loadedHistoricalCombat = selectedCombat;
+                    if (!isHistorical || prepared != null)
+                    {
+                        PublishSelectedCombat(selectedCombat, combat, prepared);
+                        return false;
+                    }
+
+                    _displayedHistoricalSelection = HistoricalSelection! with
+                    {
+                        Stage = HistoricalCombatSelectionStage.LoadingPhases,
+                        ShowsPreviousResults = false
+                    };
+                    HistoricalCombatDataReady(combat);
+                    HistoricalSelection = _displayedHistoricalSelection;
+                    return true;
+                }, DispatcherPriority.Background);
+                if (!needsPhases) return;
+
+                // Finish the active view first. Publish the independent phase scan at
+                // background dispatcher priority so input and rendering can run first.
+                string? phaseError = null;
+                try
+                {
+                    prepared = await Task.Run(() => PhaseManager.PrepareSelection(combat, IsLatest)).ConfigureAwait(false);
+                }
+                catch (Exception error)
+                {
+                    Debug.WriteLine("Could not load selected combat phases: " + error);
+                    phaseError = "Phases could not be loaded. Reselect this combat to retry.";
+                }
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    if (CanPublish()) PublishSelectedCombat(selectedCombat, combat, prepared, phaseError);
+                }, DispatcherPriority.Background);
+            }
+            catch (Exception error)
+            {
+                Debug.WriteLine("Could not display selected combat: " + error);
+                await Dispatcher.UIThread.InvokeAsync(() =>
+                {
+                    if (CanPublish()) ReportCombatSelectionError(selectedCombat, "Could not open this combat. Reselect it to retry.");
+                });
+            }
+            finally
+            {
+                if (isHistorical && !IsLatest())
+                    await Dispatcher.UIThread.InvokeAsync(() =>
+                    {
+                        if (_loadedHistoricalCombat != selectedCombat &&
+                            (HistoricalSelection?.Row != selectedCombat || !selectedCombat.IsSelected))
+                            selectedCombat.UnloadCombat();
+                    });
             }
         }
-        private void SelectCombat(PastCombat selectedCombat)
+
+        private void PublishSelectedCombat(PastCombat row, Combat combat, PhaseManager.PreparedSelection? phases, string? phaseError = null)
         {
-            OnNewLog("Displaying new combat: " + selectedCombat.CombatLabel);
-
-            //Run these in a task so that the UI can update first
-            Task.Run(() =>
+            EncounterMonitor.SetCurrentEncounter(row.ParentEncounter);
+            CombatSelectionMonitor.SelectCombat(combat, row.IsCurrentCombat, phases);
+            if (!row.IsCurrentCombat)
             {
-                if (_loadedHistoricalCombat != null && _loadedHistoricalCombat != selectedCombat)
-                    _loadedHistoricalCombat.UnloadCombat();
+                _displayedHistoricalSelection = new(row, HistoricalCombatSelectionStage.Ready, Error: phaseError);
+                HistoricalSelection = _displayedHistoricalSelection;
+            }
+            CombatSelectionMonitor.CheckForLeaderboardOnSelectedCombat(combat);
+        }
 
-                var loadedCombat = selectedCombat.GetCombat();
-                if (loadedCombat.StartTime == DateTime.MinValue)
-                    return;
+        private void ReportCombatSelectionError(PastCombat row, string message)
+        {
+            OnNewLog(message);
+            if (!row.IsCurrentCombat)
+            {
+                HistoricalSelection = HistoricalSelection! with
+                {
+                    Stage = HistoricalCombatSelectionStage.Unavailable,
+                    ShowProgress = false,
+                    Error = message
+                };
+                return;
+            }
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop && desktop.MainWindow != null)
+            {
+                var box = MessageBoxManager.GetMessageBoxStandard("Combat data unavailable", message,
+                    windowStartupLocation: WindowStartupLocation.CenterOwner);
+                _ = box.ShowWindowDialogAsync(desktop.MainWindow);
+            }
+        }
 
-                if (!selectedCombat.IsCurrentCombat)
-                    _loadedHistoricalCombat = selectedCombat;
-
-                EncounterMonitor.SetCurrentEncounter(selectedCombat.ParentEncounter);
-                CombatSelectionMonitor.SelectCompleteCombat(loadedCombat);
-                CombatSelectionMonitor.CheckForLeaderboardOnSelectedCombat(loadedCombat);
-            });
-
-
+        internal void ClearHistoricalCombatDisplay()
+        {
+            _loadedHistoricalCombat?.UnloadCombat();
+            _loadedHistoricalCombat = null;
+            _displayedHistoricalSelection = null;
+            if (HistoricalSelection != null) HistoricalSelection = null;
         }
         private void NewCombatStatusAlert(CombatStatusUpdate update)
         {

@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
 #if WINDOWS
@@ -36,6 +36,10 @@ internal sealed class Program
         });
 #endif
 
+#if LINUX
+        if (Environment.GetEnvironmentVariable("ORBS_SOFTWARE_RENDERING") == "1")
+            builder = builder.With(new X11PlatformOptions { RenderingMode = new[] { X11RenderingMode.Software } });
+#endif
         return builder;
     }
 }

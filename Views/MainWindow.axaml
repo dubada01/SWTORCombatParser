@@ -65,6 +65,7 @@
             </MenuItem>
             <MenuItem Header="_Sessions">
                 <MenuItem Header="_Session Review..." Command="{Binding OpenSessionReviewCommand}"/>
+                <MenuItem Header="_Progression &amp; Wipe Review..." Command="{Binding OpenProgressionReviewCommand}"/>
                 <MenuItem Header="_Run Race..." Command="{Binding OpenRunRaceCommand}"/>
             </MenuItem>
             <MenuItem Header="_Timers">
@@ -98,10 +99,12 @@
             </MenuItem>
         </Menu>
         <!-- PhasesBar Content -->
-        <ContentPresenter Grid.Row="3" Grid.Column="1" Content="{Binding PhasesBar}"/>
+        <ContentPresenter Grid.Row="3" Grid.Column="1" Content="{Binding PhasesBar}"
+                          IsVisible="{Binding CombatMonitor.CanShowCombatPhases}"/>
         <Grid Grid.Column="1" Grid.Row="0" Grid.RowSpan="2">
             <Grid.RowDefinitions>
                 <RowDefinition Height="50"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="*"/>
             </Grid.RowDefinitions>
                     <!-- TabControl -->
@@ -145,7 +148,28 @@
                 </DataTemplate>
             </TabStrip.ItemTemplate>
         </TabStrip>
-        <ContentPresenter Grid.Row="1" Content="{Binding SelectedTab.TabContent}"></ContentPresenter>
+        <Border x:Name="HistoricalCombatContext" Grid.Row="1" Margin="10,0,10,6" Padding="10,6"
+                CornerRadius="4" Background="{StaticResource Gray3Brush}" IsVisible="{Binding CombatMonitor.HasHistoricalSelection}">
+            <Grid RowDefinitions="Auto,Auto,2" ColumnDefinitions="*,Auto">
+                <StackPanel Spacing="1">
+                    <TextBlock Text="{Binding CombatMonitor.HistoricalSelection.Title}" Foreground="WhiteSmoke"
+                               FontWeight="SemiBold" TextTrimming="CharacterEllipsis"/>
+                    <TextBlock Text="{Binding CombatMonitor.HistoricalSelection.Details}" Foreground="LightGray"
+                               FontSize="11" TextTrimming="CharacterEllipsis"/>
+                </StackPanel>
+                <TextBlock Grid.Column="1" Margin="12,0,0,0" MaxWidth="145" VerticalAlignment="Center"
+                           Text="{Binding CombatMonitor.HistoricalSelection.Status}" Foreground="LightGray" FontSize="11"
+                           TextWrapping="Wrap" TextAlignment="Right"/>
+                <TextBlock Grid.Row="1" Grid.ColumnSpan="2" Margin="0,4,0,0" Foreground="#FFD09A" FontSize="11"
+                           IsVisible="{Binding CombatMonitor.HistoricalSelection.HasError}"
+                           Text="{Binding CombatMonitor.HistoricalSelection.Error}" TextWrapping="Wrap"/>
+                <ProgressBar x:Name="HistoricalCombatProgress" Grid.Row="2" Grid.ColumnSpan="2" Width="100" Height="2"
+                             MinWidth="0" MinHeight="0" ClipToBounds="True"
+                             HorizontalAlignment="Right" IsIndeterminate="True"
+                             IsVisible="{Binding CombatMonitor.HistoricalSelection.ShowProgress}"/>
+            </Grid>
+        </Border>
+        <ContentPresenter Grid.Row="2" Content="{Binding SelectedTab.TabContent}"/>
         </Grid>
 
         <!-- PastCombatsView -->

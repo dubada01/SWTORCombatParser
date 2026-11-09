@@ -104,5 +104,7 @@
         <StyleInclude Source="/Utilities/UIStyles/TabHeader.axaml"></StyleInclude>
         <StyleInclude Source="/Utilities/UIStyles/TextBoxStyle.axaml"></StyleInclude>
         <StyleInclude Source="/Utilities/UIStyles/ThumbStyle.axaml"></StyleInclude>
+        <StyleInclude Source="/Utilities/UIStyles/Configuration.axaml"/>
+        <StyleInclude Source="/Utilities/UIStyles/OverlaySurfaces.axaml"/>
     </Application.Styles>
 </Application>

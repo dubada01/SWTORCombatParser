@@ -10,6 +10,9 @@ namespace SWTORCombatParser.ViewModels.Timers
 {
     public abstract class TimersWindowViewModel : BaseOverlayViewModel
     {
+        public override bool SupportsPresentation => this is EncounterTimerWindowViewModel or DisciplineTimersWindowViewModel;
+        public bool IsEncounter => this is EncounterTimerWindowViewModel;
+        public string GroupLabel => IsEncounter ? "ENCOUNTER" : "DISCIPLINE";
         private string _timerSource;
         internal BaseOverlayWindow _timerWindow;
         private string _timerTitle = "Default Title";

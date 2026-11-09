@@ -32,8 +32,11 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
                 this.RaiseAndSetIfChanged(ref isSelected, value);
             }
         }
-        public string PlayerName { get; set; }
-        public bool IsLocalPlayer { get; set; }
+        private string _playerName;
+        private bool _isLocalPlayer;
+        public string PlayerName { get => _playerName; set => this.RaiseAndSetIfChanged(ref _playerName, value); }
+        public string Summary => $"{PlayerName}\nDPS {DPS} · HPS {HPS} · DTPS {DTPS}";
+        public bool IsLocalPlayer { get => _isLocalPlayer; set => this.RaiseAndSetIfChanged(ref _isLocalPlayer, value); }
 
         public Bitmap RoleImageSource
         {
@@ -90,6 +93,7 @@ namespace SWTORCombatParser.ViewModels.Home_View_Models
             HPS = hps == 0 ? "0" : hps.ToString("#,##", CultureInfo.InvariantCulture);
             DTPS = dtps == 0 ? "0" : dtps.ToString("#,##", CultureInfo.InvariantCulture);
             RoleImageSource = roleImage;
+            this.RaisePropertyChanged(nameof(Summary));
         }
     }
 }

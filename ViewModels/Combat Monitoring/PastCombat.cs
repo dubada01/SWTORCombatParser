@@ -30,6 +30,18 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         private bool _shouldShowDeathReview;
         private bool _wasPlayerKilled;
         private bool _isPvPCombat;
+        private string _combatLoadError = "";
+        private readonly object _combatLoadLock = new();
+        private readonly Func<string, Combat> _loadCombat;
+
+        public PastCombat() : this(CombatDiskCacheManager.LoadCombat)
+        {
+        }
+
+        internal PastCombat(Func<string, Combat> loadCombat)
+        {
+            _loadCombat = loadCombat;
+        }
 
         public event Action<PastCombat> PastCombatSelected = delegate { };
         public event Action UnselectAll = delegate { };
@@ -48,6 +60,11 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         public EncounterCombat ParentEncounter { get; set; }
         public Combat Combat { get; private set; }
         public string CombatCachePath { get; private set; }
+        public string CombatLoadError
+        {
+            get => _combatLoadError;
+            private set => this.RaiseAndSetIfChanged(ref _combatLoadError, value);
+        }
         public int CombatDurationSeconds { get; set; }
         public bool IsTrash => _isTrash;
         public bool IsBossCombat => _isBossCombat;
@@ -75,11 +92,16 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         public ReactiveCommand<Unit, Unit> UploadToParselyCommand => ReactiveCommand.Create(UploadToParsely);
 
         public DateTime CombatStartTime { get; set; }
+        internal DateTime CombatEndTime { get; private set; }
+        internal Guid CacheOwner { get; private set; }
+        internal string? SourceLogName { get; private set; }
+        internal bool IsReplay { get; private set; }
+        internal (string Boss, string GroupSize, string Difficulty) BossDetails { get; private set; }
 
         public void CacheCombat(Combat combat, bool keepLoaded = false)
         {
             SetCombat(combat);
-            if (combat == null || IsCurrentCombat)
+            if (combat == null || IsCurrentCombat || LogLoadDiagnostics.KeepCombatsInMemory)
                 return;
 
             try
@@ -88,7 +110,7 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
                 if (!keepLoaded)
                     Combat = null;
             }
-            catch (Exception e) when (e is IOException or UnauthorizedAccessException or JsonException or NotSupportedException)
+            catch (Exception e) when (e is IOException or InvalidDataException or UnauthorizedAccessException or JsonException or NotSupportedException)
             {
                 // Keep the combat usable in memory if the optional cache is unavailable.
                 CombatCachePath = null;
@@ -106,34 +128,82 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
         public void SetCombat(Combat combat)
         {
             Combat = combat;
+            if (combat != null) CombatLoadError = "";
             UpdateSummary(combat);
         }
 
         public Combat GetCombat()
         {
-            if (Combat != null)
-                return Combat;
-            if (string.IsNullOrEmpty(CombatCachePath))
-                return new Combat();
-
-            Combat = CombatDiskCacheManager.LoadCombat(CombatCachePath);
-            UpdateSummary(Combat);
-            return Combat;
+            var resident = Combat;
+            if (resident != null)
+                return resident;
+            // Rapid A -> B -> A selections can ask for the same unloaded row twice.
+            // Share one rebuild so a stale worker cannot overwrite the displayed instance.
+            // UnloadCombat never takes this lock, keeping UI deselection independent of I/O.
+            lock (_combatLoadLock)
+            {
+                resident = Combat;
+                if (resident != null)
+                    return resident;
+                try
+                {
+                    if (string.IsNullOrEmpty(CombatCachePath))
+                        throw new IOException("No combat cache is available.");
+                    var loaded = _loadCombat(CombatCachePath);
+                    if (loaded.StartTime == DateTime.MinValue || loaded.AllLogs.Count == 0)
+                        throw new InvalidDataException("The combat cache contains no usable events.");
+                    SetCombat(loaded);
+                    return loaded;
+                }
+                catch (Exception error) when (IsCacheReadFailure(error))
+                {
+                    ReportCacheReadFailure(error);
+                    // Keep the row's original summary and leave Combat null so a repaired
+                    // cache can be retried. An invalid sentinel never becomes cached state.
+                    return new Combat();
+                }
+            }
         }
 
         public List<ParsedLogEntry> LoadLogs()
         {
-            if (Combat != null)
-                return Combat.AllLogs.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value).ToList();
-            if (string.IsNullOrEmpty(CombatCachePath))
-                return new List<ParsedLogEntry>();
-            return CombatDiskCacheManager.LoadLogs(CombatCachePath);
+            var resident = Combat;
+            if (resident != null)
+                return resident.AllLogs.OrderBy(kvp => kvp.Key).Select(kvp => kvp.Value)
+                    .Where(log => log.Effect.EffectType != EffectType.AbsorbShield).ToList();
+            try
+            {
+                if (string.IsNullOrEmpty(CombatCachePath))
+                    throw new IOException("No combat cache is available.");
+                var logs = CombatDiskCacheManager.LoadLogs(CombatCachePath);
+                if (logs.Count == 0) throw new InvalidDataException("The combat cache contains no usable events.");
+                CombatLoadError = "";
+                return logs;
+            }
+            catch (Exception error) when (IsCacheReadFailure(error))
+            {
+                ReportCacheReadFailure(error);
+                // Overall/session scopes must not quietly omit an unavailable fight.
+                throw new IOException(CombatLoadError, error);
+            }
+        }
+
+        private static bool IsCacheReadFailure(Exception error) => error is
+            IOException or InvalidDataException or UnauthorizedAccessException or JsonException or NotSupportedException;
+
+        private void ReportCacheReadFailure(Exception error)
+        {
+            CombatLoadError = IsCurrentCombat
+                ? "This combat does not have any parsed events yet."
+                : "This combat's cached data is unavailable. Reload the source log to restore it.";
+            System.Diagnostics.Debug.WriteLine("Could not load cached combat: " + error.Message);
         }
 
         public void UnloadCombat()
         {
             if (IsCurrentCombat || string.IsNullOrEmpty(CombatCachePath))
                 return;
+            if (Combat is { } resident) CombatDiskCacheManager.RememberCombat(CombatCachePath, resident);
             Combat = null;
         }
 
@@ -171,17 +241,11 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
             PastCombatSelected(this);
         }
 
-        private void DisplayWipeReview()
+        public void DisplayWipeReview()
         {
-            var combat = GetCombat();
-            if (combat.StartTime == DateTime.MinValue)
-                return;
-
-            if (Application.Current.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
-            {
-                var mainViewModel = desktop.MainWindow.DataContext as MainWindowViewModel;
-                mainViewModel?.ShowDeathReviewForCombat(combat);
-            }
+            if (Application.Current?.ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop &&
+                desktop.MainWindow?.DataContext is MainWindowViewModel mainViewModel)
+                mainViewModel.ShowProgressionReview(this);
         }
 
         private async void UploadToParsely()
@@ -231,8 +295,16 @@ namespace SWTORCombatParser.ViewModels.Combat_Monitoring
 
             EncounterInfo = combat.ParentEncounter;
             CombatStartTime = combat.StartTime;
-            CombatDurationSeconds = combat.DurationSeconds;
-            CombatDuration = TimeSpan.FromSeconds(combat.DurationSeconds).ToString(@"mm\:ss");
+            CombatEndTime = combat.EndTime;
+            CacheOwner = combat.CacheLogStateId;
+            IsReplay = combat.IsReplay;
+            BossDetails = combat.EncounterBossDifficultyParts;
+            if (!IsCurrentCombat && string.IsNullOrEmpty(SourceLogName))
+                SourceLogName = combat.AllLogs.FirstOrDefault(entry => !string.IsNullOrEmpty(entry.Value.LogName)).Value?.LogName;
+            // A row describes the whole fight, even while another combat's phase
+            // filter is active during an asynchronous cache reload.
+            CombatDurationSeconds = (int)Math.Round(Math.Max(0, (combat.EndTime - combat.StartTime).TotalSeconds));
+            CombatDuration = TimeSpan.FromSeconds(CombatDurationSeconds).ToString(@"mm\:ss");
             _isBossCombat = combat.IsCombatWithBoss;
             _isPvPCombat = combat.IsPvPCombat;
             _wasBossKilled = combat.WasBossKilled;

@@ -1,0 +1,136 @@
+<Styles xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:converters="clr-namespace:SWTORCombatParser.Utilities.Converters">
+    <Styles.Resources>
+        <converters:EnumDisplayNameConverter x:Key="EnumDisplayNameConverter"/>
+    </Styles.Resources>
+    <!-- Opt in: configuration windows share spacing without restyling combat overlays. -->
+    <Style Selector="Border.EditorHeader">
+        <Setter Property="BorderBrush" Value="{StaticResource GreenColorBrush}"/>
+        <Setter Property="BorderThickness" Value="0,3,0,0"/>
+        <Setter Property="Background" Value="{StaticResource Gray1Brush}"/>
+        <Setter Property="Padding" Value="20,16"/>
+    </Style>
+    <Style Selector="TextBlock.EditorContext">
+        <Setter Property="Foreground" Value="{StaticResource Gray12Brush}"/>
+        <Setter Property="FontSize" Value="11"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Border.EditorFooter">
+        <Setter Property="BorderBrush" Value="{StaticResource Gray4Brush}"/>
+        <Setter Property="BorderThickness" Value="0,1,0,0"/>
+        <Setter Property="Padding" Value="20,12"/>
+    </Style>
+    <Style Selector="Window.OrbsDialog Expander.EditorAdvanced">
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+        <Setter Property="Padding" Value="0"/>
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
+    <!-- The app-wide ComboBox toggle template does not render an expander header. -->
+    <Style Selector="Expander.EditorAdvanced /template/ ToggleButton">
+        <Setter Property="MinHeight" Value="32"/>
+        <Setter Property="Template">
+            <ControlTemplate>
+                <Border Background="{StaticResource Gray2Brush}" BorderBrush="{StaticResource Gray5Brush}" BorderThickness="1" CornerRadius="3" Padding="8,6">
+                    <Grid ColumnDefinitions="*,Auto">
+                        <ContentPresenter Name="PART_ContentPresenter" Content="{TemplateBinding Content}" ContentTemplate="{TemplateBinding ContentTemplate}" VerticalAlignment="Center"/>
+                        <TextBlock x:Name="Chevron" Grid.Column="1" Text="▸" Margin="8,0,0,0" VerticalAlignment="Center"/>
+                    </Grid>
+                </Border>
+            </ControlTemplate>
+        </Setter>
+    </Style>
+    <Style Selector="Expander.EditorAdvanced /template/ ToggleButton:checked /template/ TextBlock#Chevron">
+        <Setter Property="Text" Value="▾"/>
+    </Style>
+    <Style Selector="Window.OrbsDialog">
+        <Setter Property="Background" Value="{StaticResource Gray2Brush}"/>
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+        <Setter Property="FontFamily" Value="{StaticResource MainFont}"/>
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
+    <Style Selector="Window.OrbsDialog TextBox">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+        <Setter Property="MinHeight" Value="30"/>
+        <Setter Property="Padding" Value="8,5"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Window.OrbsDialog ComboBox">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="MinHeight" Value="30"/>
+        <Setter Property="Padding" Value="8,5"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+    </Style>
+    <Style Selector="Window.OrbsDialog NumericUpDown">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="MinHeight" Value="30"/>
+        <Setter Property="ShowButtonSpinner" Value="False"/>
+        <Setter Property="Padding" Value="6,3"/>
+    </Style>
+    <Style Selector="Window.OrbsDialog CheckBox">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="MinHeight" Value="28"/>
+    </Style>
+    <Style Selector="Window.OrbsDialog ListBoxItem">
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    </Style>
+    <Style Selector="Window.OrbsDialog DataGridColumnHeader">
+        <Setter Property="Background" Value="{StaticResource Gray3Brush}"/>
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+        <Setter Property="Padding" Value="6,6"/>
+        <Setter Property="FontSize" Value="12"/>
+    </Style>
+    <Style Selector="TextBlock.SectionHeading">
+        <Setter Property="FontSize" Value="13"/>
+        <Setter Property="FontWeight" Value="SemiBold"/>
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+        <Setter Property="Margin" Value="0,0,0,8"/>
+    </Style>
+    <Style Selector="TextBlock.FieldLabel">
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="Foreground" Value="{StaticResource Gray12Brush}"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+    </Style>
+    <Style Selector="Border.SectionDivider">
+        <Setter Property="Height" Value="1"/>
+        <Setter Property="Background" Value="{StaticResource Gray4Brush}"/>
+        <Setter Property="Margin" Value="0,14"/>
+    </Style>
+    <Style Selector="Button.DialogAction, Button.PrimaryAction, Button.DangerAction">
+        <Setter Property="MinHeight" Value="30"/>
+        <Setter Property="Padding" Value="12,6"/>
+        <Setter Property="FontSize" Value="12"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Background" Value="{StaticResource Gray3Brush}"/>
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Gray5Brush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+    </Style>
+    <Style Selector="Button.PrimaryAction">
+        <Setter Property="Background" Value="{StaticResource GreenColorBrush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource GreenColorBrush}"/>
+    </Style>
+    <Style Selector="Button.DangerAction">
+        <Setter Property="Foreground" Value="#edaaaa"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ParticipantDPSBrush}"/>
+    </Style>
+    <Style Selector="Button.OverlayChoice">
+        <Setter Property="Background" Value="{StaticResource Gray3Brush}"/>
+        <Setter Property="Foreground" Value="{StaticResource Gray12Brush}"/>
+        <Setter Property="BorderBrush" Value="{StaticResource Gray4Brush}"/>
+        <Setter Property="BorderThickness" Value="1"/>
+        <Setter Property="CornerRadius" Value="4"/>
+        <Setter Property="Padding" Value="8,6"/>
+        <Setter Property="MinHeight" Value="36"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="VerticalAlignment" Value="Center"/>
+        <Setter Property="HorizontalContentAlignment" Value="Stretch"/>
+    </Style>
+    <Style Selector="Button.OverlayChoice.selected">
+        <Setter Property="Background" Value="{StaticResource VeryDarkGreenBrush}"/>
+        <Setter Property="Foreground" Value="WhiteSmoke"/>
+        <Setter Property="BorderBrush" Value="{StaticResource ParticipantHPSBrush}"/>
+    </Style>
+</Styles>

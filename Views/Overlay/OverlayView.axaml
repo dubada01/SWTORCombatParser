@@ -1,45 +1,81 @@
-﻿<Window x:Class="SWTORCombatParser.Views.Overlay.OverlayView"
-             xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays"
-             xmlns:overlay="clr-namespace:SWTORCombatParser.Views.Overlay"
-             x:DataType="vm:OverlayViewModel"
-             mc:Ignorable="d" 
-             Width="800" Height="600"
-             Title="Overlay Settings"
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Background="{StaticResource Gray2Brush}">
-        <Grid>
-            <Grid.RowDefinitions>
-                <RowDefinition Height="0.1*"/>
-                <RowDefinition Height="0.9*"/>
-            </Grid.RowDefinitions>
-            
-            <Grid Grid.Row="0">
-                <Grid.ColumnDefinitions>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                    <ColumnDefinition Width="*"/>
-                </Grid.ColumnDefinitions>
-
-                <StackPanel Grid.ColumnSpan="4" HorizontalAlignment="Center"  Orientation="Horizontal">
-                    <TextBlock Foreground="WhiteSmoke" FontSize="{StaticResource LargeFontSize}" FontWeight="DemiBold" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Overlays Locked: "/>
-                    <CheckBox VerticalAlignment="Center" IsChecked="{Binding OverlaysLocked}"></CheckBox>
-                </StackPanel>
-                <StackPanel Orientation="Vertical" Grid.Column="3">
-                    <TextBlock Foreground="WhiteSmoke" FontWeight="DemiBold" HorizontalAlignment="Center" FontSize="{StaticResource LargeFontSize}" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" Text="Bar Scalar: "/>
-                    <TextBox FontSize="{StaticResource NormalFontSize}" HorizontalAlignment="Center" VerticalContentAlignment="Center" HorizontalContentAlignment="Center" Text="{Binding SizeScalarString, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                </StackPanel>
-            </Grid>
-            
-            
-            <overlay:CombatMetricsConfigView Grid.Row="1" DataContext="{Binding $self.DataContext}"/>
-
-
+<Window x:Class="SWTORCombatParser.Views.Overlay.OverlayView"
+        xmlns="https://github.com/avaloniaui"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.Overlays"
+        xmlns:overlay="clr-namespace:SWTORCombatParser.Views.Overlay"
+        x:DataType="vm:OverlayViewModel" Classes="OrbsDialog"
+        Width="940" Height="660" MinWidth="800" MinHeight="500"
+        WindowStartupLocation="CenterOwner" Title="Overlay settings">
+    <Grid RowDefinitions="Auto,*,Auto" Margin="20,16">
+        <Grid ColumnDefinitions="*,Auto,Auto" Margin="0,0,0,16">
+            <CheckBox Content="Lock positions" IsChecked="{Binding OverlaysLocked}" VerticalAlignment="Center"
+                      ToolTip.Tip="Unlock to move and resize overlays. Locked overlays let clicks pass through to SWTOR."/>
+            <TextBlock Grid.Column="1" Text="Scale" Classes="FieldLabel" Margin="0,0,10,0"/>
+            <NumericUpDown Grid.Column="2" Value="{Binding OverlayScalePercent}" Minimum="10" Maximum="150" Increment="5"
+                           FormatString="0'%'" Width="82" ToolTip.Tip="Size of overlay bars and text. Positions are saved separately."/>
         </Grid>
-       
+        <TabControl Grid.Row="1" x:Name="ConfigurationTabs">
+            <TabItem Header="Combat metrics">
+                <Grid RowDefinitions="*,Auto" Margin="0,16,0,0">
+                    <overlay:CombatMetricsConfigView/>
+                    <Grid Grid.Row="1" ColumnDefinitions="Auto,180,*,Auto,140" Margin="0,16,0,0">
+                        <TextBlock Text="Leaderboard" Classes="FieldLabel" Margin="0,0,10,0"/>
+                        <ComboBox Grid.Column="1" ItemsSource="{Binding LeaderboardTypes}" SelectedItem="{Binding SelectedLeaderboardType}"/>
+                        <CheckBox Grid.Column="3" Content="Role layouts" IsChecked="{Binding UseDynamicLayout}" Margin="12,0"
+                                  ToolTip.Tip="Keep a separate overlay layout for damage, healing, and tank roles."/>
+                        <ComboBox Grid.Column="4" ItemsSource="{Binding AvailableTypes}" SelectedItem="{Binding SelectedType}"
+                                  IsEnabled="{Binding UseDynamicLayout}" ToolTip.Tip="Layout to edit"/>
+                    </Grid>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Utility">
+                <Grid RowDefinitions="*,Auto" Margin="0,16,0,0">
+                    <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                        <ItemsControl ItemsSource="{Binding AvailableUtilityOverlays}" VerticalAlignment="Top">
+                            <ItemsControl.ItemsPanel><ItemsPanelTemplate><UniformGrid Columns="3"/></ItemsPanelTemplate></ItemsControl.ItemsPanel>
+                            <ItemsControl.ItemTemplate><DataTemplate><overlay:UtilityOverlayOptionView Margin="0,0,10,8"/></DataTemplate></ItemsControl.ItemTemplate>
+                        </ItemsControl>
+                    </ScrollViewer>
+                    <Button Grid.Row="1" Content="Raid frame setup…" Click="OpenRaidFrameSetup" Classes="RoundedCorner DialogAction"
+                            HorizontalAlignment="Left" Margin="0,12,0,0" ToolTip.Tip="Position the raid grid and assign player names."/>
+                </Grid>
+            </TabItem>
+            <TabItem Header="Appearance">
+                <ScrollViewer HorizontalScrollBarVisibility="Disabled">
+                    <StackPanel Margin="0,20" Spacing="16" MaxWidth="620" HorizontalAlignment="Left">
+                        <TextBlock Text="Per-overlay style" Classes="SectionHeading" Margin="0"/>
+                        <Grid ColumnDefinitions="150,220,150">
+                            <TextBlock Text="Overlay" Classes="FieldLabel"/>
+                            <ComboBox x:Name="PresentationOverlay" Grid.Column="1" ItemsSource="{Binding PresentationOverlays}"
+                                      SelectedItem="{Binding SelectedPresentationOverlay}" Margin="0,0,14,0"/>
+                            <ComboBox x:Name="PresentationStyle" Grid.Column="2" ItemsSource="{Binding SelectedPresentationOverlay.Styles}"
+                                      SelectedIndex="{Binding SelectedPresentationOverlay.StyleIndex}"
+                                      ToolTip.Tip="Compact for the game. Detailed adds context and larger text for a second monitor. Unlock and resize the overlay to fit. Saved per overlay."/>
+                        </Grid>
+                        <TextBlock Text="All overlays" Classes="SectionHeading" Margin="0,8,0,0"/>
+                        <Grid ColumnDefinitions="150,300,70">
+                            <TextBlock Text="Content opacity" Classes="FieldLabel"/>
+                            <Slider Grid.Column="1" Minimum="20" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
+                                    Value="{Binding ContentOpacityPercent}" Margin="0,0,14,0"
+                                    ToolTip.Tip="Opacity of overlay text, bars, and icons. Move and close controls remain readable."/>
+                            <NumericUpDown Grid.Column="2" Value="{Binding ContentOpacityPercent}" Minimum="20" Maximum="100" Increment="5" FormatString="0'%'" VerticalAlignment="Center"/>
+                        </Grid>
+                        <CheckBox Content="Custom background opacity" IsChecked="{Binding UseCustomBackground}"
+                                  ToolTip.Tip="Override each overlay's background while positions are locked. Off uses the default backgrounds."/>
+                        <Grid ColumnDefinitions="150,300,70" IsEnabled="{Binding UseCustomBackground}">
+                            <TextBlock Text="Background opacity" Classes="FieldLabel"/>
+                            <Slider Grid.Column="1" Minimum="0" Maximum="100" TickFrequency="5" IsSnapToTickEnabled="True"
+                                    Value="{Binding BackgroundOpacityPercent}" Margin="0,0,14,0" ToolTip.Tip="Zero removes the background. Applies while overlays are locked."/>
+                            <NumericUpDown Grid.Column="2" Value="{Binding BackgroundOpacityPercent}" Minimum="0" Maximum="100" Increment="5" FormatString="0'%'" VerticalAlignment="Center"/>
+                        </Grid>
+                        <Button Content="Restore opacity defaults" Command="{Binding ResetAppearanceCommand}"
+                                Classes="RoundedCorner DialogAction" HorizontalAlignment="Left"/>
+                    </StackPanel>
+                </ScrollViewer>
+            </TabItem>
+        </TabControl>
+        <Border Grid.Row="2" BorderBrush="{StaticResource Gray4Brush}" BorderThickness="0,1,0,0" Padding="0,12,0,0" Margin="0,16,0,0">
+            <Button Content="Done" IsCancel="True" Click="Done" Classes="RoundedCorner DialogAction" HorizontalAlignment="Right" MinWidth="86"/>
+        </Border>
     </Grid>
 </Window>

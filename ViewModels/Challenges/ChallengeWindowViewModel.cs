@@ -13,6 +13,7 @@ namespace SWTORCombatParser.ViewModels.Challenges
 {
     public class ChallengeWindowViewModel : BaseOverlayViewModel
     {
+        public override bool SupportsPresentation => true;
         private ChallengeUpdater _challengeUpdater;
         private bool inBossRoom;
         public override bool ShouldBeVisible => inBossRoom;

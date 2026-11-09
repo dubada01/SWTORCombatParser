@@ -1,69 +1,76 @@
-﻿<UserControl x:Class="SWTORCombatParser.Views.Battle_Review.BattleReviewView"
-             xmlns="https://github.com/avaloniaui"
-             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
-             xmlns:local="clr-namespace:SWTORCombatParser.Views"
-             xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.BattleReview"
-             x:DataType="vm:BattleReviewViewModel"
-             mc:Ignorable="d" 
-             d:DesignHeight="450" d:DesignWidth="800">
-    <Grid Background="{StaticResource Gray2Brush}">
-        <Grid.RowDefinitions>
-            <RowDefinition Height="0.45*"/>
-            <!--<RowDefinition Height="0.45*"/>-->
-        </Grid.RowDefinitions>
-        <Grid>
-            <Grid.ColumnDefinitions>
-                <ColumnDefinition Width="0.1*" MinWidth="150"/>
-                <ColumnDefinition Width="0.35*"/>
-                <ColumnDefinition Width="0.15*"/>
-            </Grid.ColumnDefinitions>
-            <Grid>
-                <Grid.RowDefinitions>
-                    <RowDefinition Height="0.75*"/>
-                    <RowDefinition Height="0.33*"/>
-                    <RowDefinition Height="0.15*"/>
-                    <RowDefinition Height="0.15*"/>
-                </Grid.RowDefinitions>
-
-                    <Grid Grid.ColumnSpan="2" HorizontalAlignment="Stretch" VerticalAlignment="Top" Margin="10,5,5,0" Grid.Row="0" >
-                    <TextBlock Foreground="WhiteSmoke" FontSize="{StaticResource LargeFontSize}" FontFamily="{StaticResource MainFont}" FontWeight="DemiBold" Text="Available Entities" HorizontalAlignment="Center" Margin="0,23,0,2"></TextBlock>
-                    <ListBox Padding="0" Background="{StaticResource Gray3Brush}" Margin="0,40,0,0" ScrollViewer.HorizontalScrollBarVisibility="Disabled" HorizontalAlignment="Stretch" ItemsSource="{Binding AvailableEntities}">
-                        <ListBox.ItemTemplate>
-                            <DataTemplate>
-                                <Grid Margin="5,0,5,0">
-                                    <Grid.ColumnDefinitions>
-                                        <ColumnDefinition Width="3*"/>
-                                        <ColumnDefinition Width="*"/>
-                                    </Grid.ColumnDefinitions>
-                                    <TextBlock FontSize="{StaticResource NormalFontSize}" VerticalAlignment="Center" FontFamily="{StaticResource MainFont}" TextTrimming="CharacterEllipsis" Foreground="WhiteSmoke" Text="{Binding Entity.Name}"></TextBlock>
-                                    <CheckBox Grid.Column="1" VerticalAlignment="Center" HorizontalAlignment="Right" IsChecked="{Binding Selected}"></CheckBox>
-                                </Grid>
-                            </DataTemplate>
-                        </ListBox.ItemTemplate>
-
-                            <ListBox.Styles>
-                                <Style Selector="ListBoxItem">
-                                    <Setter Property="Padding" Value="0" />
-                                </Style>
-                            </ListBox.Styles>
-
-                    </ListBox>
-                </Grid>
-                <StackPanel Orientation="Vertical" Grid.Row="1" MaxHeight="50" Margin="5,0,5,0">
-                    <TextBlock FontSize="{StaticResource LargeFontSize}" Foreground="WhiteSmoke"  FontFamily="{StaticResource MainFont}" HorizontalAlignment="Center" TextAlignment="Center" Text="Log Filter: "></TextBlock>
-                    <TextBox HorizontalAlignment="Stretch" FontSize="{StaticResource NormalFontSize}" Text="{Binding LogFilter, UpdateSourceTrigger=PropertyChanged}"></TextBox>
-                </StackPanel>
-                <Viewbox  Grid.Row="2" VerticalAlignment="Bottom" MaxHeight="20" Margin="5,0,5,5">
-                    <TextBlock Foreground="WhiteSmoke" FontSize="{StaticResource LargeFontSize}" FontFamily="{StaticResource MainFont}" HorizontalAlignment="Center" TextAlignment="Center" Text="Data Type To Display: "></TextBlock>
-                </Viewbox>
-                
-                <Viewbox Grid.Row="4" Grid.Column="1" Margin="10,0,10,0" MaxHeight="30" HorizontalAlignment="Center" VerticalAlignment="Top">
-                    <ComboBox HorizontalContentAlignment="Center"  ItemsSource="{Binding AvailableDisplayTypes}" SelectedValue="{Binding SelectedDisplayType}" FontSize="{StaticResource LargeFontSize}" Height="35"></ComboBox>
-                </Viewbox>
-            </Grid>
-            <ContentPresenter Grid.Column="1" Grid.ColumnSpan="2" Content="{Binding EventViewContent}"></ContentPresenter>
-        </Grid>
+<UserControl x:Class="SWTORCombatParser.Views.Battle_Review.BattleReviewView"
+ xmlns="https://github.com/avaloniaui" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+ xmlns:vm="clr-namespace:SWTORCombatParser.ViewModels.BattleReview" xmlns:converters="clr-namespace:SWTORCombatParser.Utilities.Converters" x:DataType="vm:BattleReviewViewModel">
+ <UserControl.Resources><converters:EnumDisplayNameConverter x:Key="ReviewDisplayName"/></UserControl.Resources>
+ <UserControl.Styles>
+  <Style Selector="TextBox"><Setter Property="FontSize" Value="12"/><Setter Property="MinHeight" Value="32"/><Setter Property="Padding" Value="9,6"/></Style>
+  <Style Selector="Button.ReviewAction"><Setter Property="FontSize" Value="11"/><Setter Property="Padding" Value="9,5"/><Setter Property="MinHeight" Value="28"/><Setter Property="Background" Value="{StaticResource Gray3Brush}"/><Setter Property="BorderBrush" Value="{StaticResource Gray5Brush}"/><Setter Property="BorderThickness" Value="1"/><Setter Property="CornerRadius" Value="3"/></Style>
+  <Style Selector="ListBoxItem"><Setter Property="Padding" Value="4,1"/><Setter Property="HorizontalContentAlignment" Value="Stretch"/></Style>
+  <Style Selector="CheckBox"><Setter Property="MinHeight" Value="28"/><Setter Property="FontSize" Value="12"/></Style>
+ </UserControl.Styles>
+ <Grid RowDefinitions="Auto,Auto,*,Auto" Margin="12,10" RowSpacing="8" Background="{StaticResource Gray2Brush}">
+  <Grid ColumnDefinitions="*,170,Auto,Auto,Auto" ColumnSpacing="8">
+   <TextBox x:Name="SearchBox" Text="{Binding LogFilter, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Watermark="Search players, abilities or effects…" KeyDown="SearchKeyDown" ToolTip.Tip="Combine words to narrow results. Ctrl+F to search; Enter applies immediately; Escape clears search."/>
+   <ComboBox x:Name="EventType" Grid.Column="1" ItemsSource="{Binding AvailableDisplayTypes}" SelectedItem="{Binding SelectedDisplayType, Mode=TwoWay}" HorizontalAlignment="Stretch" FontSize="12" MinHeight="32" Padding="8,5">
+    <ComboBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding ., Converter={StaticResource ReviewDisplayName}, ConverterParameter=LogReview, Mode=OneWay}"/></DataTemplate></ComboBox.ItemTemplate>
+   </ComboBox>
+   <CheckBox x:Name="RegexMode" Grid.Column="2" Content="Regex" IsChecked="{Binding UseRegex}" ToolTip.Tip="Interpret the search box as a regular expression across event fields."/>
+   <Button Grid.Column="3" Classes="ReviewAction" Content="?" ToolTip.Tip="Search syntax">
+    <Button.Flyout><Flyout Placement="Bottom"><StackPanel Spacing="8" MaxWidth="420">
+     <TextBlock Text="Search events" FontWeight="SemiBold" FontSize="14"/>
+     <TextBlock Text="Words narrow results together. Quote a phrase, use - to exclude, or | for alternatives." TextWrapping="Wrap"/>
+     <TextBlock FontFamily="Consolas" Text="lightning -type:healing&#10;target:&quot;Player name&quot; type:damage&#10;ability:&quot;Force Lightning&quot; crit:true&#10;value:&gt;=10000 after:1:20 before:1:35"/>
+     <TextBlock Text="Fields: source, target, ability, effect, type, value, crit, after, before. Names or exact IDs work. Amounts use effective values; times are relative to combat start." TextWrapping="Wrap"/>
+    </StackPanel></Flyout></Button.Flyout>
+   </Button>
+   <Button x:Name="ClearFilters" Grid.Column="4" Classes="ReviewAction" Content="Reset" Command="{Binding ClearFiltersCommand}" ToolTip.Tip="Clear search, event type and participant filters."/>
+  </Grid>
+  <Grid Grid.Row="1" ColumnDefinitions="*,Auto" ColumnSpacing="8">
+   <TextBlock Text="{Binding EventHistory.ResultSummary}" FontSize="11" Foreground="{StaticResource Gray12Brush}" VerticalAlignment="Center"/>
+   <Button x:Name="BackToResults" Grid.Column="1" Classes="ReviewAction" Content="Back to results" Command="{Binding ReturnToResultsCommand}" IsVisible="{Binding CanReturnToResults}"/>
+  </Grid>
+  <Grid Grid.Row="2" ColumnDefinitions="176,*" ColumnSpacing="10">
+   <Border Background="{StaticResource Gray1Brush}" BorderBrush="{StaticResource Gray4Brush}" BorderThickness="1" CornerRadius="3" Padding="8">
+    <Grid RowDefinitions="Auto,Auto,Auto,*" RowSpacing="8">
+     <TextBlock Text="Participants" FontWeight="SemiBold" FontSize="12" Margin="2,2"/>
+     <ComboBox x:Name="ParticipantRole" Grid.Row="1" ItemsSource="{Binding ParticipantRoles}" SelectedItem="{Binding SelectedParticipantRole, Mode=TwoWay}" HorizontalAlignment="Stretch" MinHeight="30" FontSize="12" Padding="8,5" ToolTip.Tip="Match selected participants as the source, target, or either side of an event."/>
+     <TextBox x:Name="ParticipantSearch" Grid.Row="2" Text="{Binding EntityFilter}" Watermark="Find participant…" MinHeight="28" Padding="6,4"/>
+     <ListBox x:Name="ParticipantList" Grid.Row="3" ItemsSource="{Binding VisibleEntities}" Background="Transparent" Padding="0" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+      <ListBox.ItemTemplate><DataTemplate x:DataType="vm:AvailableEntity">
+       <CheckBox IsChecked="{Binding Selected}" HorizontalAlignment="Stretch" ToolTip.Tip="{Binding Detail}"><TextBlock Text="{Binding Entity.Name}" TextTrimming="CharacterEllipsis" MaxWidth="115"/></CheckBox>
+      </DataTemplate></ListBox.ItemTemplate>
+     </ListBox>
     </Grid>
+   </Border>
+   <Grid Grid.Column="1" RowDefinitions="Auto,*">
+    <Border IsVisible="{Binding EventHistory.HasSearchError}" BorderBrush="#8C6660" BorderThickness="1" Background="#352B29" Padding="10,7" Margin="0,0,0,8" CornerRadius="3"><TextBlock Text="{Binding EventHistory.SearchError}" TextWrapping="Wrap" Foreground="#F0B8AE" FontSize="12"/></Border>
+    <ContentPresenter Grid.Row="1" Content="{Binding EventViewContent}"/>
+   </Grid>
+  </Grid>
+  <Border Grid.Row="3" IsVisible="{Binding EventHistory.HasSelection}" Background="{StaticResource Gray1Brush}" BorderBrush="{StaticResource Gray4Brush}" BorderThickness="1" CornerRadius="3" Padding="12,9">
+   <Grid RowDefinitions="Auto,Auto,Auto" RowSpacing="7">
+    <TextBlock Text="{Binding EventHistory.SelectedEntry.Summary}" TextTrimming="CharacterEllipsis" FontSize="12" FontWeight="SemiBold" ToolTip.Tip="{Binding EventHistory.SelectedEntry.TimeDetail}"/>
+    <TextBlock Grid.Row="1" Text="{Binding EventHistory.SelectedEntry.DetailSummary}" TextTrimming="CharacterEllipsis" FontSize="11" Foreground="{StaticResource Gray12Brush}" ToolTip.Tip="{Binding EventHistory.SelectedEntry.AmountDetail}"/>
+    <WrapPanel Grid.Row="2" Orientation="Horizontal">
+     <Button Classes="ReviewAction" Content="Filter source" Margin="0,0,6,0" Command="{Binding FilterSelectionCommand}" CommandParameter="source" ToolTip.Tip="Filter events from this source"/>
+     <Button Classes="ReviewAction" Content="Filter target" Margin="0,0,6,0" Command="{Binding FilterSelectionCommand}" CommandParameter="target" ToolTip.Tip="Filter events involving this target"/>
+     <Button Classes="ReviewAction" Content="Filter ability" Margin="0,0,6,0" Command="{Binding FilterSelectionCommand}" CommandParameter="ability" ToolTip.Tip="Filter this ability"/>
+     <Button x:Name="ShowContext" Classes="ReviewAction" Content="Surrounding events" Margin="0,0,6,0" Command="{Binding ShowContextCommand}" ToolTip.Tip="Show all events within five seconds of this row"/>
+     <Button Classes="ReviewAction" Content="Copy ID" Margin="0,0,6,0"><Button.Flyout><MenuFlyout>
+      <MenuItem Header="Source ID" Command="{Binding EventHistory.SelectedEntry.CellClickedCommand}" CommandParameter="Source"/>
+      <MenuItem Header="Target ID" Command="{Binding EventHistory.SelectedEntry.CellClickedCommand}" CommandParameter="Target"/>
+      <MenuItem Header="Ability ID" Command="{Binding EventHistory.SelectedEntry.CellClickedCommand}" CommandParameter="Ability"/>
+      <MenuItem Header="Effect ID" Command="{Binding EventHistory.SelectedEntry.CellClickedCommand}" CommandParameter="Effect"/>
+     </MenuFlyout></Button.Flyout></Button>
+     <Button x:Name="JedipediaButton" Classes="ReviewAction" Content="Jedipedia ↗" Margin="0,0,6,0" IsEnabled="{Binding EventHistory.SelectedEntry.CanLookupJedipedia}" ToolTip.Tip="Look up this event's ability or effect in your browser">
+      <Button.Flyout><MenuFlyout>
+       <MenuItem x:Name="JedipediaAbility" Header="{Binding EventHistory.SelectedEntry.JedipediaAbilityLabel}" Command="{Binding EventHistory.SelectedEntry.OpenJedipediaCommand}" CommandParameter="Ability" IsEnabled="{Binding EventHistory.SelectedEntry.CanLookupAbility}"/>
+       <MenuItem x:Name="JedipediaEffect" Header="{Binding EventHistory.SelectedEntry.JedipediaEffectLabel}" Command="{Binding EventHistory.SelectedEntry.OpenJedipediaCommand}" CommandParameter="Effect" IsEnabled="{Binding EventHistory.SelectedEntry.CanLookupEffect}" ToolTip.Tip="Opens the effect's owning ability and its effect details. Generic combat events are unavailable."/>
+      </MenuFlyout></Button.Flyout>
+     </Button>
+     <Button Classes="ReviewAction" Content="Open log" Command="{Binding EventHistory.SelectedEntry.OpenLogCommand}" IsEnabled="{Binding EventHistory.SelectedEntry.CanOpenLog}" ToolTip.Tip="{Binding EventHistory.SelectedEntry.TimeDetail}"/>
+    </WrapPanel>
+   </Grid>
+  </Border>
+ </Grid>
 </UserControl>

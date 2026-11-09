@@ -5,6 +5,7 @@ using Avalonia.Controls;
 using Avalonia.Input;
 using Avalonia.VisualTree;
 using SWTORCombatParser.ViewModels.BattleReview;
+using SWTORCombatParser.DataStructures;
 
 
 namespace SWTORCombatParser.Views.Battle_Review
@@ -38,6 +39,15 @@ namespace SWTORCombatParser.Views.Battle_Review
             return 0.0;
         }
         private int _previousIndex = -1; // Tracks the previously selected index
+        public void RevealSelection()
+        {
+            var selected = _eventViewModel.SelectedIndex;
+            var items = _eventViewModel.LogsToDisplay;
+            if (selected < 0 || selected >= items.Count || DataArea.Columns.Count == 0) return;
+            var halfViewport = Math.Max(1, (int)(DataArea.Bounds.Height / DataArea.RowHeight) / 2 - 1);
+            DataArea.ScrollIntoView(items[Math.Min(items.Count - 1, selected + halfViewport)], DataArea.Columns[0]);
+            DataArea.ScrollIntoView(items[selected], DataArea.Columns[0]);
+        }
         private void Selection1List_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             if (DataArea.SelectedItem == null || DataArea.SelectedIndex < 0 || !_eventViewModel.DeathReview)
@@ -65,10 +75,10 @@ namespace SWTORCombatParser.Views.Battle_Review
             }
 
             // Calculate the target index to scroll into view
-            int targetIndex = Math.Clamp(DataArea.SelectedIndex - offset, 0, DataArea.ItemsSource.Cast<object>().Count() - 1);
+            int targetIndex = Math.Clamp(DataArea.SelectedIndex - offset, 0, _eventViewModel.LogsToDisplay.Count - 1);
 
             // Get the item at the target index
-            var items = DataArea.ItemsSource.Cast<object>().ToList();
+            var items = _eventViewModel.LogsToDisplay;
             if (targetIndex < items.Count)
             {
                 // Scroll the calculated item into view
@@ -88,5 +98,17 @@ namespace SWTORCombatParser.Views.Battle_Review
         {
             _eventViewModel.HasFocus = false;
         }
+        private async void LoadRow(object? sender, DataGridRowEventArgs e)
+        {
+            if (e.Row.DataContext is DisplayableLogEntry row) await row.AddIcons();
+        }
+        private void SelectContextRow(object? sender, PointerPressedEventArgs e)
+        {
+            if (!e.GetCurrentPoint(DataArea).Properties.IsRightButtonPressed || e.Source is not Visual visual) return;
+            var row = visual as DataGridRow ?? visual.GetVisualAncestors().OfType<DataGridRow>().FirstOrDefault();
+            if (row?.DataContext is DisplayableLogEntry entry) DataArea.SelectedItem = entry;
+        }
+        private void DataArea_GotFocus(object? sender, GotFocusEventArgs e) => _eventViewModel.HasFocus = true;
+        private void DataArea_LostFocus(object? sender, Avalonia.Interactivity.RoutedEventArgs e) => _eventViewModel.HasFocus = false;
     }
 }

@@ -56,6 +56,15 @@ namespace SWTORCombatParser.ViewModels.Challenges
             }
         }
         public string ChallengeName { get; set; }
+        public string ResultLabel => Type switch
+        {
+            ChallengeType.DamageOut => SourceChallenge.UseRawValues ? "DAMAGE DEALT" : "DPS",
+            ChallengeType.DamageIn => SourceChallenge.UseRawValues ? "DAMAGE TAKEN" : "DTPS",
+            ChallengeType.AbilityCount => "ABILITY USES",
+            ChallengeType.InterruptCount => "INTERRUPTS",
+            ChallengeType.EffectStacks => SourceChallenge.UseMaxValue ? "MAXIMUM STACKS" : "CURRENT STACKS",
+            _ => "PHASE METRIC"
+        };
         public ChallengeInstanceViewModel(Challenge sourceChallenge)
         {
             SourceChallenge = sourceChallenge;
@@ -86,6 +95,9 @@ namespace SWTORCombatParser.ViewModels.Challenges
 
         private async Task ProcessPendingUpdates()
         {
+            // Begin before the first await so full UI readiness includes queued
+            // metrics and their eventual UI publication, including live coalescing.
+            using var timing = LogLoadDiagnostics.Measure("Challenge metrics update");
             while (true)
             {
                 MetricRequest? request;

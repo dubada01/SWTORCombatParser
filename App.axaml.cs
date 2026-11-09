@@ -32,7 +32,15 @@ namespace SWTORCombatParser
             Core.Initialize();
             #endif
             #if MACOS
-            Bass.Init();
+            try
+            {
+                if (!Bass.Init()) OverlayPlatformStatus.Report("Timer audio", "macOS audio initialization failed; visual timers remain available.");
+            }
+            catch (Exception error) { OverlayPlatformStatus.Report("Timer audio", "Unavailable: " + error.Message); }
+            #endif
+            #if LINUX
+            try { Core.Initialize(); }
+            catch (Exception) { OverlayPlatformStatus.Report("Timer audio", "Install your distribution's libVLC runtime for timer sounds. Visual timers remain available."); }
             #endif
             AvaloniaXamlLoader.Load(this);
         }

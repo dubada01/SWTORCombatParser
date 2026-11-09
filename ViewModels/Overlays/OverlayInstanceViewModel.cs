@@ -24,6 +24,7 @@ namespace SWTORCombatParser.ViewModels.Overlays
 {
     public class OverlayInstanceViewModel : BaseOverlayViewModel
     {
+        public override bool SupportsPresentation => true;
         private object _refreshLock = new object();
         private double sizeScalar = 1d;
         private string metricTotal;
