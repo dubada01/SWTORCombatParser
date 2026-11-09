@@ -56,7 +56,9 @@ namespace SWTORCombatParser.Model.Phases
     {
         public void SetSource()
         {
-            SourcePt2 = PhaseSource.Split('|')[1];
+            // Whole-encounter definitions have no separator; boss definitions do.
+            var parts = (PhaseSource ?? string.Empty).Split('|', 2);
+            SourcePt2 = parts.Length == 2 ? parts[1] : parts[0];
         }
         public Guid Id { get; set; }
         public string SourcePt1 { get; set; }

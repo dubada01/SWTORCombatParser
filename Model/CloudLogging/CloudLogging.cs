@@ -1,4 +1,4 @@
-﻿using SWTORCombatParser.Model.CloudRaiding;
+using SWTORCombatParser.Model.CloudRaiding;
 using SWTORCombatParser.Utilities;
 using System;
 using System.Net;
@@ -12,7 +12,7 @@ namespace SWTORCombatParser.Model.CloudLogging
     public static class CloudLogging
     {
         private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
-        private static readonly HttpClient _client = new HttpClient();
+        private static readonly HttpClient _client = OfflineHttpHandler.CreateClient();
         private static Guid _appStartupId;
         public static async Task UploadLogAsync(string logMessage, string logCategory)
         {

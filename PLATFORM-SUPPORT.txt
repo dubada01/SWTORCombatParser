@@ -31,6 +31,22 @@ KDE / KWin
   independently of alpha transparency.
 
 Linux dependencies and troubleshooting
+- Self-contained includes .NET, but still requires system native libraries.
+  Fedora 45 ships OpenSSL 4; install its OpenSSL 3 compatibility package:
+    sudo dnf install openssl3-libs
+  Other distributions need the package providing libssl.so.3 and libcrypto.so.3.
+  A missing compatible OpenSSL is reported before background networking starts.
+  Choose Continue offline to save offline mode and open the application, or start
+  with ./Orbs --offline. An existing offline preference bypasses the prompt.
+  Local log indexes, progression and run IDs use managed SHA-256 with the same
+  IDs as before, so offline operation does not require OpenSSL. HTTP requests,
+  NTP, uploads, cloud logging and online name detection are blocked offline.
+  Saved Parsely credentials are left untouched while OpenSSL is missing.
+  Install OpenSSL and restart before turning offline mode off in Settings.
+  Run ./Orbs --check-runtime to check OpenSSL without opening the UI (exit 0/1).
+- Interrupted old phase-settings writes are recovered with an .invalid-*.bak
+  copy of the original alongside phase_info.json. Valid entries are retained;
+  built-in definitions are merged again. New phase saves use an atomic rename.
 - Required native libraries include libX11.so.6 and libXext.so.6; XFixes is used
   when available (libXfixes.so.3, server version >= 2), with SHAPE 1.1 as fallback.
 - Avalonia also needs its normal X11/font/graphics runtime dependencies. SharpHook
@@ -98,6 +114,8 @@ Real Mac, Plasma 6, GPU/fullscreen and
 mixed-DPI desktop smoke tests remain necessary before declaring a release matrix.
 
 Primary references
+https://packages.fedoraproject.org/pkgs/openssl3/openssl3-libs/fedora-45.html
+https://raw.githubusercontent.com/dotnet/runtime/v8.0.33/src/native/libs/System.Security.Cryptography.Native/opensslshim.c
 https://www.x.org/releases/current/doc/xextproto/shape.pdf
 https://docs.kde.org/stable_kf6/en/kwin/kcontrol/windowspecific/window-matching0.html
 https://docs.kde.org/stable_kf6/en/kwin/kcontrol/windowspecific/attributes.html

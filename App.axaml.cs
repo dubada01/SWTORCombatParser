@@ -24,10 +24,17 @@ namespace SWTORCombatParser
 {
     public partial class App : Application
     {
+        internal static string? StartupError { get; set; }
+
         [DllImport("libvlc.dll")]
         public static extern IntPtr libvlc_new(int argc, string[] argv);
         public override void Initialize()
         {
+            if (StartupError != null)
+            {
+                Styles.Add(new Avalonia.Themes.Fluent.FluentTheme());
+                return;
+            }
             #if WINDOWS
             Core.Initialize();
             #endif
@@ -46,14 +53,75 @@ namespace SWTORCombatParser
         }
         public override void OnFrameworkInitializationCompleted()
         {
-            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime desktop)
+            if (StartupError != null && ApplicationLifetime is IClassicDesktopStyleApplicationLifetime failedDesktop)
+            {
+                // Show a usable error for file-manager launches, before starting
+                // version checks, cloud logging, or any other cryptography users.
+                var close = new Button { Content = "Close" };
+                var offline = new Button { Content = "Continue offline", IsDefault = true };
+                var message = new SelectableTextBlock { Text = StartupError, TextWrapping = Avalonia.Media.TextWrapping.Wrap };
+                var window = new Window
+                {
+                    Title = "Orbs — online features unavailable",
+                    Width = 600,
+                    SizeToContent = SizeToContent.Height,
+                    CanResize = false,
+                    WindowStartupLocation = WindowStartupLocation.CenterScreen,
+                    Content = new StackPanel
+                    {
+                        Margin = new Thickness(24),
+                        Spacing = 20,
+                        Children =
+                        {
+                            message,
+                            new StackPanel
+                            {
+                                Orientation = Avalonia.Layout.Orientation.Horizontal,
+                                HorizontalAlignment = Avalonia.Layout.HorizontalAlignment.Right,
+                                Spacing = 12,
+                                Children = { close, offline }
+                            }
+                        }
+                    }
+                };
+                close.Click += (_, _) => failedDesktop.Shutdown(1);
+                offline.Click += (_, _) =>
+                {
+                    try
+                    {
+                        Settings.WriteSetting("offline_mode", true);
+                    }
+                    catch (Exception error)
+                    {
+                        message.Text = "Could not save offline mode: " + error.Message;
+                        return;
+                    }
+                    offline.IsEnabled = false;
+                    StartupError = null;
+                    Styles.Clear();
+                    Initialize();
+                    StartDesktop();
+                    // App_Startup has assigned the real main window before the
+                    // prompt closes, so closing it does not end the app lifetime.
+                    window.Close();
+                };
+                failedDesktop.MainWindow = window;
+                base.OnFrameworkInitializationCompleted();
+                return;
+            }
+            StartDesktop();
+            base.OnFrameworkInitializationCompleted();
+        }
+
+        private void StartDesktop()
+        {
+            if (ApplicationLifetime is IClassicDesktopStyleApplicationLifetime)
             {
                 // Line below is needed to remove Avalonia data validation.
                 // Without this line you will get duplicate validations from both Avalonia and CT
                 BindingPlugins.DataValidators.RemoveAt(0);
             }
             App_Startup();
-            base.OnFrameworkInitializationCompleted();
         }
 
         private void App_Startup()

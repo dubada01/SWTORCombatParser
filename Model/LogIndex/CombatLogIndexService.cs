@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
 using System.Linq;
-using System.Security.Cryptography;
+
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -263,7 +263,7 @@ public sealed class CombatLogIndexService
     private string CachePath(string directory)
     {
         var key = OperatingSystem.IsWindows() ? directory.ToUpperInvariant() : directory;
-        return Path.Combine(_cacheDirectory, Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(key))) + ".json");
+        return Path.Combine(_cacheDirectory, SWTORCombatParser.Utilities.StableHash.Sha256(key) + ".json");
     }
 
     private string JournalPath(string directory) => CachePath(directory) + ".updates";

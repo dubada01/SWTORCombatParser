@@ -15,7 +15,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
     public static partial class API_Connection
     {
         private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
-        private static readonly HttpClient _client = new HttpClient(new HttpClientHandler
+        private static readonly HttpClient _client = OfflineHttpHandler.CreateClient(new HttpClientHandler
         {
             AutomaticDecompression = DecompressionMethods.GZip | DecompressionMethods.Deflate | DecompressionMethods.Brotli
         });

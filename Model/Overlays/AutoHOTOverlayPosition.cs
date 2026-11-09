@@ -36,7 +36,14 @@ namespace SWTORCombatParser.Model.Overlays
     {
         private const string OcrUrl = "http://orbs-stats.com:27506/ocr";
         private const string AwsOcrUrl = "http://ec2-35-85-227-238.us-west-2.compute.amazonaws.com:27506/ocr";
-        private static readonly HttpClient Client = new() { Timeout = TimeSpan.FromSeconds(15) };
+        private static readonly HttpClient Client = CreateClient();
+
+        private static HttpClient CreateClient()
+        {
+            var client = OfflineHttpHandler.CreateClient();
+            client.Timeout = TimeSpan.FromSeconds(15);
+            return client;
+        }
 
         public static Task<RaidFrameDetectionResult> DetectCurrentPlayerLayoutAsync(Point topLeftOfFrame,
             MemoryStream raidFrameStream, int numberOfRows, int numberOfColumns, int height, int width,
@@ -66,6 +73,8 @@ namespace SWTORCombatParser.Model.Overlays
             MemoryStream raidFrameStream, int rows, int columns, int height, int width,
             CancellationToken cancellationToken)
         {
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return Failure("Name detection is unavailable in offline mode. Use manual alignment.");
             if (height <= 0 || width <= 0 || rows <= 0 || columns <= 0)
                 return Failure("Set a valid raid frame size, row count, and column count before detecting names.");
 

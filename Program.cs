@@ -1,6 +1,8 @@
 using System;
 using Avalonia;
 using Avalonia.ReactiveUI;
+using SWTORCombatParser.Utilities.Native;
+using SWTORCombatParser.Utilities;
 #if WINDOWS
 using Avalonia.Win32;
 #endif
@@ -17,6 +19,24 @@ internal sealed class Program
         // working directory before loading relative resources or native libraries.
         string executablePath = AppContext.BaseDirectory;
         Environment.CurrentDirectory = executablePath;
+#if LINUX
+        var runtimeError = LinuxRuntimeDependencies.GetStartupError();
+        if (Array.IndexOf(args, "--check-runtime") >= 0)
+        {
+            Environment.ExitCode = runtimeError == null ? 0 : 1;
+            if (runtimeError == null) Console.WriteLine("OpenSSL runtime dependency is available.");
+            else Console.Error.WriteLine(runtimeError);
+            return;
+        }
+        if (Array.IndexOf(args, "--offline") >= 0) Settings.WriteSetting("offline_mode", true);
+        if (runtimeError != null)
+        {
+            var alreadyOffline = Settings.ReadSettingOfType<bool>("offline_mode");
+            Settings.OfflineModeRequiredReason = runtimeError;
+            if (!alreadyOffline) App.StartupError = runtimeError;
+            Console.Error.WriteLine(runtimeError);
+        }
+#endif
         BuildAvaloniaApp().StartWithClassicDesktopLifetime(args);
         
     }

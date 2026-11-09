@@ -9,6 +9,9 @@ namespace SWTORCombatParser.Utilities;
 
 public static class Settings
 {
+    // A missing native runtime dependency cannot be fixed by unticking a box.
+    // Recheck on the next launch after the user installs the system package.
+    internal static string? OfflineModeRequiredReason { get; set; }
     public const string ShowOverlaysInObsSetting = "show_overlays_in_obs";
     public static string RaidFrameBossTargetVisibilitySetting = "overlay_show_targeted";
     
@@ -65,6 +68,8 @@ public static class Settings
     }
     public static T ReadSettingOfType<T>(string settingName)
     {
+        if (settingName == "offline_mode" && OfflineModeRequiredReason != null)
+            return JsonConvert.DeserializeObject<T>("true");
         lock (_initLock)
         {
         Init();
@@ -148,7 +153,11 @@ public static class Settings
         var settingList = JsonConvert.DeserializeObject<JObject>(File.ReadAllText(_settingsPath));
 
         // Check if the value is a string
-        if (value is string stringValue)
+        if (settingName == "offline_mode" && OfflineModeRequiredReason != null)
+        {
+            settingList[settingName] = true;
+        }
+        else if (value is string stringValue)
         {
             // Directly assign the string without serializing again
             settingList[settingName] = stringValue;

@@ -17,7 +17,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
             Culture = CultureInfo.InvariantCulture
         };
         private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
-        private static readonly HttpClient _client = new HttpClient();
+        private static readonly HttpClient _client = OfflineHttpHandler.CreateClient();
         public static async Task<List<string>> GetAllChallengeIds()
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode"))

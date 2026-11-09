@@ -12,15 +12,16 @@ namespace SWTORCombatParser.DataStructures.Phases
         {
             try
             {
-                var phases = JsonConvert.DeserializeObject<IEnumerable<Phase>>(File.ReadAllText(@"DataStructures/Phases/phase_info.json"));
-                foreach (var phase in phases)
-                {
-                    DefaultPhaseManager.AddOrUpdatePhase(phase);
-                }
+                var path = Path.Combine(AppContext.BaseDirectory, "DataStructures", "Phases", "phase_info.json");
+                var phases = JsonConvert.DeserializeObject<Phase[]>(File.ReadAllText(path))
+                    ?? throw new JsonSerializationException("The built-in phase list is null.");
+                // Merge in one transaction, preserving custom definitions and
+                // avoiding a partially rewritten file for every built-in phase.
+                DefaultPhaseManager.AddOrUpdatePhases(phases);
             }
             catch (Exception e)
             {
-                Logging.LogError("Failed to load phase infos:" + e.Message);
+                Logging.LogError("Failed to load phase infos:" + e.Message, tryCloudLogs: false);
             }
         }
     }

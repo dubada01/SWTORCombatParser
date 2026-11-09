@@ -35,6 +35,7 @@ namespace SWTORCombatParser.Utilities
         }
         private static DateTime GetNetworkTime()
         {
+            if (Settings.ReadSettingOfType<bool>("offline_mode")) return DateTime.Now;
             try
             {
                 const string ntpServer = "pool.ntp.org";

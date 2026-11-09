@@ -25,6 +25,22 @@ the Wayland desktop. This does not simulate a native Wayland game, physical inpu
 GPU drivers, fullscreen direct scanout, mixed-monitor scaling, or a full Plasma UI.
 
 Also run the main NUnit OverlayPlatformTests and overlay/raid-frame regressions.
+
+Linux startup regression (self-contained Linux x64 publish mounted at /app)
+Run check-startup.py inside a disposable Debian-based Docker container, as root,
+with Python 3, Xvfb, libX11 and libXtst. Do not run on a workstation: the test
+temporarily renames the container's libssl.so.3 and restores it in finally.
+Mount this harness read-only at /checks and the published app read-only at /app.
+Use --network none so the test has no external connectivity. Start a local Xvfb
+server and run Python with DISPLAY set, for example inside the container:
+  Xvfb :77 -screen 0 1920x1080x24 -nolisten tcp -ac &
+  export DISPLAY=:77
+  python3 /checks/check-startup.py
+Wait for Xvfb to become ready before Python. The test checks --check-runtime with
+and without OpenSSL, sends Return to the actual Continue offline button, verifies
+the saved preference, recovers an empty phase file with a backup, and confirms
+the main window opens on both the first launch and a saved-offline restart.
+
 macOS needs a real Mac smoke test of permissions, Retina/multiple monitors, Spaces,
 lock/unlock, hide/show, resizing, and input reaching the game; compilation alone
 does not validate AppKit behavior.

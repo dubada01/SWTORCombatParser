@@ -18,6 +18,17 @@ namespace SWTORCombatParser.Views.Home_Views
         public ParselySettings()
         {
             InitializeComponent();
+            if (Settings.OfflineModeRequiredReason != null)
+            {
+                Title = "Parsely settings — OpenSSL required";
+                SaveButton.IsEnabled = false;
+                UserNameBox.IsEnabled = false;
+                PasswordBox.IsEnabled = false;
+                GuildNameBox.IsEnabled = false;
+                ToolTip.SetTip(SaveButton, "Install a compatible OpenSSL library and restart Orbs to edit saved login details.");
+                CancelButton.Click += OnCancel;
+                return;
+            }
             if (Settings.HasSetting("username"))
             {
                 UserNameBox.Text = Settings.ReadSettingOfType<string>("username").Trim('"');

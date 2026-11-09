@@ -6,7 +6,7 @@ using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
-using System.Security.Cryptography;
+
 using System.Text;
 using System.Text.Json;
 using System.Threading;
@@ -365,7 +365,7 @@ public sealed class ProgressionReviewService : IDisposable
 
     private static string PullId(ProgressionRaidChoice raid, DateTime start) => raid.Id + "-" + start.Ticks.ToString(CultureInfo.InvariantCulture);
     private static string Known(string? value, string fallback) => string.IsNullOrWhiteSpace(value) ? fallback : value.Trim();
-    private static string Hash(string input) => Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(input)));
+    private static string Hash(string input) => SWTORCombatParser.Utilities.StableHash.Sha256(input);
 
     public void Dispose()
     {

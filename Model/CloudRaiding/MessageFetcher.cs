@@ -13,7 +13,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
     public static class MessageFetcher
     {
         private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
-        private static readonly HttpClient _client = new HttpClient();
+        private static readonly HttpClient _client = OfflineHttpHandler.CreateClient();
         public static async Task<List<UpdateMessage>> GetMessages()
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode"))

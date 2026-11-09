@@ -79,6 +79,9 @@ namespace SWTORCombatParser.Views.SettingsView
         private void InitBools()
         {
             OfflineMode.IsChecked = Settings.ReadSettingOfType<bool>("offline_mode");
+            OfflineMode.IsEnabled = Settings.OfflineModeRequiredReason == null;
+            if (Settings.OfflineModeRequiredReason != null)
+                ToolTip.SetTip(OfflineMode, "Install a compatible OpenSSL library and restart Orbs to enable online features.");
             RunInBackground.IsChecked = ShouldShowPopup.ReadShouldShowPopup("BackgroundDisabled");
             ForceLogUpdates.IsChecked = Settings.ReadSettingOfType<bool>("force_log_updates");
             BackgroundWarning.IsChecked = ShouldShowPopup.ReadShouldShowPopup("BackgroundMonitoring");

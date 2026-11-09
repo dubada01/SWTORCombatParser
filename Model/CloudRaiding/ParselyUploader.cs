@@ -24,6 +24,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         internal static event Action UploadStarted = delegate { };  
         internal static async Task<string> UploadCurrentCombat(string currentlySelectedLogName)
         {
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return "Parsely uploads are unavailable in offline mode.";
             if (Model.LogParsing.LogReplayContext.IsReplayFile(currentlySelectedLogName))
                 return "Debug replays cannot be uploaded. Open the original combat log to upload it.";
             if (string.IsNullOrEmpty(currentlySelectedLogName) || !File.Exists(currentlySelectedLogName))
@@ -45,6 +47,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         public static async Task<LogUploadResponse> TryUploadText(string logText, string logFileName)
         {
+            if (Settings.ReadSettingOfType<bool>("offline_mode"))
+                return new LogUploadResponse { WasSuccess = false, ErrorMessage = "Parsely uploads are unavailable in offline mode." };
             if (Model.LogParsing.LogReplayContext.IsReplayFile(logFileName))
                 return new LogUploadResponse { WasSuccess = false, ErrorMessage = "Debug replays cannot be uploaded. Open the original combat log to upload it." };
             UploadStarted();
@@ -93,7 +97,8 @@ namespace SWTORCombatParser.Model.CloudRaiding
         }
         private static HttpClient CreateClient()
         {
-            var connection = new HttpClient { Timeout = TimeSpan.FromSeconds(300) };
+            var connection = OfflineHttpHandler.CreateClient();
+            connection.Timeout = TimeSpan.FromSeconds(300);
             connection.DefaultRequestHeaders.Add("User-Agent", "Orbs v" + Assembly.GetExecutingAssembly().GetName().Version);
             return connection;
         }

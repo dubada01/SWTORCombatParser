@@ -13,7 +13,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
     public static class TimerDatabaseAccess
     {
         private static string _apiPath => DatabaseIPGetter.CurrentAPIURL();
-        private static readonly HttpClient _client = new HttpClient();
+        private static readonly HttpClient _client = OfflineHttpHandler.CreateClient();
         public static async Task<List<string>> GetAllTimerIds()
         {
             if (Settings.ReadSettingOfType<bool>("offline_mode"))
