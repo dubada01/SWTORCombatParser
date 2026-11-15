@@ -1,0 +1,34 @@
+Installer dropdown updates
+
+Published stable GitHub releases update the independent downloads branch of this
+repository through .github/workflows/update-downloads.yml. The website fetches
+https://orbs-stats.com/downloads.json at runtime, through its persistent Nginx
+cache. Installer releases require no website source change, image build or deploy.
+
+Publish the archive/installer and its matching <filename>.sha256 sidecar before
+publishing the stable release. Tags use v<major>.<minor>.<platform>:
+  macOS .1: Orbs-<version>-macOS-arm64.dmg
+  Linux .2: Orbs-<version>-linux-x64.tar.gz
+  Windows .0: Orbs-<version>-windows-x64.msi (win-x64 is also accepted)
+Historical Windows Store/MSI entries are retained independently.
+
+The updater compares numeric versions per platform, requires fully uploaded
+assets, and matches GitHub's SHA-256 digest to the sidecar's exact filename.
+Drafts, pre-releases, incomplete assets and older versions cannot replace an
+existing download. Repeated runs are idempotent; concurrent writes use the blob
+SHA to avoid overwriting newer metadata. The token is never sent to asset URLs.
+
+Keep the updater, its tests and workflow in release branches. The default master
+branch also runs a scheduled reconciliation for late assets, older release
+branches and releases created by another workflow's GITHUB_TOKEN, which does not
+trigger another release workflow. For immediate updates from such automation,
+call update-downloads.yml via workflow_call or run the updater after publishing
+with GH_TOKEN set to a contents:write repository token.
+
+Manual reconciliation:
+  gh workflow run update-downloads.yml --repo dubada01/SWTORCombatParser --ref master
+
+The site refreshes once per minute; GitHub's raw-file CDN can add a few minutes
+of propagation delay. The last good manifest is cached outside website releases,
+and the dropdown retains known-good values on network/schema/validation errors.
+Server configuration and its rollback installer live in Orbs-Stats/deploy.
