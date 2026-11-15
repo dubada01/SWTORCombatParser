@@ -108,6 +108,15 @@ Native dependency/CPU availability must be checked for each shipped artifact.
 The RID selects platform code/packages even on a different build OS. A normal
 build without RID uses the host OS and does not force a particular CPU.
 
+Linux x64 release archives can be built on macOS or Linux with:
+  bash build/Build-LinuxPackage.sh <empty-output-directory>
+This keeps the complete self-contained runtime, including the OpenSSL shim
+used by the startup check, and generates a launcher, setup notes and SHA-256
+sidecar. It uses .NET 8.0.33 to match the previous Linux release; override
+ORBS_DOTNET_RUNTIME_VERSION explicitly when updating the bundled runtime.
+Native x64 CI validates the extracted archive's startup/offline recovery and
+real-window X11 overlay behavior before uploading release artifacts.
+
 Validation
 See SWTORCombatParser_Test/PlatformHarness/README.txt for reproducible native
 click-delivery tests and their limits. The November 2026 review passed 99 focused

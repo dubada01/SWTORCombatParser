@@ -1,0 +1,67 @@
+name: Build and verify Linux release
+
+on:
+  push:
+    branches: ['codex/linux-release-*']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  linux-x64:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+      - uses: actions/setup-dotnet@67a3573c9a986a3f9c594539f4ab511d57bb3ce9 # v4
+        with:
+          dotnet-version: 8.0.x
+
+      - name: Build complete Linux package
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash build/Build-LinuxPackage.sh "$RUNNER_TEMP/orbs-linux"
+          version="$(dotnet msbuild SWTORCombatParser.csproj -nologo -getProperty:Version -p:RuntimeIdentifier=linux-x64)"
+          echo "ORBS_RELEASE_VERSION=$version" >> "$GITHUB_ENV"
+          cd "$RUNNER_TEMP/orbs-linux"
+          sha256sum -c "Orbs-$version-linux-x64.tar.gz.sha256"
+          mkdir extracted
+          tar -xzf "Orbs-$version-linux-x64.tar.gz" -C extracted
+
+      - name: Build native overlay checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          dotnet publish SWTORCombatParser_Test/PlatformHarness/PlatformHarness.csproj \
+            -c Release -r linux-x64 --self-contained true \
+            -p:RuntimeFrameworkVersion=8.0.33 -o "$RUNNER_TEMP/platform-tests"
+          docker build --platform linux/amd64 -t orbs-linux-release-test \
+            -f build/LinuxReleaseTest.Dockerfile build
+
+      - name: Check extracted application startup and recovery
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm --network none \
+            --mount "type=bind,src=$RUNNER_TEMP/orbs-linux/extracted/Orbs-$ORBS_RELEASE_VERSION-linux-x64,dst=/app,readonly" \
+            --mount "type=bind,src=$GITHUB_WORKSPACE/SWTORCombatParser_Test/PlatformHarness/check-startup.py,dst=/test/check-startup.py,readonly" \
+            orbs-linux-release-test timeout 120s xvfb-run -a python3 /test/check-startup.py
+
+      - name: Check native overlay input and capture
+        shell: bash
+        run: |
+          set -euo pipefail
+          docker run --rm --network none \
+            --mount "type=bind,src=$RUNNER_TEMP/platform-tests,dst=/tests,readonly" \
+            -e XDG_SESSION_TYPE=x11 \
+            orbs-linux-release-test timeout 60s xvfb-run -a /tests/PlatformHarness
+
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: orbs-linux-${{ env.ORBS_RELEASE_VERSION }}
+          path: ${{ runner.temp }}/orbs-linux/*.tar.gz*
+          if-no-files-found: error
+          compression-level: 0
+          retention-days: 7
