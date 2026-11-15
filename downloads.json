@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-15T06:00:33.961839+00:00",
+  "updatedAt": "2026-11-15T06:11:32.080603Z",
   "downloads": {
     "windows-store": {
       "version": "2.3.0.0",
@@ -12,11 +12,15 @@
     },
     "macos-arm64": {
       "version": "2.5.1",
-      "url": "https://github.com/dubada01/SWTORCombatParser/releases/download/v2.5.1/Orbs-2.5.1-macOS-arm64.dmg"
+      "url": "https://github.com/dubada01/SWTORCombatParser/releases/download/v2.5.1/Orbs-2.5.1-macOS-arm64.dmg",
+      "sha256": "1c2f526335aaf83b179bcf2676a82e0502ffe7f1b1b14be7b1ff2fa05344f7eb",
+      "releaseTag": "v2.5.1"
     },
     "linux-x64": {
       "version": "2.5.2",
-      "url": "https://github.com/dubada01/SWTORCombatParser/releases/download/v2.5.2/Orbs-2.5.2-linux-x64.tar.gz"
+      "url": "https://github.com/dubada01/SWTORCombatParser/releases/download/v2.5.2/Orbs-2.5.2-linux-x64.tar.gz",
+      "sha256": "dde539d76e0d844d936a3db76f627b53500a3bf216068352674f2942ea385aff",
+      "releaseTag": "v2.5.2"
     }
   }
 }
