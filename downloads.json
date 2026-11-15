@@ -1,14 +1,16 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-15T22:01:47Z",
+  "updatedAt": "2026-11-15T23:34:58.265680Z",
   "downloads": {
     "windows-store": {
       "version": "2.5.0",
       "url": "https://apps.microsoft.com/detail/9P63T6ZQMHBZ"
     },
     "windows-msi": {
-      "version": "2.3.1.1",
-      "url": "https://orbs-installers.s3.us-west-2.amazonaws.com/Orbs+Setup.msi"
+      "version": "2.5.0",
+      "url": "https://github.com/dubada01/SWTORCombatParser/releases/download/v2.5.0/Orbs-2.5.0-windows-x64.msi",
+      "sha256": "51cc3c18c709cdd78254eca9cc7d4337916b1e40a749da32d0860eace0617c37",
+      "releaseTag": "v2.5.0"
     },
     "macos-arm64": {
       "version": "2.5.1",
