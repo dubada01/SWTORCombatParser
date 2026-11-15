@@ -1,9 +1,9 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-15T06:11:32.080603Z",
+  "updatedAt": "2026-11-15T22:01:47Z",
   "downloads": {
     "windows-store": {
-      "version": "2.3.0.0",
+      "version": "2.5.0",
       "url": "https://apps.microsoft.com/detail/9P63T6ZQMHBZ"
     },
     "windows-msi": {
