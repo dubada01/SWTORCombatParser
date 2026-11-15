@@ -3,8 +3,8 @@ set -euo pipefail
 
 # Use the project-selected macOS version unless the caller supplies one.
 VERSION="${1:-$(dotnet msbuild ./SWTORCombatParser.csproj -nologo -getProperty:Version -p:RuntimeIdentifier=osx-arm64)}"
-if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+\.1$ ]]; then
-  echo "macOS versions must end in .1 (for example 2.4.1.1). Received: $VERSION"
+if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.1$ ]]; then
+  echo "macOS versions must end in .1 (major.minor.platform, for example 2.5.1). Received: $VERSION"
   exit 1
 fi
 
@@ -17,7 +17,7 @@ ENTITLEMENTS_PLIST="$MACOS_BUILD_DIR/entitlements.plist"
 DEVELOPER_ID="Developer ID Application: David Duba (GVWYC75SS7)"
 ZIP_FILE="$APP_NAME.zip"
 BUNDLE_IDENTIFIER="com.dubatech.Orbs"
-MINIMUM_SYSTEM_VERSION="10.12"
+MINIMUM_SYSTEM_VERSION="11.0"
 ICON_FILE="./OrbsIcon.png" # Assuming OrbsIcon.png is next to the script
 
 # Step 1: Build and Publish the .NET app
@@ -55,6 +55,8 @@ cat > "$APP_DIR/Contents/Info.plist" <<EOL
     <string>$APP_NAME</string>
     <key>CFBundleIdentifier</key>
     <string>$BUNDLE_IDENTIFIER</string>
+    <key>CFBundleShortVersionString</key>
+    <string>$VERSION</string>
     <key>CFBundleVersion</key>
     <string>$VERSION</string>
     <key>CFBundlePackageType</key>

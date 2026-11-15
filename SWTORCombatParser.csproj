@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <VersionPrefix>2.4.1.0</VersionPrefix>
+    <VersionPrefix>2.5.0</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
@@ -27,8 +27,8 @@
     <DefineConstants Condition="'$(OrbsTargetPlatform)' == 'Linux'">$(DefineConstants);LINUX</DefineConstants>
     <DefineConstants Condition="'$(OrbsTargetPlatform)' == 'macOS'">$(DefineConstants);MACOS</DefineConstants>
     <DefineConstants Condition="'$(OrbsTargetPlatform)' == 'Windows'">$(DefineConstants);WINDOWS</DefineConstants>
-    <!-- The fourth component identifies the platform, never a hotfix counter. -->
-    <OrbsReleaseVersion>$([System.Version]::Parse('$(VersionPrefix)').ToString(3))</OrbsReleaseVersion>
+    <!-- Release versions are major.minor.platform: Windows .0, macOS .1, Linux .2. -->
+    <OrbsReleaseVersion>$([System.Version]::Parse('$(VersionPrefix)').ToString(2))</OrbsReleaseVersion>
     <OrbsPlatformRevision Condition="'$(OrbsTargetPlatform)' == 'Windows'">0</OrbsPlatformRevision>
     <OrbsPlatformRevision Condition="'$(OrbsTargetPlatform)' == 'macOS'">1</OrbsPlatformRevision>
     <OrbsPlatformRevision Condition="'$(OrbsTargetPlatform)' == 'Linux'">2</OrbsPlatformRevision>
@@ -39,8 +39,8 @@
   </PropertyGroup>
 
   <Target Name="ValidateOrbsPlatformVersion" BeforeTargets="GenerateAssemblyInfo;Publish;Pack">
-    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(Version)', '^\d+\.\d+\.\d+\.$(OrbsPlatformRevision)$'))"
-           Text="$(OrbsTargetPlatform) versions must end in .$(OrbsPlatformRevision) (Windows .0, macOS .1, Linux .2). Requested: $(Version)." />
+    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(Version)', '^\d+\.\d+\.$(OrbsPlatformRevision)$'))"
+           Text="Versions use major.minor.platform (Windows .0, macOS .1, Linux .2). Requested: $(Version)." />
     <Error Condition="'$(AssemblyVersion)' != '$(Version)' or '$(FileVersion)' != '$(Version)'"
            Text="Version, AssemblyVersion and FileVersion must match the platform-specific version $(Version)." />
   </Target>

@@ -93,11 +93,12 @@ macOS
 - The supported Apple target here is macOS desktop, not iOS/iPadOS.
 
 Build/publish
-The fourth version component identifies the platform: Windows .0, macOS .1,
-Linux .2. The current 2.4.1 release builds as 2.4.1.0 / 2.4.1.1 / 2.4.1.2.
+Versions use exactly major.minor.platform: Windows .0, macOS .1, Linux .2.
+The current 2.5 release builds as 2.5.0 / 2.5.1 / 2.5.2.
 The target RID selects this automatically, including cross-publishing. Explicit
 Version overrides must use the matching suffix; assembly/file versions match.
-Increase the third component for a patch release, keeping the platform suffix.
+Increase the minor component for the next release, keeping the platform suffix.
+The CLR represents three-component assembly versions with a trailing .0.
 Use an explicit RID when publishing, e.g.:
   dotnet publish SWTORCombatParser.csproj -c Release -r linux-x64 --self-contained true
   dotnet publish SWTORCombatParser.csproj -c Release -r linux-arm64 --self-contained true

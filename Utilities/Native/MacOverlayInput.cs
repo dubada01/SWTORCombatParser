@@ -5,6 +5,7 @@ namespace SWTORCombatParser.Utilities.Native;
 
 internal static class MacOverlayInput
 {
+    private const int StatusWindowLevelKey = 9; // kCGStatusWindowLevelKey
     private const long CanJoinAllSpaces = 1L << 0;
     private const long MoveToActiveSpace = 1L << 1;
     private const long FullScreenPrimary = 1L << 7;
@@ -25,15 +26,25 @@ internal static class MacOverlayInput
 
         SendBool(handle, Selector("setHasShadow:"), false);
         SendBool(handle, Selector("setHidesOnDeactivate:"), false);
+
+        // Wine puts composited fullscreen windows at NSStatusWindowLevel + 1
+        // (or +2 for a floating window). Avalonia's Topmost uses the floating level.
+        var levelSelector = Selector("level");
+        var minimumLevel = CGWindowLevelForKey(StatusWindowLevelKey) + 3;
+        if (SendPointer(handle, levelSelector).ToInt64() < minimumLevel)
+            SendInteger(handle, Selector("setLevel:"), new IntPtr(minimumLevel));
+
         // All Spaces alone doesn't opt an ordinary window into another app's
         // fullscreen Space. macOS 13 added an explicit cross-application behavior.
-        var behavior = SendPointer(handle, Selector("collectionBehavior")).ToInt64();
-        behavior = GetOverlayCollectionBehavior(behavior, OperatingSystem.IsMacOSVersionAtLeast(13));
-        SendInteger(handle, Selector("setCollectionBehavior:"), new IntPtr(behavior));
+        var currentBehavior = SendPointer(handle, Selector("collectionBehavior")).ToInt64();
+        var behavior = GetOverlayCollectionBehavior(currentBehavior, OperatingSystem.IsMacOSVersionAtLeast(13));
+        if (currentBehavior != behavior)
+            SendInteger(handle, Selector("setCollectionBehavior:"), new IntPtr(behavior));
         SendBool(handle, Selector("setIgnoresMouseEvents:"), locked);
         if (GetBool(handle, Selector("ignoresMouseEvents")) != locked)
             throw new InvalidOperationException("macOS did not confirm overlay mouse transparency.");
-        return locked ? "macOS mouse transparency verified." : "macOS editing enabled.";
+        var inputStatus = locked ? "macOS mouse transparency verified." : "macOS editing enabled.";
+        return $"{inputStatus} Window layer {SendPointer(handle, levelSelector).ToInt64()}.";
     }
 
     internal static long GetOverlayCollectionBehavior(long behavior, bool supportsJoiningApplications)
@@ -49,6 +60,8 @@ internal static class MacOverlayInput
         return behavior;
     }
 
+    [DllImport("/System/Library/Frameworks/CoreGraphics.framework/CoreGraphics")]
+    private static extern int CGWindowLevelForKey(int key);
     [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "sel_registerName")] private static extern IntPtr Selector(string name);
     [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "objc_msgSend")] private static extern IntPtr SendPointer(IntPtr receiver, IntPtr selector);
     [DllImport("/usr/lib/libobjc.A.dylib", EntryPoint = "objc_msgSend")] private static extern void SendInteger(IntPtr receiver, IntPtr selector, IntPtr value);

@@ -21,10 +21,12 @@ $repo = Split-Path $PSScriptRoot -Parent
 $projectDirectory = Join-Path $repo 'Orbs Package Builder'
 [xml]$desktopProject = Get-Content (Join-Path $repo 'SWTORCombatParser.csproj') -Raw
 if (!$Version) { $Version = $desktopProject.SelectSingleNode('/Project/PropertyGroup/VersionPrefix').InnerText }
-if ($Version -notmatch '^\d+\.\d+\.\d+\.0$') {
-    throw 'Use a four-part Store version ending in .0, for example 2.3.1.0.'
+if ($Version -notmatch '^\d+\.\d+\.0(\.0)?$') {
+    throw 'Use a Windows major.minor.platform version, for example 2.5.0 (or its MSIX form 2.5.0.0).'
 }
+if (($Version -split '\.').Count -eq 3) { $Version += '.0' }
 $parsedVersion = [version]$Version
+$desktopVersion = $parsedVersion.ToString(3)
 if ($parsedVersion.Major -eq 0 -or $parsedVersion.Major -gt 65535 -or $parsedVersion.Minor -gt 65535 -or $parsedVersion.Build -gt 65535) {
     throw 'The version must have a nonzero major component and components no greater than 65535.'
 }
@@ -75,7 +77,7 @@ $arguments = @(
     '/p:Configuration=Release', '/p:Platform=x64', '/p:RuntimeIdentifier=win-x64', '/p:SelfContained=true',
     '/p:GenerateAppxPackageOnBuild=true', '/p:AppxPackageSigningEnabled=false', '/p:AppxBundle=Never',
     "/p:UapAppxPackageBuildMode=$buildMode", "/p:OrbsLocalTest=$isTest", "/p:OrbsPackageManifest=$generatedManifest",
-    "/p:AppxPackageDir=$OutputDirectory/", "/p:Version=$Version"
+    "/p:AppxPackageDir=$OutputDirectory/", "/p:Version=$desktopVersion"
 )
 $buildLog = Join-Path $OutputDirectory 'build.log'
 Write-Host "Building $Channel $Version (full log: $buildLog)..."

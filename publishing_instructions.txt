@@ -18,9 +18,11 @@ BUILD FOR THE STORE
   .\build\Build-StorePackage.ps1 -Channel Store
 
 This produces a complete x64, Release, self-contained package (including .NET).
-The default version comes from SWTORCombatParser.csproj's VersionPrefix. Increase
-it before the next release; the fourth component must be 0 for Store submissions.
-Use -Version 2.4.0.0 to override it for both the app and package.
+The default version comes from SWTORCombatParser.csproj's VersionPrefix.
+Release versions use major.minor.platform (Windows .0, macOS .1, Linux .2).
+Increase the minor component before the next release. Use -Version 2.5.0 to
+override the Windows version. MSIX requires a fourth component: the script
+adds a trailing .0 for package metadata while the desktop version stays 2.5.0.
 
 Upload the printed .appxupload file to Microsoft Partner Center. Do not unpack,
 edit, repack, or sign it. The Store signs accepted packages. Existing Store name,

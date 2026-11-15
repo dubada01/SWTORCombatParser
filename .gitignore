@@ -369,5 +369,6 @@ healthchecksdb
 /*-REVIEW.txt
 /.codex-build-temp/
 /output/
+/MacOSBuilds/Release-*/
 *.gcdump
 *.nettrace
