@@ -1,0 +1,42 @@
+name: Update installer download manifest
+
+on:
+  release:
+    types: [published, edited]
+  workflow_dispatch:
+  workflow_call:
+  push:
+    branches: [master]
+    paths:
+      - '.github/workflows/update-downloads.yml'
+      - 'build/Update-DownloadManifest.py'
+      - 'build/tests/test_download_manifest.py'
+  # Reconcile late asset uploads and releases created by another workflow's token.
+  schedule:
+    - cron: '7,22,37,52 * * * *'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: orbs-download-manifest
+  cancel-in-progress: false
+
+jobs:
+  update:
+    if: github.repository == 'dubada01/SWTORCombatParser'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 5
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: master
+          persist-credentials: false
+      - name: Test manifest reconciliation
+        run: python3 -m unittest discover -s build/tests -p test_download_manifest.py -v
+      - name: Publish verified installer links
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 build/Update-DownloadManifest.py
