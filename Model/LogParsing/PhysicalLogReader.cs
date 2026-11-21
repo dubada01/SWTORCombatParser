@@ -1,11 +1,30 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
+using Microsoft.Win32.SafeHandles;
 
 namespace SWTORCombatParser.Model.LogParsing;
 
 internal readonly record struct PhysicalLogLine(string Text, long EndOffset);
+
+[StructLayout(LayoutKind.Sequential)]
+internal readonly record struct WindowsLogIdentity(ulong Volume, ulong IdLow, ulong IdHigh)
+{
+    private const int FileIdInfo = 18;
+
+    [DllImport("kernel32.dll", ExactSpelling = true)]
+    private static extern bool GetFileInformationByHandleEx(SafeFileHandle handle, int informationClass,
+        out WindowsLogIdentity identity, uint size);
+
+    internal static WindowsLogIdentity? Read(FileStream stream)
+    {
+        if (!OperatingSystem.IsWindows()) return null;
+        return GetFileInformationByHandleEx(stream.SafeFileHandle, FileIdInfo, out var identity, 24)
+            ? identity : new WindowsLogIdentity(0, 0, (ulong)File.GetCreationTimeUtc(stream.SafeFileHandle).Ticks);
+    }
+}
 
 internal static class PhysicalLogReader
 {

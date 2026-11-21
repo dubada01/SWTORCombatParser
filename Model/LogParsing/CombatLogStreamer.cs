@@ -42,7 +42,7 @@ namespace SWTORCombatParser.Model.LogParsing
         private bool _isWaitingForExitCombatTimout;
 
         private byte[]? _cursorAnchor;
-        private DateTime? _fileCreationUtc;
+        private WindowsLogIdentity? _fileIdentity;
         private bool _loadPending;
         private DateTime? _parseDate;
         private int numberOfProcessedLines = 0;
@@ -161,7 +161,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 if (deferIncompleteTail && file.Data.BaseStream is FileStream stream)
                 {
                     _cursorAnchor = ReadAnchor(stream, _numberOfProcessedBytes);
-                    _fileCreationUtc = CreationTime(stream);
+                    _fileIdentity = WindowsLogIdentity.Read(stream);
                 }
             }
             Logging.LogInfo("Found " + currentLogs.Count + " log entries in " + _logToMonitor);
@@ -205,7 +205,7 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             CombatLogLoader.RefreshSWTORCombatLogsDirectory();
             _cursorAnchor = null;
-            _fileCreationUtc = null;
+            _fileIdentity = null;
             _numberOfProcessedBytes = 0;
             numberOfProcessedLines = 0;
             _pendingMalformedLine = null;
@@ -282,17 +282,19 @@ namespace SWTORCombatParser.Model.LogParsing
             }
         }
 
-        private void ParseLogFile()
+        private void ParseLogFile() => ReadLiveFile(reloadReplacement: true);
+
+        private void ReadLiveFile(bool reloadReplacement)
         {
             lock (_combatLock)
             {
                 var logUpdateTime = TimeUtility.CorrectedTime;
                 using var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
                 if (fs.Length < _numberOfProcessedBytes ||
-                    (_fileCreationUtc.HasValue && _fileCreationUtc != CreationTime(fs)) ||
+                    (_fileIdentity.HasValue && _fileIdentity != WindowsLogIdentity.Read(fs)) ||
                     (_cursorAnchor != null && !_cursorAnchor.AsSpan().SequenceEqual(ReadAnchor(fs, _numberOfProcessedBytes))))
                 {
-                    BeginNewLog(_logToMonitor);
+                    if (reloadReplacement) BeginNewLog(_logToMonitor);
                     return;
                 }
 
@@ -381,9 +383,6 @@ private void FlushPendingLiveLogs()
 }
 
 
-        private static DateTime? CreationTime(FileStream stream) =>
-            OperatingSystem.IsWindows() ? File.GetCreationTimeUtc(stream.SafeFileHandle) : null;
-
         private static byte[] ReadAnchor(FileStream stream, long offset)
         {
             var anchor = new byte[(int)Math.Min(offset, 64)];
@@ -465,7 +464,7 @@ private void FlushPendingLiveLogs()
                 try
                 {
                     if (File.Exists(_logToMonitor))
-                        ParseLogFile();
+                        ReadLiveFile(reloadReplacement: false);
                 }
                 catch (Exception error) when (IsFileUnavailable(error)) { }
                 BeginNewLog(path);

@@ -237,6 +237,22 @@ public class CombatLogRotationTests
     }
 
     [Test]
+    [Platform("Win")]
+    public void ReplacementWithSameLengthTimestampAndTailHasANewIdentity()
+    {
+        var path = WriteLog("same.txt", "Old", OldDate, Encoding.UTF8);
+        LoadInitial(path);
+        Set("_followNewestLog", false);
+        var creationTime = File.GetCreationTimeUtc(path);
+        var replacement = WriteLog("incoming.txt", "New", OldDate, Encoding.UTF8);
+        File.Move(replacement, path, true);
+        File.SetCreationTimeUtc(path, creationTime);
+        Poll();
+        Assert.That(_events, Does.Contain("rotated"));
+        Assert.That(Entities[777].Name, Is.EqualTo("New"));
+    }
+
+    [Test]
     public void NullPaddingAndRepeatedCarriageReturnsPreservePhysicalCursor()
     {
         var path = WriteLog("padding.txt", "Player", OldDate, Encoding.GetEncoding(1252));
