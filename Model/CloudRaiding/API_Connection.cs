@@ -79,7 +79,7 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 return new Version();
             try
             {
-                Uri uri = new Uri($"{_apiPath}/SoftwareVersion");
+                Uri uri = ClientVersionRequest.CreateUri(_apiPath);
                 using var response = await _client.GetAsync(uri);
                 response.EnsureSuccessStatusCode();
                 var body = await response.Content.ReadFromJsonAsync<Version>();

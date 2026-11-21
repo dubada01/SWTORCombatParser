@@ -41,6 +41,10 @@ namespace SWTORCombatParser.Model.LogParsing
         private static bool _isInCombat = false;
         private bool _isWaitingForExitCombatTimout;
 
+        private byte[]? _cursorAnchor;
+        private DateTime? _fileCreationUtc;
+        private bool _loadPending;
+        private DateTime? _parseDate;
         private int numberOfProcessedLines = 0;
         private string _logToMonitor;
         private readonly object _monitoringLock = new();
@@ -110,11 +114,18 @@ namespace SWTORCombatParser.Model.LogParsing
                         ResetMonitoring();
                         _logToMonitor = log;
                         _followNewestLog = followNewestLog;
-                        ParseExisitingLogs(monitor, parseDate);
-                        LoadingWindowFactory.HideLoading();
-                        ready?.TrySetResult();
+                        _parseDate = parseDate;
                         if (monitor)
-                            PollForUpdates(version);
+                        {
+                            _loadPending = true;
+                            PollForUpdates(version, ready);
+                            ready?.TrySetCanceled();
+                        }
+                        else
+                        {
+                            ParseExisitingLogs(false, parseDate);
+                            LoadingWindowFactory.HideLoading();
+                        }
                     }
                     catch (Exception e)
                     {
@@ -138,15 +149,20 @@ namespace SWTORCombatParser.Model.LogParsing
         {
             LogLoadDiagnostics.Start(_logToMonitor);
             using var loadTiming = LogLoadDiagnostics.Measure("Historical load pipeline");
-            HistoricalLogsStarted.InvokeSafely();
             var file = CombatLogLoader.LoadSpecificLog(_logToMonitor);
             CombatLogParser.SetParseDate(parseDate ?? file.Time);
             List<ParsedLogEntry> currentLogs;
             using (file.Data)
             {
+                HistoricalLogsStarted.InvokeSafely();
                 using var parseTiming = LogLoadDiagnostics.Measure("Read, parse and build log state");
                 currentLogs = CombatLogParser.ParseAllLines(file, true, out _numberOfProcessedBytes, out numberOfProcessedLines, deferIncompleteTail);
                 _fileEncoding = file.Data.CurrentEncoding;
+                if (deferIncompleteTail && file.Data.BaseStream is FileStream stream)
+                {
+                    _cursorAnchor = ReadAnchor(stream, _numberOfProcessedBytes);
+                    _fileCreationUtc = CreationTime(stream);
+                }
             }
             Logging.LogInfo("Found " + currentLogs.Count + " log entries in " + _logToMonitor);
             Logging.LogInfo("Processed " + _numberOfProcessedBytes + " bytes of data in " + _logToMonitor);
@@ -171,7 +187,11 @@ namespace SWTORCombatParser.Model.LogParsing
                     _ = previous.Exception;
                     lock (_combatLock)
                     {
-                        if (readFinalFrame && File.Exists(_logToMonitor)) ParseLogFile();
+                        if (readFinalFrame && !_loadPending && File.Exists(_logToMonitor))
+                        {
+                            try { ParseLogFile(); }
+                            catch (Exception error) when (IsFileUnavailable(error)) { }
+                        }
                         EndCombat(true);
                         _combatDetector.Reset();
                         _currentCombatLogs.Clear();
@@ -184,6 +204,8 @@ namespace SWTORCombatParser.Model.LogParsing
         private void ResetMonitoring()
         {
             CombatLogLoader.RefreshSWTORCombatLogsDirectory();
+            _cursorAnchor = null;
+            _fileCreationUtc = null;
             _numberOfProcessedBytes = 0;
             numberOfProcessedLines = 0;
             _pendingMalformedLine = null;
@@ -191,17 +213,54 @@ namespace SWTORCombatParser.Model.LogParsing
             _lastUpdateTime = DateTime.MinValue;
         }
 
-        private void PollForUpdates(int version)
+        private static bool IsFileUnavailable(Exception error) =>
+            error is IOException or UnauthorizedAccessException;
+
+        private void PollForUpdates(int version, TaskCompletionSource? ready)
         {
+            bool loading = true;
             while (version == Volatile.Read(ref _monitoringVersion))
             {
+                if (TryReadFrame())
+                {
+                    if (loading)
+                    {
+                        LoadingWindowFactory.HideLoading();
+                        loading = false;
+                        ready?.TrySetResult();
+                        ready = null;
+                    }
+                    Thread.Sleep(250);
+                }
+                else Thread.Sleep(500);
+            }
+        }
+
+        internal bool TryReadFrame()
+        {
+            try
+            {
                 GenerateNewFrame();
-                Thread.Sleep(250);
+                return true;
+            }
+            catch (Exception error) when (IsFileUnavailable(error))
+            {
+                // Keep the last committed file position. A rotation, sharing violation
+                // or temporarily inaccessible directory can clear on the next poll.
+                return false;
             }
         }
 
         private void GenerateNewFrame()
         {
+            if (_loadPending)
+            {
+                if (_followNewestLog && !File.Exists(_logToMonitor))
+                    _logToMonitor = CombatLogLoader.GetMostRecentLogPath();
+                ParseExisitingLogs(true, _parseDate);
+                _loadPending = false;
+                return;
+            }
             if (!_followNewestLog)
             {
                 ParseLogFile();
@@ -228,20 +287,32 @@ namespace SWTORCombatParser.Model.LogParsing
             lock (_combatLock)
             {
                 var logUpdateTime = TimeUtility.CorrectedTime;
-                long originalCursor = _numberOfProcessedBytes;
-                long consumedBytes = 0;
-                var lines = new List<string>();
-                using (var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite))
-                using (var sr = new StreamReader(fs, _fileEncoding))
-                    GetNewlines2(sr, lines);
+                using var fs = new FileStream(_logToMonitor, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
+                if (fs.Length < _numberOfProcessedBytes ||
+                    (_fileCreationUtc.HasValue && _fileCreationUtc != CreationTime(fs)) ||
+                    (_cursorAnchor != null && !_cursorAnchor.AsSpan().SequenceEqual(ReadAnchor(fs, _numberOfProcessedBytes))))
+                {
+                    BeginNewLog(_logToMonitor);
+                    return;
+                }
+
+                if (_numberOfProcessedBytes == 0)
+                {
+                    using var reader = new StreamReader(fs, _fileEncoding, true, 1024, leaveOpen: true);
+                    _numberOfProcessedBytes = PhysicalLogReader.DetectPreamble(reader);
+                    _fileEncoding = reader.CurrentEncoding;
+                }
+                var lines = PhysicalLogReader.Read(fs, _numberOfProcessedBytes, _fileEncoding);
                 if (lines.Count == 0)
+                {
                     _combatDetector.CheckReplayTimeout(_numberOfProcessedBytes);
+                    return;
+                }
 
                 for (int i = 0; i < lines.Count; i++)
                 {
-                    var line = lines[i];
-                    var lineBytes = _fileEncoding.GetByteCount(line);
-                    var lineOffset = originalCursor + consumedBytes;
+                    var line = lines[i].Text;
+                    var lineOffset = _numberOfProcessedBytes;
                     var isLastLine = i == lines.Count - 1;
 
                     if (_pendingMalformedLine == line && _pendingMalformedOffset == lineOffset)
@@ -255,7 +326,7 @@ namespace SWTORCombatParser.Model.LogParsing
                         _pendingMalformedLine = null;
                         Logging.LogError($"Skipping malformed log line #{numberOfProcessedLines}");
                         numberOfProcessedLines++;
-                        consumedBytes += lineBytes;
+                        _numberOfProcessedBytes = lines[i].EndOffset;
                         continue;
                     }
 
@@ -263,7 +334,7 @@ namespace SWTORCombatParser.Model.LogParsing
                     if (string.IsNullOrWhiteSpace(line))
                     {
                         numberOfProcessedLines++;
-                        consumedBytes += lineBytes;
+                        _numberOfProcessedBytes = lines[i].EndOffset;
                         continue;
                     }
 
@@ -286,10 +357,10 @@ namespace SWTORCombatParser.Model.LogParsing
                     }
 
                     numberOfProcessedLines++;
-                    consumedBytes += lineBytes;
+                    _numberOfProcessedBytes = lines[i].EndOffset;
                 }
 
-                _numberOfProcessedBytes = originalCursor + consumedBytes;
+                _cursorAnchor = ReadAnchor(fs, _numberOfProcessedBytes);
                 FlushPendingLiveLogs();
             }
         }
@@ -310,60 +381,16 @@ private void FlushPendingLiveLogs()
 }
 
 
-        private void GetNewlines2(
-            StreamReader sr,
-            List<string> lines)
+        private static DateTime? CreationTime(FileStream stream) =>
+            OperatingSystem.IsWindows() ? File.GetCreationTimeUtc(stream.SafeFileHandle) : null;
+
+        private static byte[] ReadAnchor(FileStream stream, long offset)
         {
-            // 0) Reposition the reader to where we left off last time
-            sr.DiscardBufferedData();
-            sr.BaseStream.Seek(_numberOfProcessedBytes, SeekOrigin.Begin);
-
-            bool seenCR = false;
-            var newLine = new StringBuilder();
-            char[] buffer = new char[2500];
-            int readCount;
-
-            while ((readCount = sr.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                for (int i = 0; i < readCount; i++)
-                {
-                    char c = buffer[i];
-                    if (c == '\0')
-                    {
-                        seenCR = false;
-                        break;
-                    }
-
-                    if (c == '\r')
-                    {
-                        seenCR = true;
-                        continue;
-                    }
-
-                    if (c == '\n')
-                    {
-                        var complete = newLine.ToString() + (seenCR ? "\r\n" : "\n");
-                        lines.Add(complete);
-
-                        newLine.Clear();
-                        seenCR = false;
-                        continue;
-                    }
-
-                    if (seenCR)
-                    {
-                        // stray CR, treat it as part of the content
-                        newLine.Append('\r');
-                        seenCR = false;
-                    }
-
-                    newLine.Append(c);
-                }
-            }
-
-            // any trailing partial line stays in 'newLine' for next pass
+            var anchor = new byte[(int)Math.Min(offset, 64)];
+            stream.Position = offset - anchor.Length;
+            stream.ReadExactly(anchor);
+            return anchor;
         }
-
 
         private void ParseHistoricalLog(List<ParsedLogEntry> logs)
         {
@@ -440,22 +467,24 @@ private void FlushPendingLiveLogs()
                     if (File.Exists(_logToMonitor))
                         ParseLogFile();
                 }
-                catch (FileNotFoundException) { }
-                catch (DirectoryNotFoundException) { }
-                // Finish the previous fight while its start and source file still
-                // identify it. The new file must not inherit detector or UI state.
-                EndCombat(true);
-                _combatDetector.Reset();
-                _pendingLiveLogs.Clear();
-                _currentCombatLogs.Clear();
-                LogFileRotated.InvokeSafely();
-                _logToMonitor = path;
-                ResetMonitoring();
-                EncounterTimerTrigger.CurrentEncounter = ("", "", "");
-                // Use the same initialization as an explicit load: this resets
-                // entities/state and detects the file's date, encoding and cursor.
-                ParseExisitingLogs(true);
+                catch (Exception error) when (IsFileUnavailable(error)) { }
+                BeginNewLog(path);
             }
+        }
+
+        private void BeginNewLog(string path)
+        {
+            EndCombat(true);
+            _combatDetector.Reset();
+            _pendingLiveLogs.Clear();
+            _currentCombatLogs.Clear();
+            LogFileRotated.InvokeSafely();
+            _logToMonitor = path;
+            ResetMonitoring();
+            EncounterTimerTrigger.CurrentEncounter = ("", "", "");
+            _loadPending = true;
+            ParseExisitingLogs(true, _parseDate);
+            _loadPending = false;
         }
 
         private ProcessedLineResult ProcessNewLine(

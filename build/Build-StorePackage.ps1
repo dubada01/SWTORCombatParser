@@ -21,13 +21,15 @@ $repo = Split-Path $PSScriptRoot -Parent
 $projectDirectory = Join-Path $repo 'Orbs Package Builder'
 [xml]$desktopProject = Get-Content (Join-Path $repo 'SWTORCombatParser.csproj') -Raw
 if (!$Version) { $Version = $desktopProject.SelectSingleNode('/Project/PropertyGroup/VersionPrefix').InnerText }
-if ($Version -notmatch '^\d+\.\d+\.\d+\.0$') {
-    throw 'Use a four-part Store version ending in .0, for example 2.3.1.0.'
+if ($Version -notmatch '^\d+\.\d+\.0$') {
+    throw 'Use major.minor.platform with Windows platform 0, for example 2.4.0.'
 }
 $parsedVersion = [version]$Version
 if ($parsedVersion.Major -eq 0 -or $parsedVersion.Major -gt 65535 -or $parsedVersion.Minor -gt 65535 -or $parsedVersion.Build -gt 65535) {
     throw 'The version must have a nonzero major component and components no greater than 65535.'
 }
+# MSIX requires four parts; the public app version remains major.minor.platform.
+$packageVersion = "$Version.0"
 $vswhere = Join-Path ${env:ProgramFiles(x86)} 'Microsoft Visual Studio/Installer/vswhere.exe'
 if (!(Test-Path $vswhere)) { throw 'Install Visual Studio with MSBuild and the Windows Application Packaging Project tools.' }
 $vs = & $vswhere -latest -products '*' -requires Microsoft.Component.MSBuild -property installationPath
@@ -35,7 +37,7 @@ if (!$vs) { throw 'Visual Studio MSBuild was not found.' }
 $msbuild = Join-Path $vs 'MSBuild/Current/Bin/MSBuild.exe'
 $signTool = Join-Path ${env:ProgramFiles(x86)} 'Windows Kits/10/bin/10.0.22621.0/x64/signtool.exe'
 [xml]$manifest = Get-Content (Join-Path $projectDirectory 'Package.appxmanifest') -Raw
-$manifest.Package.Identity.Version = $Version
+$manifest.Package.Identity.Version = $packageVersion
 $expectedName = [string]$manifest.Package.Identity.Name
 $certificate = $null
 if ($Channel -eq 'LocalTest') {
@@ -95,7 +97,7 @@ $zip = [IO.Compression.ZipFile]::OpenRead($packagePath)
 try {
     $reader = New-Object IO.StreamReader($zip.GetEntry('AppxManifest.xml').Open())
     try { [xml]$builtManifest = $reader.ReadToEnd() } finally { $reader.Dispose() }
-    if ($builtManifest.Package.Identity.Name -ne $expectedName -or $builtManifest.Package.Identity.Version -ne $Version) { throw 'Built package identity/version does not match the requested channel.' }
+    if ($builtManifest.Package.Identity.Name -ne $expectedName -or $builtManifest.Package.Identity.Version -ne $packageVersion) { throw 'Built package identity/version does not match the requested channel.' }
     $app = $builtManifest.Package.Applications.Application
     if ($app.EntryPoint -ne 'Windows.FullTrustApplication' -or ($app.Executable -replace '\\', '/') -ne 'SWTORCombatParser/Orbs.exe') { throw 'Package must activate Orbs.exe directly as a full-trust desktop application.' }
     if (@($zip.Entries | Where-Object FullName -match '(?i)PSF(Launcher|Runtime)').Count) { throw 'Unexpected PSF launcher/runtime in package.' }
@@ -155,7 +157,7 @@ if ($Channel -eq 'Store') {
     } finally { $upload.Dispose() }
 }
 $summary = [ordered]@{
-    Channel = $Channel; Version = $Version; Identity = $expectedName
+    Channel = $Channel; Version = $Version; PackageVersion = $packageVersion; Identity = $expectedName
     Package = $packagePath; StoreUpload = $uploadPath
     SHA256 = (Get-FileHash -LiteralPath $packagePath -Algorithm SHA256).Hash
     Executable = [string]$app.Executable; EntryPoint = [string]$app.EntryPoint

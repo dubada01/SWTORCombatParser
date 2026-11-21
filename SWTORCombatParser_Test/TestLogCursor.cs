@@ -33,6 +33,39 @@ namespace SWTORCombatParser_Test
             Assert.That(physicalLines, Is.EqualTo(expectedLines));
         }
 
+        [TestCase("RaidStarted", 836045448953671L)]
+        [TestCase("RaidEnded", 836045448953672L)]
+        public void PhaseEventsHaveAUsableEffect(string name, long id)
+        {
+            Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
+            _7_0LogParsing.SetupRegex();
+            CombatLogParser.SetParseDate(DateTime.Today);
+            var line = $"[12:00:00.000] [] [] [] [Phase Event {{836045448953670}} {name} {{{id}}}] (123, 456)";
+            var entry = CombatLogParser.ParseLine(line, 19, DateTime.MinValue, false);
+            Assert.That(entry.Error, Is.Not.EqualTo(ErrorType.IncompleteLine));
+            Assert.That(entry.Effect.EffectId, Is.EqualTo((ulong)id));
+            Assert.That(entry.Effect.EffectName, Is.EqualTo(name));
+            Assert.That(entry.Effect.EffectType, Is.EqualTo(EffectType.Event));
+        }
+
+        [TestCase(65001)]
+        [TestCase(1200)]
+        [TestCase(1201)]
+        [TestCase(12000)]
+        [TestCase(12001)]
+        public void PhysicalBoundariesAreAlignedAcrossBuffers(int codePage)
+        {
+            var encoding = Encoding.GetEncoding(codePage);
+            var text = new string('x', 16383) + "\u0a30\r\r\n\u6f22\n";
+            var bytes = encoding.GetBytes(text);
+            using var stream = new MemoryStream(bytes);
+            var lines = PhysicalLogReader.Read(stream, 0, encoding);
+            Assert.That(lines.Count, Is.EqualTo(2));
+            Assert.That(lines[0].Text, Does.EndWith("\u0a30\r"));
+            Assert.That(lines[1].Text, Is.EqualTo("\u6f22"));
+            Assert.That(lines[1].EndOffset, Is.EqualTo(bytes.Length));
+        }
+
         [Test]
         public void HistoricalCursorIncludesUtf8Preamble()
         {

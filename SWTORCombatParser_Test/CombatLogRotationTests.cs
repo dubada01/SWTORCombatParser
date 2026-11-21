@@ -188,6 +188,71 @@ public class CombatLogRotationTests
         });
     }
 
+    [Test]
+    public void LockedFileResumesAtLastCommittedLine()
+    {
+        var path = WriteLog("locked.txt", "Player", OldDate, Encoding.UTF8);
+        LoadInitial(path);
+        Set("_followNewestLog", false);
+        var cursor = Get<long>("_numberOfProcessedBytes");
+        File.AppendAllText(path, Buff("Player", "12:00:02.000") + "\n");
+        using (File.Open(path, FileMode.Open, FileAccess.ReadWrite, FileShare.None))
+            Assert.That(_streamer.TryReadFrame(), Is.False);
+        Assert.That(Get<long>("_numberOfProcessedBytes"), Is.EqualTo(cursor));
+        Assert.That(_streamer.TryReadFrame(), Is.True);
+        Assert.That(_streamer.TryReadFrame(), Is.True);
+        Assert.That(_liveLines, Has.Count.EqualTo(1));
+        Assert.That(Get<long>("_numberOfProcessedBytes"), Is.EqualTo(new FileInfo(path).Length));
+    }
+
+    [Test]
+    public void MissingInitialLogIsLoadedWhenItAppears()
+    {
+        var path = Path.Combine(_directory, "late.txt");
+        Set("_logToMonitor", path);
+        Set("_loadPending", true);
+        Set("_followNewestLog", false);
+        Assert.That(_streamer.TryReadFrame(), Is.False);
+        WriteLog("late.txt", "Player", OldDate, Encoding.UTF8);
+        Assert.That(_streamer.TryReadFrame(), Is.True);
+        File.AppendAllText(path, Buff("Player", "12:00:02.000") + "\n");
+        Assert.That(_streamer.TryReadFrame(), Is.True);
+        Assert.That(_liveLines, Has.Count.EqualTo(1));
+    }
+
+    [TestCase(false)]
+    [TestCase(true)]
+    public void SamePathRewriteReinitializesBeforeTailing(bool regrow)
+    {
+        var path = WriteLog("replace.txt", "Old", OldDate, Encoding.UTF8);
+        LoadInitial(path);
+        Set("_followNewestLog", false);
+        File.WriteAllText(path, Enter("New") + "\n" + (regrow ? new string(' ', 600) + "\n" : ""), Encoding.UTF8);
+        Poll();
+        File.AppendAllText(path, Buff("New", "12:00:02.000") + "\n");
+        Poll();
+        Assert.That(_events, Does.Contain("rotated"));
+        Assert.That(_liveLines.Single().Source.Name, Is.EqualTo("New"));
+        Assert.That(Get<long>("_numberOfProcessedBytes"), Is.EqualTo(new FileInfo(path).Length));
+    }
+
+    [Test]
+    public void NullPaddingAndRepeatedCarriageReturnsPreservePhysicalCursor()
+    {
+        var path = WriteLog("padding.txt", "Player", OldDate, Encoding.GetEncoding(1252));
+        LoadInitial(path);
+        Set("_followNewestLog", false);
+        var entry = Buff("Player", "12:00:02.000");
+        File.AppendAllText(path, "\n\0\n\r\r\n" + entry[..12], Encoding.ASCII);
+        Poll();
+        Assert.That(Get<long>("_numberOfProcessedBytes"), Is.EqualTo(new FileInfo(path).Length - 12));
+        File.AppendAllText(path, entry[12..] + "\n", Encoding.ASCII);
+        Poll();
+        Poll();
+        Assert.That(_liveLines, Has.Count.EqualTo(1));
+        Assert.That(Get<long>("_numberOfProcessedBytes"), Is.EqualTo(new FileInfo(path).Length));
+    }
+
     private string WriteLog(string name, string player, DateTime date, Encoding encoding)
     {
         var path = Path.Combine(_directory, name);

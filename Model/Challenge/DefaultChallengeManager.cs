@@ -27,27 +27,33 @@ namespace SWTORCombatParser.Model.Challenge
 
         private static string infoPath = Path.Combine(appDataPath, "challengeInfo.json");
         private static string activePath = Path.Combine(appDataPath, "challengeActive.json");
-        private static object _fileLock = new object();
+        private static readonly object _fileLock = new object();
         private static JsonSerializerSettings _settings = new JsonSerializerSettings
         {
             Culture = CultureInfo.InvariantCulture
         };
         public static void UpdateChallengeActive(bool challengeActive, string source)
         {
-            var currentActives = GetAllChallengeActive();
+            lock (_fileLock)
+            {
+                var currentActives = GetAllChallengeActive();
 
-            currentActives[source] = challengeActive;
-            SaveActiveChallengeInfo(currentActives);
+                currentActives[source] = challengeActive;
+                SaveActiveChallengeInfo(currentActives);
+            }
         }
         public static bool GetChallengeActive(string source)
         {
-            var activeInfo = GetAllChallengeActive();
-            if (!activeInfo.ContainsKey(source))
+            lock (_fileLock)
             {
-                activeInfo[source] = false;
-                SaveActiveChallengeInfo(activeInfo);
+                var activeInfo = GetAllChallengeActive();
+                if (!activeInfo.ContainsKey(source))
+                {
+                    activeInfo[source] = false;
+                    SaveActiveChallengeInfo(activeInfo);
+                }
+                return activeInfo[source];
             }
-            return activeInfo[source];
         }
         private static void SaveActiveChallengeInfo(Dictionary<string, bool> activesInfo)
         {
@@ -59,10 +65,13 @@ namespace SWTORCombatParser.Model.Challenge
         }
         public static void SetIdForChallenge(DataStructures.Challenge timer, string source, string id)
         {
-            var currentDefaults = GetDefaults(source);
-            var valueToUpdate = currentDefaults.Challenges.First(t => timer.Id == t.Id);
-            valueToUpdate.ShareId = id;
-            SaveResults(source, currentDefaults);
+            lock (_fileLock)
+            {
+                var currentDefaults = GetDefaults(source);
+                var valueToUpdate = currentDefaults.Challenges.First(t => timer.Id == t.Id);
+                valueToUpdate.ShareId = id;
+                SaveResults(source, currentDefaults);
+            }
         }
         public static void Init()
         {
@@ -83,107 +92,124 @@ namespace SWTORCombatParser.Model.Challenge
 
         public static void SetDefaults(Point position, Point widtHHeight, string characterName)
         {
-            var currentDefaults = GetDefaults(characterName);
-            currentDefaults.WidtHHeight = widtHHeight;
-            currentDefaults.Position = position;
-            SaveResults(characterName, currentDefaults);
+            lock (_fileLock)
+            {
+                var currentDefaults = GetDefaults(characterName);
+                currentDefaults.WidtHHeight = widtHHeight;
+                currentDefaults.Position = position;
+                SaveResults(characterName, currentDefaults);
+            }
         }
         public static void SetSavedChallenges(List<DataStructures.Challenge> currentChallenges, string character)
         {
-            var currentDefaults = GetDefaults(character);
-            currentDefaults.Challenges = currentChallenges;
-            SaveResults(character, currentDefaults);
-        }
-        public static void AddSources(List<DefaultChallengeData> sources)
-        {
-            var defaults = GetAllDefaults();
-            foreach (var source in sources)
+            lock (_fileLock)
             {
-                if (source.ChallengeSource == "")
-                    continue;
-                if (defaults.Any(t => t.ChallengeSource == source.ChallengeSource))
+                var currentDefaults = GetDefaults(character);
+                currentDefaults.Challenges = currentChallenges;
+                SaveResults(character, currentDefaults);
+            }
+        }
+        public static void AddSources(List<DefaultChallengeData> sources) => MergeSources(sources, null);
+
+        public static void AddSource(DefaultChallengeData source) => AddSources(new List<DefaultChallengeData> { source });
+
+        internal static void RefreshBuiltIns(int revision, List<DefaultChallengeData> sources) =>
+            MergeSources(sources, revision);
+
+        private static void MergeSources(List<DefaultChallengeData> sources, int? revision)
+        {
+            lock (_fileLock)
+            {
+                var defaults = GetAllDefaults();
+                var enabled = new Dictionary<(string, Guid), bool>();
+                if (revision.HasValue)
                 {
-                    var sourceToUpdate = defaults.First(t => t.ChallengeSource == source.ChallengeSource);
-                    foreach (var challenge in source.Challenges)
+                    foreach (var existing in defaults)
                     {
-                        if (sourceToUpdate.Challenges.Any(t => t.Id == challenge.Id) || Guid.Empty == challenge.Id)
-                            continue;
-                        sourceToUpdate.Challenges.Add(challenge);
+                        foreach (var old in existing.Challenges.Where(c => c.IsBuiltIn && c.BuiltInRev < revision.Value))
+                            enabled[(existing.ChallengeSource, old.Id)] = old.IsEnabled;
+                        existing.Challenges.RemoveAll(c => c.IsBuiltIn && c.BuiltInRev < revision.Value);
                     }
                 }
-                else
-                    defaults.Add(source);
-            }
-
-            UpdateConfig(JsonConvert.SerializeObject(defaults, _settings));
-        }
-        public static void AddSource(DefaultChallengeData source)
-        {
-            if (source.ChallengeSource == "")
-                return;
-            var defaults = GetAllDefaults();
-            if (defaults.Any(t => t.ChallengeSource == source.ChallengeSource))
-            {
-                var sourceToUpdate = defaults.First(t => t.ChallengeSource == source.ChallengeSource);
-                foreach (var challenge in source.Challenges)
+                foreach (var source in sources)
                 {
-                    if (sourceToUpdate.Challenges.Any(t => t.Id == challenge.Id) || Guid.Empty == challenge.Id)
-                        continue;
-                    sourceToUpdate.Challenges.Add(challenge);
+                    if (string.IsNullOrEmpty(source.ChallengeSource)) continue;
+                    var existing = defaults.FirstOrDefault(d => d.ChallengeSource == source.ChallengeSource);
+                    foreach (var challenge in source.Challenges)
+                    {
+                        if (enabled.TryGetValue((source.ChallengeSource, challenge.Id), out var wasEnabled))
+                            challenge.IsEnabled = wasEnabled;
+                        if (existing != null && challenge.Id != Guid.Empty && !existing.Challenges.Any(c => c.Id == challenge.Id))
+                            existing.Challenges.Add(challenge);
+                    }
+                    if (existing == null) defaults.Add(source);
                 }
+                SaveAllResults(defaults);
             }
-            else
-                defaults.Add(source);
-            UpdateConfig(JsonConvert.SerializeObject(defaults, _settings));
         }
 
         public static void ResetChallengesForSouce(string source)
         {
-            var currentDefaults = GetDefaults(source);
-            currentDefaults.Challenges.Clear();
-            SaveResults(source, currentDefaults);
+            lock (_fileLock)
+            {
+                var currentDefaults = GetDefaults(source);
+                currentDefaults.Challenges.Clear();
+                SaveResults(source, currentDefaults);
+            }
         }
         public static void ClearBuiltInChallenges(int currentRev)
         {
-            var currentDefaults = GetAllDefaults();
-            foreach(var challengeSource in currentDefaults)
+            lock (_fileLock)
             {
-                challengeSource.Challenges.RemoveAll(challenge => challenge.BuiltInRev < currentRev && challenge.IsBuiltIn);
+                var currentDefaults = GetAllDefaults();
+                foreach(var challengeSource in currentDefaults)
+                {
+                    challengeSource.Challenges.RemoveAll(challenge => challenge.BuiltInRev < currentRev && challenge.IsBuiltIn);
+                }
+                SaveAllResults(currentDefaults);
             }
-            SaveAllResults(currentDefaults);
         }
         public static void AddChallengesToSource(List<DataStructures.Challenge> challenges, string source)
         {
-            var currentDefaults = GetDefaults(source);
-            foreach (var challenge in challenges)
+            lock (_fileLock)
             {
-                if (currentDefaults.Challenges.Any(t => t.Id == challenge.Id))
-                    return;
-                currentDefaults.Challenges.Add(challenge);
-            }
+                var currentDefaults = GetDefaults(source);
+                foreach (var challenge in challenges)
+                {
+                    if (currentDefaults.Challenges.Any(t => t.Id == challenge.Id))
+                        return;
+                    currentDefaults.Challenges.Add(challenge);
+                }
 
-            SaveResults(source, currentDefaults);
+                SaveResults(source, currentDefaults);
+            }
         }
         public static void RemoveChallengeFromSource(DataStructures.Challenge challenge)
         {
-            var currentDefaults = GetAllDefaults();
-            var valueToRemove = currentDefaults.SelectMany(s => s.Challenges).FirstOrDefault(t => t.Id == challenge.Id);
-            if (valueToRemove == null)
+            lock (_fileLock)
             {
-                return;
+                var currentDefaults = GetAllDefaults();
+                var valueToRemove = currentDefaults.SelectMany(s => s.Challenges).FirstOrDefault(t => t.Id == challenge.Id);
+                if (valueToRemove == null)
+                {
+                    return;
+                }
+                foreach (var source in currentDefaults)
+                {
+                    source.Challenges.Remove(valueToRemove);
+                }
+                UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
             }
-            foreach (var source in currentDefaults)
-            {
-                source.Challenges.Remove(valueToRemove);
-            }
-            UpdateConfig(JsonConvert.SerializeObject(currentDefaults));
         }
         public static void SetChallengeEnabled(bool state, DataStructures.Challenge challenge)
         {
-            var currentDefaults = GetDefaults(challenge.Source);
-            var challengeToModify = currentDefaults.Challenges.First(t => t.Id == challenge.Id);
-            challengeToModify.IsEnabled = state;
-            SaveResults(challengeToModify.Source, currentDefaults);
+            lock (_fileLock)
+            {
+                var currentDefaults = GetDefaults(challenge.Source);
+                var challengeToModify = currentDefaults.Challenges.First(t => t.Id == challenge.Id);
+                challengeToModify.IsEnabled = state;
+                SaveResults(challengeToModify.Source, currentDefaults);
+            }
         }
         public static DefaultChallengeData GetDefaults(string source)
         {
@@ -278,12 +304,24 @@ namespace SWTORCombatParser.Model.Challenge
                     File.WriteAllText(tempFileName, textToWrite);
 
                     // Replace the original file with the temporary file atomically
-                    File.Move(tempFileName, infoPath, true);
+                    for (int attempt = 0; ; attempt++)
+                    {
+                        try
+                        {
+                            File.Move(tempFileName, infoPath, true);
+                            break;
+                        }
+                        catch (Exception error) when (OperatingSystem.IsWindows() && attempt < 5 &&
+                            error.HResult is unchecked((int)0x80070005) or unchecked((int)0x80070020) or unchecked((int)0x80070021))
+                        {
+                            System.Threading.Thread.Sleep(25 << attempt);
+                        }
+                    }
                 }
                 catch (Exception e)
                 {
                     // Handle the error, e.g., log it or inform the user
-                    Logging.LogError($"Error writing config to file: {e.Message}");
+                    Logging.LogError($"Could not save challengeInfo.json (0x{e.HResult:X8}): {e.Message}");
                 }
             }
 

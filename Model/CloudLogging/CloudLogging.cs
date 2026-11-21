@@ -21,7 +21,7 @@ namespace SWTORCombatParser.Model.CloudLogging
             try
             {
                 var pcName = Dns.GetHostName();
-                var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                var version = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
                 var Ip = GetLocalIPAddress();
                 Uri uri = new Uri($"{_apiPath}/logging/add?message={Uri.EscapeDataString(logMessage ?? string.Empty)}&category={Uri.EscapeDataString(logCategory ?? string.Empty)}&hostName={Uri.EscapeDataString(pcName)}&ipAddress={Uri.EscapeDataString(Ip)}&version={Uri.EscapeDataString(version)}");
                 using var response = await _client.GetAsync(uri);
@@ -41,7 +41,7 @@ namespace SWTORCombatParser.Model.CloudLogging
             try
             {
                 
-                var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                var version = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
                 _appStartupId = Guid.NewGuid();
                 Uri uri = new Uri($"{_apiPath}/logging/startup?id={_appStartupId}&version={Uri.EscapeDataString(version)}");
                 using var response = await _client.GetAsync(uri);
@@ -60,7 +60,7 @@ namespace SWTORCombatParser.Model.CloudLogging
                 return;
             try
             {
-                var version = Assembly.GetExecutingAssembly().GetName().Version.ToString();
+                var version = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
                 Uri uri = new Uri($"{_apiPath}/logging/shutdown?id={_appStartupId}&version={Uri.EscapeDataString(version)}");
                 using var response = await _client.GetAsync(uri);
                 response.EnsureSuccessStatusCode();

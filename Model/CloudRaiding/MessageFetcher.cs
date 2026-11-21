@@ -24,7 +24,9 @@ namespace SWTORCombatParser.Model.CloudRaiding
                 using var response = await _client.GetAsync(uri);
                 response.EnsureSuccessStatusCode();
                 var body = await response.Content.ReadFromJsonAsync<List<UpdateMessage>>();
-                var filteredMessages = (body ?? new List<UpdateMessage>()).Where(m => m.ValidForBuild == Assembly.GetExecutingAssembly().GetName().Version.ToString()).ToList();
+                var version = Assembly.GetExecutingAssembly().GetName().Version.ToString(3);
+                // Accept public versions and the zero-padded CLR/MSIX form.
+                var filteredMessages = (body ?? new List<UpdateMessage>()).Where(m => m.ValidForBuild == version || m.ValidForBuild == version + ".0").ToList();
                 return filteredMessages;
             }
             catch (Exception e)

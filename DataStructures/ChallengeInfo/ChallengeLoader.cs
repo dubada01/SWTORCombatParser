@@ -20,8 +20,6 @@ namespace SWTORCombatParser.DataStructures.ChallengeInfo
 
             var builtInRev = challengeData.Any() ? challengeData.First().Challenges.First().BuiltInRev : 0;
 
-            DefaultChallengeManager.ClearBuiltInChallenges(builtInRev);
-            var currentBossTimers = DefaultChallengeManager.GetAllDefaults();
 
             var sourcesToAdd = new List<DefaultChallengeData>();
             foreach (var source in challengeData)
@@ -34,7 +32,7 @@ namespace SWTORCombatParser.DataStructures.ChallengeInfo
                 }
                 sourcesToAdd.Add(source);
             }
-            DefaultChallengeManager.AddSources(sourcesToAdd);
+            DefaultChallengeManager.RefreshBuiltIns(builtInRev, sourcesToAdd);
         }
     }
 }

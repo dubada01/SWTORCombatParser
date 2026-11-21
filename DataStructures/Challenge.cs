@@ -16,31 +16,10 @@ namespace SWTORCombatParser.DataStructures
         InterruptCount,
         EffectStacks
     }
-    public class SolidColorBrushConverter : JsonConverter<SolidColorBrush>
-    {
-        public override void WriteJson(JsonWriter writer, SolidColorBrush value, JsonSerializer serializer)
-        {
-            Dispatcher.UIThread.Invoke(() =>
-            {
-                // Serialize the color as a string (e.g., "#FF0000FF" for blue)
-                writer.WriteValue(value.Color.ToString());
-            });
-        }
-
-        public override SolidColorBrush ReadJson(JsonReader reader, Type objectType, SolidColorBrush existingValue, bool hasExistingValue, JsonSerializer serializer)
-        {
-            // Deserialize the color from a hex string
-            var colorString = (string)reader.Value;
-            if(colorString == null)
-                return Dispatcher.UIThread.Invoke(() => new SolidColorBrush(Colors.White));
-            var color = Color.Parse(colorString);
-            var colorBrush =  Dispatcher.UIThread.Invoke(() => new SolidColorBrush(color));
-            return colorBrush;
-        }
-    }
     public class Challenge
     {
-        private SolidColorBrush backgroundBrush;
+        private Color? _explicitColor;
+        private SolidColorBrush? _backgroundBrush;
 
         public string Source { get; set; }
         public Guid Id { get; set; }
@@ -49,21 +28,36 @@ namespace SWTORCombatParser.DataStructures
         public string ShareId { get; set; }
         public string Name { get; set; }
         public ChallengeType ChallengeType { get; set; }
-        [JsonConverter(typeof(SolidColorBrushConverter))]
+        [JsonIgnore]
         public SolidColorBrush BackgroundBrush
         {
-            get
+            get => Dispatcher.UIThread.Invoke(() =>
             {
-                var returnBrush = Dispatcher.UIThread.Invoke(() =>
-                {
-                    if(backgroundBrush != null)
-                        return backgroundBrush;
-                    var splitColor = BackgroundColor.Split(',').Select(v=>byte.Parse(v.Trim())).ToList();
-                    return new SolidColorBrush(Color.FromRgb(splitColor[0], splitColor[1], splitColor[2]));
-                });
-                return returnBrush;
+                var color = ResolveBackgroundColor();
+                if (_backgroundBrush == null || _backgroundBrush.Color != color)
+                    _backgroundBrush = new SolidColorBrush(color);
+                return _backgroundBrush;
+            });
+            set
+            {
+                _explicitColor = value?.Color;
+                _backgroundBrush = value;
             }
-            set => backgroundBrush = value;
+        }
+
+        // Keep the existing JSON field, but never dispatch to the UI while a config lock is held.
+        [JsonProperty("BackgroundBrush")]
+        private string SerializedBackgroundBrush
+        {
+            get => ResolveBackgroundColor().ToString();
+            set => _explicitColor = value == null ? Colors.White : Color.Parse(value);
+        }
+
+        private Color ResolveBackgroundColor()
+        {
+            if (_explicitColor.HasValue) return _explicitColor.Value;
+            var rgb = BackgroundColor.Split(',').Select(byte.Parse).ToArray();
+            return Color.FromRgb(rgb[0], rgb[1], rgb[2]);
         }
 
         public string BackgroundColor { get; set; } = "245,245,245";

@@ -17,12 +17,14 @@ namespace SWTORCombatParser.Model.CloudRaiding
         {
             var currentVersion = Assembly.GetExecutingAssembly().GetName().Version;
             var maxVersion = await API_Connection.GetMostRecentVersion();
-            if (maxVersion > currentVersion)
-                AppIsUpToDate = false;
-            else
-                AppIsUpToDate = true;
+            AppIsUpToDate = !IsNewerRelease(maxVersion, currentVersion);
             AppVersionInfoReady();
         }
+
+        internal static bool IsNewerRelease(Version available, Version current) =>
+            available.Major > current.Major ||
+            available.Major == current.Major && available.Minor > current.Minor;
+
         public static async void OpenMicrosoftStoreToAppPage()
         {
             // Construct the app URI

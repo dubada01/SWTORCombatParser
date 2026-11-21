@@ -156,7 +156,7 @@ namespace SWTORCombatParser.ViewModels
             HotkeyHandler = hotkeyHandler;
             Leaderboards.Init();
 
-            Title = $"{Assembly.GetExecutingAssembly().GetName().Name} v{Assembly.GetExecutingAssembly().GetName().Version}";
+            Title = $"{Assembly.GetExecutingAssembly().GetName().Name} v{Assembly.GetExecutingAssembly().GetName().Version.ToString(3)}";
             
             DefaultPhaseLoader.LoadBuiltinPhases();
             ClassIdentifier.InitializeAvailableClasses();

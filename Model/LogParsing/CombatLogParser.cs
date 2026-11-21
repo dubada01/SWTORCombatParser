@@ -109,20 +109,22 @@ namespace SWTORCombatParser.Model.LogParsing
 
         public static List<ParsedLogEntry> ParseAllLines(CombatLogFile combatLog, bool includeIncomplete, out long completedBytes, out int physicalLines, bool deferIncompleteTail = false)
         {
+            var reader = combatLog.Data;
+            var dataStart = PhysicalLogReader.DetectPreamble(reader);
+            var logLines = PhysicalLogReader.Read(reader.BaseStream, dataStart, reader.CurrentEncoding);
+            physicalLines = logLines.Count;
+            completedBytes = physicalLines == 0 ? dataStart : logLines[^1].EndOffset;
             CombatLogStateBuilder.ClearState();
             _7_0LogParsing.ResetEntities();
-
-            var logLines = ReadCompletedLines(combatLog.Data, out completedBytes, out var lastLineStart);
-            physicalLines = logLines.Count;
             var numberOfLines = logLines.Count;
             ParsedLogEntry[] parsedLog = new ParsedLogEntry[numberOfLines];
             ConcurrentBag<ParsedLogEntry> incompleteLines = new ConcurrentBag<ParsedLogEntry>();
             Parallel.For(0, numberOfLines, new ParallelOptions { MaxDegreeOfParallelism = Environment.ProcessorCount }, i =>
             {
 
-                if (logLines[i] == "")
+                if (logLines[i].Text.Length == 0)
                     return;
-                var parsedLine = ParseLine(logLines[i], i, DateTime.MinValue, false);
+                var parsedLine = ParseLine(logLines[i].Text, i, DateTime.MinValue, false);
 
                 if (parsedLine.Error == ErrorType.IncompleteLine)
                 {
@@ -137,9 +139,9 @@ namespace SWTORCombatParser.Model.LogParsing
             // A live writer may temporarily terminate an unfinished last record.
             // Leave it for the live reader, which can retry it if it is repaired.
             if (deferIncompleteTail && numberOfLines > 0 &&
-                !string.IsNullOrWhiteSpace(logLines[numberOfLines - 1]) && parsedLog[numberOfLines - 1] == null)
+                !string.IsNullOrWhiteSpace(logLines[numberOfLines - 1].Text) && parsedLog[numberOfLines - 1] == null)
             {
-                completedBytes = lastLineStart;
+                completedBytes = numberOfLines == 1 ? dataStart : logLines[^2].EndOffset;
                 physicalLines--;
             }
 
@@ -156,58 +158,6 @@ namespace SWTORCombatParser.Model.LogParsing
             }
             return orderedLogs;
         }
-        private static List<string> ReadCompletedLines(StreamReader reader, out long completedBytes, out long lastLineStart)
-        {
-            var lines = new List<string>();
-            var line = new StringBuilder();
-            var buffer = new char[4096];
-            completedBytes = 0;
-            lastLineStart = 0;
-            // Peek initializes encoding detection even for a file containing only a BOM.
-            reader.Peek();
-            var preamble = reader.CurrentEncoding.GetPreamble();
-            if (preamble.Length > 0 && reader.BaseStream.CanSeek)
-            {
-                long position = reader.BaseStream.Position;
-                reader.BaseStream.Seek(0, SeekOrigin.Begin);
-                var bytes = new byte[preamble.Length];
-                int read = reader.BaseStream.Read(bytes, 0, bytes.Length);
-                reader.BaseStream.Seek(position, SeekOrigin.Begin);
-                if (read == preamble.Length && bytes.SequenceEqual(preamble))
-                    completedBytes = preamble.Length;
-            }
-            var encoding = reader.CurrentEncoding;
-            var newlineBytes = encoding.GetByteCount("\n");
-            var carriageReturnBytes = encoding.GetByteCount("\r");
-            int count;
-            while ((count = reader.Read(buffer, 0, buffer.Length)) > 0)
-            {
-                var remaining = buffer.AsSpan(0, count);
-                while (!remaining.IsEmpty)
-                {
-                    var newlineIndex = remaining.IndexOf('\n');
-                    if (newlineIndex < 0)
-                    {
-                        line.Append(remaining);
-                        break;
-                    }
-
-                    line.Append(remaining.Slice(0, newlineIndex));
-                    lastLineStart = completedBytes;
-                    var hasCarriageReturn = line.Length > 0 && line[line.Length - 1] == '\r';
-                    if (hasCarriageReturn)
-                        line.Length--;
-                    var completedLine = line.ToString();
-                    completedBytes += encoding.GetByteCount(completedLine) + newlineBytes +
-                        (hasCarriageReturn ? carriageReturnBytes : 0);
-                    lines.Add(completedLine);
-                    line.Clear();
-                    remaining = remaining.Slice(newlineIndex + 1);
-                }
-            }
-            return lines;
-        }
-
         private static List<string> GetInfoComponents(ReadOnlySpan<char> span)
         {
             var results = new List<string>();

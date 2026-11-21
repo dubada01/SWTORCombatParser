@@ -1,7 +1,7 @@
-<Project Sdk="Microsoft.NET.Sdk">
+<Project Sdk="Microsoft.NET.Sdk" TreatAsLocalProperty="VersionPrefix">
 
   <PropertyGroup>
-    <VersionPrefix>2.4.1.0</VersionPrefix>
+    <VersionPrefix Condition="'$(VersionPrefix)' == ''">2.6.0</VersionPrefix>
     <OutputType>WinExe</OutputType>
     <TargetFramework>net8.0</TargetFramework>
     <ApplicationIcon>OrbsIcon.ico</ApplicationIcon>
@@ -27,22 +27,25 @@
     <DefineConstants Condition="'$(OrbsTargetPlatform)' == 'Linux'">$(DefineConstants);LINUX</DefineConstants>
     <DefineConstants Condition="'$(OrbsTargetPlatform)' == 'macOS'">$(DefineConstants);MACOS</DefineConstants>
     <DefineConstants Condition="'$(OrbsTargetPlatform)' == 'Windows'">$(DefineConstants);WINDOWS</DefineConstants>
-    <!-- The fourth component identifies the platform, never a hotfix counter. -->
-    <OrbsReleaseVersion>$([System.Version]::Parse('$(VersionPrefix)').ToString(3))</OrbsReleaseVersion>
-    <OrbsPlatformRevision Condition="'$(OrbsTargetPlatform)' == 'Windows'">0</OrbsPlatformRevision>
-    <OrbsPlatformRevision Condition="'$(OrbsTargetPlatform)' == 'macOS'">1</OrbsPlatformRevision>
-    <OrbsPlatformRevision Condition="'$(OrbsTargetPlatform)' == 'Linux'">2</OrbsPlatformRevision>
-    <VersionPrefix>$(OrbsReleaseVersion).$(OrbsPlatformRevision)</VersionPrefix>
+    <!-- Public versions are major.minor.platform; the RID selects the platform. -->
+    <OrbsReleaseVersion>$([System.Version]::Parse('$(VersionPrefix)').ToString(2))</OrbsReleaseVersion>
+    <OrbsPlatformCode Condition="'$(OrbsTargetPlatform)' == 'Windows'">0</OrbsPlatformCode>
+    <OrbsPlatformCode Condition="'$(OrbsTargetPlatform)' == 'macOS'">1</OrbsPlatformCode>
+    <OrbsPlatformCode Condition="'$(OrbsTargetPlatform)' == 'Linux'">2</OrbsPlatformCode>
+    <VersionPrefix>$(OrbsReleaseVersion).$(OrbsPlatformCode)</VersionPrefix>
     <Version>$(VersionPrefix)</Version>
-    <AssemblyVersion>$(Version)</AssemblyVersion>
-    <FileVersion>$(Version)</FileVersion>
+    <InformationalVersion>$(Version)</InformationalVersion>
+    <IncludeSourceRevisionInInformationalVersion>false</IncludeSourceRevisionInInformationalVersion>
+    <!-- CLR/file metadata and MSIX require a fourth component, always zero. -->
+    <AssemblyVersion>$(Version).0</AssemblyVersion>
+    <FileVersion>$(Version).0</FileVersion>
   </PropertyGroup>
 
   <Target Name="ValidateOrbsPlatformVersion" BeforeTargets="GenerateAssemblyInfo;Publish;Pack">
-    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(Version)', '^\d+\.\d+\.\d+\.$(OrbsPlatformRevision)$'))"
-           Text="$(OrbsTargetPlatform) versions must end in .$(OrbsPlatformRevision) (Windows .0, macOS .1, Linux .2). Requested: $(Version)." />
-    <Error Condition="'$(AssemblyVersion)' != '$(Version)' or '$(FileVersion)' != '$(Version)'"
-           Text="Version, AssemblyVersion and FileVersion must match the platform-specific version $(Version)." />
+    <Error Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('$(Version)', '^\d+\.\d+\.$(OrbsPlatformCode)$'))"
+           Text="Use major.minor.platform: $(OrbsTargetPlatform) versions must end in .$(OrbsPlatformCode) (Windows .0, macOS .1, Linux .2). Requested: $(Version)." />
+    <Error Condition="'$(AssemblyVersion)' != '$(Version).0' or '$(FileVersion)' != '$(Version).0'"
+           Text="AssemblyVersion and FileVersion must be $(Version).0 for public version $(Version)." />
   </Target>
 
   <ItemGroup Condition="'$(OrbsTargetPlatform)' == 'Windows'">

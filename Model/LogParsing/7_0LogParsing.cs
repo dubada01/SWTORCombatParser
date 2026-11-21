@@ -738,7 +738,19 @@ namespace SWTORCombatParser.Model.LogParsing
     // Find the first and second colons
     int firstColon = value.IndexOf(':');
     if (firstColon < 0)
-        return null;
+    {
+        // Phase Event records separate the category and event with whitespace.
+        var categoryEnd = value.IndexOf("{836045448953670}", StringComparison.Ordinal);
+        if (categoryEnd >= 0)
+        {
+            var phase = value[(categoryEnd + "{836045448953670}".Length)..].Trim();
+            if (phase.EndsWith("{836045448953671}", StringComparison.Ordinal))
+                return new Effect { EffectType = EffectType.Event, EffectName = "RaidStarted", EffectId = 836045448953671 };
+            if (phase.EndsWith("{836045448953672}", StringComparison.Ordinal))
+                return new Effect { EffectType = EffectType.Event, EffectName = "RaidEnded", EffectId = 836045448953672 };
+        }
+        throw new FormatException("Unrecognized effect format.");
+    }
 
     int secondColon = value.Slice(firstColon + 1).IndexOf(':');
     ReadOnlySpan<char> typeSpan, nameSpan;
@@ -870,6 +882,7 @@ namespace SWTORCombatParser.Model.LogParsing
                 case "836045448945478":
                     return EffectType.Remove;
                 case "836045448945472":
+                case "836045448953670":
                     return EffectType.Event;
                 case "836045448945473":
                     return EffectType.Spend;

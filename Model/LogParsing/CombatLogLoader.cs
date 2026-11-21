@@ -95,7 +95,8 @@ namespace SWTORCombatParser.Model.LogParsing
         private static string GetMostRecentCombatFile()
         {
             var files = new DirectoryInfo(LoggingPath).EnumerateFiles().Where(l => IsCombatLogFile(l.FullName));
-            return files.OrderByDescending(f => f.LastWriteTime).ToList()[0].FullName;
+            return files.OrderByDescending(f => f.LastWriteTime).FirstOrDefault()?.FullName
+                ?? throw new FileNotFoundException("Waiting for a combat log.");
         }
 
         private static bool IsCombatLogFile(string path) =>
@@ -108,7 +109,7 @@ namespace SWTORCombatParser.Model.LogParsing
             fileData.Path = path;
             fileData.Time = new FileInfo(path).LastWriteTime;
             Encoding.RegisterProvider(CodePagesEncodingProvider.Instance);
-            var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite);
+            var fs = new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.ReadWrite | FileShare.Delete);
             var sr = new StreamReader(fs, Encoding.GetEncoding(1252), true);
 
             fileData.Data = sr;
