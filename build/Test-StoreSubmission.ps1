@@ -126,4 +126,9 @@ $result=& $module {
     Invoke-OrbsStoreRequest -Method Post -Path 'fake' -Token 'fake'
 }
 Assert-That ($result.contentType -eq 'application/json; charset=utf-8' -and $result.body -eq '{}') 'Bodyless POST must send JSON content.'
+$result=& $module {
+    function script:Invoke-RestMethod { param($Method,$Uri,$Headers,$TimeoutSec,$MaximumRedirection,$ContentType,$Body,$ErrorAction) return @{hasBody=$PSBoundParameters.ContainsKey('Body')} }
+    Invoke-OrbsStoreRequest -Method Post -Path 'applications/example/submissions' -Token 'fake'
+}
+Assert-That (!$result.hasBody) 'Creating a production draft must clone the published listings with an empty request body.'
 Write-Output "$script:passed assertions passed; no real authentication, upload, or Partner Center changes."

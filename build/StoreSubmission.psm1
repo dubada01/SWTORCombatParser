@@ -100,7 +100,11 @@ function Invoke-OrbsStoreRequest {
         # The Store API rejects PowerShell's default form content type, even
         # for endpoints such as commit that do not require request fields.
         $request.ContentType = 'application/json; charset=utf-8'
-        $request.Body = [Text.Encoding]::UTF8.GetBytes('{}')
+        # Production draft creation clones the published listings only with an
+        # empty body. Sending {} asks ingestion to validate an empty listing.
+        if ($Path -notmatch '^applications/[^/]+/submissions$') {
+            $request.Body = [Text.Encoding]::UTF8.GetBytes('{}')
+        }
     }
     try {
         $result = Invoke-RestMethod @request
