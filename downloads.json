@@ -1,16 +1,16 @@
 {
   "schemaVersion": 1,
-  "updatedAt": "2026-11-15T23:34:58.265680Z",
+  "updatedAt": "2026-11-22T19:21:42Z",
   "downloads": {
     "windows-store": {
-      "version": "2.5.0",
+      "version": "2.7.0",
       "url": "https://apps.microsoft.com/detail/9P63T6ZQMHBZ"
     },
     "windows-msi": {
-      "version": "2.5.0",
-      "url": "https://github.com/dubada01/SWTORCombatParser/releases/download/v2.5.0/Orbs-2.5.0-windows-x64.msi",
-      "sha256": "51cc3c18c709cdd78254eca9cc7d4337916b1e40a749da32d0860eace0617c37",
-      "releaseTag": "v2.5.0"
+      "version": "2.7.0.1",
+      "url": "https://github.com/dubada01/SWTORCombatParser/releases/download/v2.7.0.1/Orbs-2.7.0.1-windows-x64.msi",
+      "sha256": "6bea847f4db2c90f6e0d25922ac367dd5dd53539309228fc82b7a88408d09b21",
+      "releaseTag": "v2.7.0.1"
     },
     "macos-arm64": {
       "version": "2.5.1",
@@ -19,10 +19,10 @@
       "releaseTag": "v2.5.1"
     },
     "linux-x64": {
-      "version": "2.5.2",
-      "url": "https://github.com/dubada01/SWTORCombatParser/releases/download/v2.5.2/Orbs-2.5.2-linux-x64.tar.gz",
-      "sha256": "dde539d76e0d844d936a3db76f627b53500a3bf216068352674f2942ea385aff",
-      "releaseTag": "v2.5.2"
+      "version": "2.7.2",
+      "url": "https://github.com/dubada01/SWTORCombatParser/releases/download/v2.7.2/Orbs-2.7.2-linux-x64.tar.gz",
+      "sha256": "0ee7684125d188960023c5a1e6a444a07bf4d25e6da0a93b661dcff33f1b1a40",
+      "releaseTag": "v2.7.2"
     }
   }
 }
